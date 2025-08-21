@@ -5215,10 +5215,13 @@ export function useDefaultColorTheme(): {
     background: string;
     black: TLDefaultColorThemeColor;
     blue: TLDefaultColorThemeColor;
+    brown: TLDefaultColorThemeColor;
+    cyan: TLDefaultColorThemeColor;
     green: TLDefaultColorThemeColor;
     grey: TLDefaultColorThemeColor;
     id: "dark" | "light";
     orange: TLDefaultColorThemeColor;
+    pink: TLDefaultColorThemeColor;
     red: TLDefaultColorThemeColor;
     solid: string;
     text: string;
