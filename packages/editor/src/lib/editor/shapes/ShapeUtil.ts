@@ -330,10 +330,11 @@ export abstract class ShapeUtil<Shape extends TLUnknownShape = TLUnknownShape> {
 
 	/**
 	 * Whether the shape should hide its resize handles when selected.
+	 * Can return a boolean to hide all handles, or an array of handle names to hide specific handles.
 	 *
 	 * @public
 	 */
-	hideResizeHandles(_shape: Shape): boolean {
+	hideResizeHandles(_shape: Shape): boolean | string[] {
 		return false
 	}
 
