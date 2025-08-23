@@ -2609,7 +2609,7 @@ export abstract class ShapeUtil<Shape extends TLUnknownShape = TLUnknownShape> {
     getInterpolatedProps?(startShape: Shape, endShape: Shape, progress: number): Shape['props'];
     // (undocumented)
     getText(_shape: Shape): string | undefined;
-    hideResizeHandles(_shape: Shape): boolean;
+    hideResizeHandles(_shape: Shape): boolean | string[];
     hideRotateHandle(_shape: Shape): boolean;
     hideSelectionBoundsBg(_shape: Shape): boolean;
     hideSelectionBoundsFg(_shape: Shape): boolean;
