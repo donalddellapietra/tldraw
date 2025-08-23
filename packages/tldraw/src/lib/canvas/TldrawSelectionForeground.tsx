@@ -144,11 +144,15 @@ export const TldrawSelectionForeground = track(function TldrawSelectionForegroun
 		(onlyShape ? !editor.getShapeUtil(onlyShape).hideRotateHandle(onlyShape) : true) &&
 		!isLockedShape
 
+	const hideResizeHandlesResult = onlyShape ? editor.getShapeUtil(onlyShape).hideResizeHandles(onlyShape) : false
+	const hideAllResizeHandles = hideResizeHandlesResult === true
+	const hiddenHandles = Array.isArray(hideResizeHandlesResult) ? hideResizeHandlesResult : []
+	
 	const showResizeHandles =
 		shouldDisplayControls &&
 		(onlyShape
 			? editor.getShapeUtil(onlyShape).canResize(onlyShape) &&
-				!editor.getShapeUtil(onlyShape).hideResizeHandles(onlyShape)
+				!hideAllResizeHandles
 			: true) &&
 		!showCropHandles &&
 		!isLockedShape
@@ -250,7 +254,7 @@ export const TldrawSelectionForeground = track(function TldrawSelectionForegroun
 				/>
 				{/* Targets */}
 				<ResizeHandle
-					hide={hideVerticalEdgeTargets}
+					hide={hideVerticalEdgeTargets || hiddenHandles.includes('top')}
 					dataTestId="selection.resize.top"
 					ariaLabel={msg('handle.resize-top')}
 					x={0}
@@ -261,7 +265,7 @@ export const TldrawSelectionForeground = track(function TldrawSelectionForegroun
 					events={topEvents}
 				/>
 				<ResizeHandle
-					hide={hideHorizontalEdgeTargets}
+					hide={hideHorizontalEdgeTargets || hiddenHandles.includes('right')}
 					dataTestId="selection.resize.right"
 					ariaLabel={msg('handle.resize-right')}
 					x={toDomPrecision(width - (isSmallX ? 0 : targetSizeX))}
@@ -272,7 +276,7 @@ export const TldrawSelectionForeground = track(function TldrawSelectionForegroun
 					events={rightEvents}
 				/>
 				<ResizeHandle
-					hide={hideVerticalEdgeTargets}
+					hide={hideVerticalEdgeTargets || hiddenHandles.includes('bottom')}
 					dataTestId="selection.resize.bottom"
 					ariaLabel={msg('handle.resize-bottom')}
 					x={0}
@@ -283,7 +287,7 @@ export const TldrawSelectionForeground = track(function TldrawSelectionForegroun
 					events={bottomEvents}
 				/>
 				<ResizeHandle
-					hide={hideHorizontalEdgeTargets}
+					hide={hideHorizontalEdgeTargets || hiddenHandles.includes('left')}
 					dataTestId="selection.resize.left"
 					ariaLabel={msg('handle.resize-left')}
 					x={toDomPrecision(0 - (isSmallX ? targetSizeX * 2 : targetSizeX))}
@@ -295,7 +299,7 @@ export const TldrawSelectionForeground = track(function TldrawSelectionForegroun
 				/>
 				{/* Corner Targets */}
 				<ResizeHandle
-					hide={hideTopLeftCorner}
+					hide={hideTopLeftCorner || hiddenHandles.includes('top-left')}
 					dataTestId="selection.target.top-left"
 					ariaLabel={msg('handle.resize-top-left')}
 					x={toDomPrecision(0 - (isSmallX ? targetSizeX * 2 : targetSizeX * 1.5))}
@@ -306,7 +310,7 @@ export const TldrawSelectionForeground = track(function TldrawSelectionForegroun
 					events={topLeftEvents}
 				/>
 				<ResizeHandle
-					hide={hideTopRightCorner}
+					hide={hideTopRightCorner || hiddenHandles.includes('top-right')}
 					dataTestId="selection.target.top-right"
 					ariaLabel={msg('handle.resize-top-right')}
 					x={toDomPrecision(width - (isSmallX ? 0 : targetSizeX * 1.5))}
@@ -317,7 +321,7 @@ export const TldrawSelectionForeground = track(function TldrawSelectionForegroun
 					events={topRightEvents}
 				/>
 				<ResizeHandle
-					hide={hideBottomRightCorner}
+					hide={hideBottomRightCorner || hiddenHandles.includes('bottom-right')}
 					dataTestId="selection.target.bottom-right"
 					ariaLabel={msg('handle.resize-bottom-right')}
 					x={toDomPrecision(width - (isSmallX ? targetSizeX : targetSizeX * 1.5))}
@@ -328,7 +332,7 @@ export const TldrawSelectionForeground = track(function TldrawSelectionForegroun
 					events={bottomRightEvents}
 				/>
 				<ResizeHandle
-					hide={hideBottomLeftCorner}
+					hide={hideBottomLeftCorner || hiddenHandles.includes('bottom-left')}
 					dataTestId="selection.target.bottom-left"
 					ariaLabel={msg('handle.resize-bottom-left')}
 					x={toDomPrecision(0 - (isSmallX ? targetSizeX * 3 : targetSizeX * 1.5))}
@@ -344,7 +348,7 @@ export const TldrawSelectionForeground = track(function TldrawSelectionForegroun
 						<rect
 							data-testid="selection.resize.top-left"
 							className={classNames('tl-corner-handle', {
-								'tl-hidden': hideTopLeftCorner,
+								'tl-hidden': hideTopLeftCorner || hiddenHandles.includes('top-left'),
 							})}
 							x={toDomPrecision(0 - size / 2)}
 							y={toDomPrecision(0 - size / 2)}
@@ -354,7 +358,7 @@ export const TldrawSelectionForeground = track(function TldrawSelectionForegroun
 						<rect
 							data-testid="selection.resize.top-right"
 							className={classNames('tl-corner-handle', {
-								'tl-hidden': hideTopRightCorner,
+								'tl-hidden': hideTopRightCorner || hiddenHandles.includes('top-right'),
 							})}
 							x={toDomPrecision(width - size / 2)}
 							y={toDomPrecision(0 - size / 2)}
@@ -364,7 +368,7 @@ export const TldrawSelectionForeground = track(function TldrawSelectionForegroun
 						<rect
 							data-testid="selection.resize.bottom-right"
 							className={classNames('tl-corner-handle', {
-								'tl-hidden': hideBottomRightCorner,
+								'tl-hidden': hideBottomRightCorner || hiddenHandles.includes('bottom-right'),
 							})}
 							x={toDomPrecision(width - size / 2)}
 							y={toDomPrecision(height - size / 2)}
@@ -374,7 +378,7 @@ export const TldrawSelectionForeground = track(function TldrawSelectionForegroun
 						<rect
 							data-testid="selection.resize.bottom-left"
 							className={classNames('tl-corner-handle', {
-								'tl-hidden': hideBottomLeftCorner,
+								'tl-hidden': hideBottomLeftCorner || hiddenHandles.includes('bottom-left'),
 							})}
 							x={toDomPrecision(0 - size / 2)}
 							y={toDomPrecision(height - size / 2)}
