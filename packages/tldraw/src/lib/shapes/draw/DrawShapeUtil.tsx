@@ -66,6 +66,7 @@ export class DrawShapeUtil extends ShapeUtil<TLDrawShape> {
 		return {
 			segments: [],
 			color: 'black',
+			strokeColor: 'black',
 			fill: 'none',
 			dash: 'draw',
 			size: 'm',
@@ -272,6 +273,9 @@ function DrawShapeSvg({ shape, zoomOverride }: { shape: TLDrawShape; zoomOverrid
 
 	const options = getFreehandOptions(shape.props, sw, showAsComplete, forceSolid)
 
+	// Use strokeColor if available, otherwise fall back to color for backward compatibility
+	const strokeColorToUse = shape.props.strokeColor || shape.props.color
+
 	if (!forceSolid && shape.props.dash === 'draw') {
 		return (
 			<>
@@ -290,7 +294,7 @@ function DrawShapeSvg({ shape, zoomOverride }: { shape: TLDrawShape; zoomOverrid
 				<path
 					d={svgInk(allPointsFromSegments, options)}
 					strokeLinecap="round"
-					fill={getColorValue(theme, shape.props.color, 'solid')}
+					fill={getColorValue(theme, strokeColorToUse, 'solid')}
 				/>
 			</>
 		)
@@ -299,27 +303,38 @@ function DrawShapeSvg({ shape, zoomOverride }: { shape: TLDrawShape; zoomOverrid
 	const strokePoints = getStrokePoints(allPointsFromSegments, options)
 	const isDot = strokePoints.length < 2
 	const solidStrokePath = isDot
-		? getDot(allPointsFromSegments[0], 0)
+		? undefined
 		: getSvgPathFromStrokePoints(strokePoints, shape.props.isClosed)
 
 	return (
 		<>
-			<ShapeFill
-				d={solidStrokePath}
-				theme={theme}
-				color={shape.props.color}
-				fill={isDot || shape.props.isClosed ? shape.props.fill : 'none'}
-				scale={shape.props.scale}
-			/>
-			<path
-				d={solidStrokePath}
-				strokeLinecap="round"
-				fill={isDot ? getColorValue(theme, shape.props.color, 'solid') : 'none'}
-				stroke={getColorValue(theme, shape.props.color, 'solid')}
-				strokeWidth={sw}
-				strokeDasharray={isDot ? 'none' : getDrawShapeStrokeDashArray(shape, sw, dotAdjustment)}
-				strokeDashoffset="0"
-			/>
+			{!isDot && solidStrokePath && (
+				<ShapeFill
+					d={solidStrokePath}
+					theme={theme}
+					color={shape.props.color}
+					fill={shape.props.isClosed ? shape.props.fill : 'none'}
+					scale={shape.props.scale}
+				/>
+			)}
+			{isDot ? (
+				<circle
+					cx={allPointsFromSegments[0].x}
+					cy={allPointsFromSegments[0].y}
+					r={sw / 2}
+					fill={getColorValue(theme, strokeColorToUse, 'solid')}
+				/>
+			) : solidStrokePath ? (
+				<path
+					d={solidStrokePath}
+					strokeLinecap="round"
+					fill="none"
+					stroke={getColorValue(theme, strokeColorToUse, 'solid')}
+					strokeWidth={sw}
+					strokeDasharray={getDrawShapeStrokeDashArray(shape, sw, dotAdjustment)}
+					strokeDashoffset="0"
+				/>
+			) : null}
 		</>
 	)
 }

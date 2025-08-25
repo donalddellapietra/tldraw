@@ -1,5 +1,5 @@
 import classNames from 'classnames'
-import { TLShapeId, useEditor, useValue, VecModel } from 'tldraw'
+import { TLShapeId, useEditor, useValue } from 'tldraw'
 import { getNodePortConnections, getNodePorts } from '../nodes/nodePorts'
 import { NodeShape } from '../nodes/NodeShapeUtil'
 import { portState } from './portState'
@@ -18,9 +18,12 @@ export interface PortIdentifier {
  * Shapes define their ports with a position, id, and whether they're the start (an output) or end
  * (an input). of a connection.
  */
-export interface ShapePort extends VecModel {
+export interface ShapePort {
 	id: PortId
 	terminal: 'start' | 'end'
+	x: number
+	y: number
+	z?: number
 }
 
 /**

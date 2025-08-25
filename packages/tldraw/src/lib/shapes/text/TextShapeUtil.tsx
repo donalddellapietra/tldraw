@@ -28,7 +28,7 @@ import {
 	renderPlaintextFromRichText,
 } from '../../utils/text/richText'
 import { RichTextLabel, RichTextSVG } from '../shared/RichTextLabel'
-import { FONT_FAMILIES, FONT_SIZES, TEXT_PROPS } from '../shared/default-shape-constants'
+import { EXTENDED_FONT_SIZES, FONT_FAMILIES, FONT_SIZES, TEXT_PROPS } from '../shared/default-shape-constants'
 import { useDefaultColorTheme } from '../shared/useDefaultColorTheme'
 
 const sizeCache = createComputedCache(
@@ -59,6 +59,8 @@ export class TextShapeUtil extends ShapeUtil<TLTextShape> {
 		return {
 			color: 'black',
 			size: 'm',
+			fontSize: 'm',
+			customFontSize: undefined,
 			w: 8,
 			font: 'draw',
 			textAlign: 'start',
@@ -117,7 +119,7 @@ export class TextShapeUtil extends ShapeUtil<TLTextShape> {
 	component(shape: TLTextShape) {
 		const {
 			id,
-			props: { font, size, richText, color, scale, textAlign },
+			props: { font, size, fontSize, customFontSize, richText, color, scale, textAlign },
 		} = shape
 
 		const { width, height } = this.getMinDimensions(shape)
@@ -125,13 +127,16 @@ export class TextShapeUtil extends ShapeUtil<TLTextShape> {
 		const theme = useDefaultColorTheme()
 		const handleKeyDown = useTextShapeKeydownHandler(id)
 
+		// Use custom font size if available, otherwise fall back to preset sizes
+		const finalFontSize = customFontSize || EXTENDED_FONT_SIZES[fontSize] || FONT_SIZES[size]
+
 		return (
 			<RichTextLabel
 				shapeId={id}
 				classNamePrefix="tl-text-shape"
 				type="text"
 				font={font}
-				fontSize={FONT_SIZES[size]}
+				fontSize={finalFontSize}
 				lineHeight={TEXT_PROPS.lineHeight}
 				align={textAlign}
 				verticalAlign="middle"
@@ -167,7 +172,7 @@ export class TextShapeUtil extends ShapeUtil<TLTextShape> {
 		const exportBounds = new Box(0, 0, width, height)
 		return (
 			<RichTextSVG
-				fontSize={FONT_SIZES[shape.props.size]}
+				fontSize={shape.props.customFontSize || EXTENDED_FONT_SIZES[shape.props.fontSize] || FONT_SIZES[shape.props.size]}
 				font={shape.props.font}
 				align={shape.props.textAlign}
 				verticalAlign="middle"
@@ -304,10 +309,10 @@ export class TextShapeUtil extends ShapeUtil<TLTextShape> {
 }
 
 function getTextSize(editor: Editor, props: TLTextShape['props']) {
-	const { font, richText, size, w } = props
+	const { font, richText, size, fontSize: presetFontSize, customFontSize, w } = props
 
 	const minWidth = 16
-	const fontSize = FONT_SIZES[size]
+	const fontSize = customFontSize || EXTENDED_FONT_SIZES[presetFontSize] || FONT_SIZES[size]
 
 	const maybeFixedWidth = props.autoSize ? null : Math.max(minWidth, Math.floor(w))
 

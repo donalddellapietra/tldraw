@@ -3,7 +3,7 @@ import { T } from '@tldraw/validate'
 import { createShapePropsMigrationIds, createShapePropsMigrationSequence } from '../records/TLShape'
 import { RecordProps } from '../recordsWithProps'
 import { StyleProp } from '../styles/StyleProp'
-import { DefaultColorStyle, TLDefaultColorStyle } from '../styles/TLColorStyle'
+import { DefaultColorStyle, DefaultStrokeColorStyle, TLDefaultColorStyle, TLDefaultStrokeColorStyle } from '../styles/TLColorStyle'
 import { DefaultDashStyle, TLDefaultDashStyle } from '../styles/TLDashStyle'
 import { DefaultSizeStyle, TLDefaultSizeStyle } from '../styles/TLSizeStyle'
 import { TLBaseShape } from './TLBaseShape'
@@ -35,6 +35,7 @@ const lineShapePointValidator: T.ObjectValidator<TLLineShapePoint> = T.object({
 /** @public */
 export interface TLLineShapeProps {
 	color: TLDefaultColorStyle
+	strokeColor: TLDefaultStrokeColorStyle
 	dash: TLDefaultDashStyle
 	size: TLDefaultSizeStyle
 	spline: TLLineShapeSplineStyle
@@ -48,6 +49,7 @@ export type TLLineShape = TLBaseShape<'line', TLLineShapeProps>
 /** @public */
 export const lineShapeProps: RecordProps<TLLineShape> = {
 	color: DefaultColorStyle,
+	strokeColor: DefaultStrokeColorStyle,
 	dash: DefaultDashStyle,
 	size: DefaultSizeStyle,
 	spline: LineShapeSplineStyle,
@@ -62,6 +64,7 @@ export const lineShapeVersions = createShapePropsMigrationIds('line', {
 	HandlesToPoints: 3,
 	PointIndexIds: 4,
 	AddScale: 5,
+	AddStrokeColor: 6,
 })
 
 /** @public */
@@ -179,6 +182,16 @@ export const lineShapeMigrations = createShapePropsMigrationSequence({
 			},
 			down: (props) => {
 				delete props.scale
+			},
+		},
+		{
+			id: lineShapeVersions.AddStrokeColor,
+			up: (props) => {
+				// Initialize strokeColor to the same value as color for backward compatibility
+				props.strokeColor = props.color
+			},
+			down: (props) => {
+				delete props.strokeColor
 			},
 		},
 	],
