@@ -23,15 +23,8 @@ const FONT_OPTIONS = [
 
 // Font weight options (like Figma)
 const FONT_WEIGHT_OPTIONS = [
-	{ value: '100', label: 'Thin' },
-	{ value: '200', label: 'Extra Light' },
-	{ value: '300', label: 'Light' },
 	{ value: '400', label: 'Regular' },
-	{ value: '500', label: 'Medium' },
-	{ value: '600', label: 'Semi Bold' },
 	{ value: '700', label: 'Bold' },
-	{ value: '800', label: 'Extra Bold' },
-	{ value: '900', label: 'Black' },
 ]
 
 // Font size presets with pixel values (like Figma)
@@ -82,41 +75,6 @@ const TEXT_ALIGN_OPTIONS = [
 			</svg>
 		), 
 		label: 'Right' 
-	},
-]
-
-// Vertical alignment options with proper SVG icons
-const VERTICAL_ALIGN_OPTIONS = [
-	{ 
-		value: 'start', 
-		icon: (
-			<svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-				<path d="M4 2h8M4 6h8M4 10h8M4 14h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-				<path d="M2 2l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-			</svg>
-		), 
-		label: 'Top' 
-	},
-	{ 
-		value: 'middle', 
-		icon: (
-			<svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-				<path d="M4 2h8M4 6h8M4 10h8M4 14h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-				<path d="M2 6l4 2-4 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-				<path d="M10 6l4 2-4 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-			</svg>
-		), 
-		label: 'Middle' 
-	},
-	{ 
-		value: 'end', 
-		icon: (
-			<svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-				<path d="M4 2h8M4 6h8M4 10h8M4 14h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-				<path d="M10 2l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-			</svg>
-		), 
-		label: 'Bottom' 
 	},
 ]
 
@@ -197,6 +155,236 @@ export function FigmaTypographyPanel({ styles }: FigmaTypographyPanelProps) {
 
 	const onHistoryMark = useCallback((id: string) => editor.markHistoryStoppingPoint(id), [editor])
 
+	// Helper function to apply a style using TipTap
+	const applyStyle = useCallback((textEditor: any, style: 'bold' | 'italic' | 'code') => {
+		try {
+			switch (style) {
+				case 'bold':
+					textEditor.chain().focus().toggleBold().run()
+					break
+				case 'italic':
+					textEditor.chain().focus().toggleItalic().run()
+					break
+				case 'code':
+					textEditor.chain().focus().toggleCode().run()
+					break
+			}
+			console.log('Style applied successfully:', style)
+		} catch (error) {
+			console.error('Error applying style:', style, error)
+		}
+	}, [])
+
+	// Helper function to apply font weight using TipTap
+	const applyFontWeight = useCallback((textEditor: any, weight: string) => {
+		try {
+			// Use TipTap's built-in commands for font weight
+			if (weight === '700') {
+				textEditor.chain().focus().toggleBold().run()
+			} else {
+				// For regular weight, ensure bold is off
+				textEditor.chain().focus().unsetBold().run()
+			}
+			console.log('Font weight applied successfully:', weight)
+		} catch (error) {
+			console.error('Error applying font weight:', weight, error)
+		}
+	}, [])
+
+	// Helper function to apply font weight to selected text shapes without editing
+	const applyFontWeightToSelectedShapes = useCallback((weight: string) => {
+		try {
+			if (editor.isIn('select')) {
+				const selectedShapes = editor.getSelectedShapes()
+				const textShapes = selectedShapes.filter(shape => shape.type === 'text')
+				
+				console.log('Selected text shapes:', textShapes.map(s => ({ id: s.id, type: s.type })))
+				
+				if (textShapes.length > 0) {
+					editor.run(() => {
+						textShapes.forEach(shape => {
+							if (shape.type === 'text') {
+								// Get current rich text content
+								const currentRichText = (shape.props as any).richText
+								console.log('Current rich text:', JSON.stringify(currentRichText, null, 2))
+								
+								if (currentRichText && currentRichText.length > 0) {
+									// Create new rich text with updated formatting
+									const newRichText = currentRichText.map((block: any) => {
+										if (block.type === 'paragraph' && block.children) {
+											return {
+												...block,
+												children: block.children.map((child: any) => {
+													if (child.type === 'text') {
+														const newMarks = child.marks ? [...child.marks] : []
+														
+														if (weight === '700') {
+															// Add bold mark if not present
+															if (!newMarks.some((mark: any) => mark.type === 'bold')) {
+																newMarks.push({ type: 'bold' })
+																console.log('Added bold mark to:', child.text)
+															}
+														} else {
+															// Remove bold mark
+															const filteredMarks = newMarks.filter((mark: any) => mark.type !== 'bold')
+															console.log('Removed bold mark from:', child.text)
+															return {
+																...child,
+																marks: filteredMarks
+															}
+														}
+														
+														return {
+															...child,
+															marks: newMarks
+														}
+													}
+													return child
+												})
+											}
+										}
+										return block
+									})
+									
+									console.log('New rich text:', JSON.stringify(newRichText, null, 2))
+									
+									// Update the shape with new rich text
+									editor.updateShape({
+										id: shape.id,
+										type: 'text',
+										props: { richText: newRichText }
+									})
+									
+									// Force a re-render by updating the instance state
+									editor.updateInstanceState({ isChangingStyle: true })
+								} else if (currentRichText && currentRichText.content && currentRichText.content.length > 0) {
+									// Handle the structure with 'content' array
+									console.log('Processing rich text with content array')
+									
+									const newRichText = {
+										...currentRichText,
+										content: currentRichText.content.map((block: any) => {
+											if (block.type === 'paragraph' && block.content) {
+												return {
+													...block,
+													content: block.content.map((child: any) => {
+														if (child.type === 'text') {
+															const newMarks = child.marks ? [...child.marks] : []
+															
+															if (weight === '700') {
+																// Add bold mark if not present
+																if (!newMarks.some((mark: any) => mark.type === 'bold')) {
+																	newMarks.push({ type: 'bold' })
+																	console.log('Added bold mark to:', child.text)
+																}
+															} else {
+																// Remove bold mark
+																const filteredMarks = newMarks.filter((mark: any) => mark.type !== 'bold')
+																console.log('Removed bold mark from:', child.text)
+																return {
+																	...child,
+																	marks: filteredMarks
+																}
+															}
+															
+															return {
+																...child,
+																marks: newMarks
+															}
+														}
+														return child
+													})
+												}
+											}
+											return block
+										})
+									}
+									
+									console.log('New rich text with content array:', JSON.stringify(newRichText, null, 2))
+									
+									// Update the shape with new rich text
+									editor.updateShape({
+										id: shape.id,
+										type: 'text',
+										props: { richText: newRichText }
+									})
+									
+									// Force a re-render by updating the instance state
+									editor.updateInstanceState({ isChangingStyle: true })
+								} else {
+									console.log('No rich text found in shape')
+								}
+							}
+						})
+					})
+					
+					// Update local state immediately
+					setCurrentFontWeight(weight)
+					console.log('Font weight applied to selected shapes:', weight)
+					
+					// Force a re-render of the component
+					setTimeout(() => {
+						editor.updateInstanceState({ isChangingStyle: false })
+					}, 100)
+				}
+			}
+		} catch (error) {
+			console.error('Error applying font weight to selected shapes:', error)
+		}
+	}, [editor])
+
+	// Handle font weight change using TipTap
+	const handleFontWeightChange = useCallback((weightValue: string) => {
+		console.log('Changing font weight to:', weightValue)
+		
+		try {
+			// First try to get the active rich text editor
+			let textEditor = editor.getRichTextEditor()
+			
+			if (textEditor) {
+				// Apply the font weight to the active editor
+				applyFontWeight(textEditor, weightValue)
+				return
+			}
+			
+			// If no active editor, check if we have selected text shapes
+			if (editor.isIn('select')) {
+				const selectedShapes = editor.getSelectedShapes()
+				const textShapes = selectedShapes.filter(shape => shape.type === 'text')
+				
+				if (textShapes.length > 0) {
+					// Apply font weight directly to selected text shapes
+					applyFontWeightToSelectedShapes(weightValue)
+					return
+				}
+			}
+			
+			// If no text shapes are selected, try to find any text shape on the page and start editing it
+			const allShapes = editor.getCurrentPageShapes()
+			const textShapes = allShapes.filter((shape: any) => shape.type === 'text')
+			if (textShapes.length > 0) {
+				const firstTextShape = textShapes[0]
+				console.log('No text selected, starting to edit first text shape:', firstTextShape.id)
+				editor.setEditingShape(firstTextShape.id)
+				
+				setTimeout(() => {
+					const newTextEditor = editor.getRichTextEditor()
+					if (newTextEditor) {
+						console.log('Applying font weight after editor initialization:', weightValue)
+						applyFontWeight(newTextEditor, weightValue)
+					}
+				}, 100)
+				return
+			} else {
+				console.warn('No text shapes found on the page')
+				return
+			}
+			
+		} catch (error) {
+			console.error('Error applying font weight:', error)
+		}
+	}, [editor, applyFontWeight, applyFontWeightToSelectedShapes])
+
 	// Handle rich text styling - properly using TipTap editor with tldraw's richText property
 	const handleRichTextStyle = useCallback((style: 'bold' | 'italic' | 'code') => {
 		console.log('Applying style:', style)
@@ -226,8 +414,26 @@ export function FigmaTypographyPanel({ styles }: FigmaTypographyPanelProps) {
 					}, 100)
 					return
 				} else {
-					console.warn('No text shape selected')
-					return
+					// If no text shape is selected, try to find any text shape on the page
+					const allShapes = editor.getCurrentPageShapes()
+					const textShapes = allShapes.filter((shape: any) => shape.type === 'text')
+					if (textShapes.length > 0) {
+						const firstTextShape = textShapes[0]
+						console.log('No text selected, starting to edit first text shape:', firstTextShape.id)
+						editor.setEditingShape(firstTextShape.id)
+						
+						setTimeout(() => {
+							const newTextEditor = editor.getRichTextEditor()
+							if (newTextEditor) {
+								console.log('Applying style after editor initialization:', style)
+								applyStyle(newTextEditor, style)
+							}
+						}, 100)
+						return
+					} else {
+						console.warn('No text shapes found on the page')
+						return
+					}
 				}
 			}
 			
@@ -237,80 +443,7 @@ export function FigmaTypographyPanel({ styles }: FigmaTypographyPanelProps) {
 		} catch (error) {
 			console.error('Error applying rich text style:', error)
 		}
-	}, [editor])
-
-	// Helper function to apply a style using TipTap
-	const applyStyle = useCallback((textEditor: any, style: 'bold' | 'italic' | 'code') => {
-		try {
-			switch (style) {
-				case 'bold':
-					textEditor.chain().focus().toggleBold().run()
-					break
-				case 'italic':
-					textEditor.chain().focus().toggleItalic().run()
-					break
-				case 'code':
-					textEditor.chain().focus().toggleCode().run()
-					break
-			}
-			console.log('Style applied successfully:', style)
-		} catch (error) {
-			console.error('Error applying style:', style, error)
-		}
-	}, [])
-
-	// Handle font weight change using TipTap
-	const handleFontWeightChange = useCallback((weightValue: string) => {
-		console.log('Changing font weight to:', weightValue)
-		
-		try {
-			// First try to get the active rich text editor
-			let textEditor = editor.getRichTextEditor()
-			
-			if (!textEditor) {
-				// If no active editor, find a selected text shape and start editing it
-				const selectedShapes = editor.getSelectedShapes()
-				const textShape = selectedShapes.find(shape => shape.type === 'text')
-				
-				if (textShape && textShape.type === 'text') {
-					console.log('Starting to edit text shape for font weight:', textShape.id)
-					editor.setEditingShape(textShape.id)
-					
-					// Wait a bit for the editor to initialize, then apply the font weight
-					setTimeout(() => {
-						const newTextEditor = editor.getRichTextEditor()
-						if (newTextEditor) {
-							console.log('Applying font weight after editor initialization:', weightValue)
-							applyFontWeight(newTextEditor, weightValue)
-						} else {
-							console.warn('Failed to get rich text editor after setEditingShape')
-						}
-					}, 100)
-					return
-				} else {
-					console.warn('No text shape selected for font weight change')
-					return
-				}
-			}
-			
-			// Apply the font weight to the active editor
-			applyFontWeight(textEditor, weightValue)
-			
-		} catch (error) {
-			console.error('Error applying font weight:', error)
-		}
-	}, [editor])
-
-	// Helper function to apply font weight using TipTap
-	const applyFontWeight = useCallback((textEditor: any, weight: string) => {
-		try {
-			// Use TipTap's CSS extension to set font weight
-			textEditor.chain().focus().setMark('textStyle', { fontWeight: weight }).run()
-			console.log('Font weight applied successfully:', weight)
-		} catch (error) {
-			console.error('Error applying font weight:', weight, error)
-		}
-	}, [])
+	}, [editor, applyStyle])
 
 	// Track active styles from the rich text editor
 	const [activeStyles, setActiveStyles] = useState<Set<string>>(new Set())
@@ -328,7 +461,7 @@ export function FigmaTypographyPanel({ styles }: FigmaTypographyPanelProps) {
 				if (textEditor.isActive('code')) styles.add('code')
 				
 				// Also track current font weight
-				const fontWeight = textEditor.getAttributes('textStyle').fontWeight || '400'
+				const fontWeight = textEditor.isActive('bold') ? '700' : '400'
 				setCurrentFontWeight(fontWeight)
 				
 				console.log('Active styles updated:', Array.from(styles), 'Font weight:', fontWeight)
@@ -344,9 +477,79 @@ export function FigmaTypographyPanel({ styles }: FigmaTypographyPanelProps) {
 				textEditor.off('selectionUpdate', updateActiveStyles)
 			}
 		} else {
-			// Clear styles when no editor is active
-			setActiveStyles(new Set())
+			// If no active editor, check if we have selected text shapes and show their styles
+			if (editor.isIn('select')) {
+				const selectedShapes = editor.getSelectedShapes()
+				const textShape = selectedShapes.find(shape => shape.type === 'text')
+				
+				if (textShape && textShape.type === 'text') {
+					// Check if the text has bold formatting by examining the rich text content
+					const richText = (textShape.props as any).richText
+					if (richText && richText.length > 0) {
+						// Look for any bold formatting in the rich text
+						const hasBold = richText.some((block: any) => 
+							block.children && block.children.some((child: any) => 
+								child.type === 'text' && child.marks && 
+								child.marks.some((mark: any) => mark.type === 'bold')
+							)
+						)
+						const fontWeight = hasBold ? '700' : '400'
+						setCurrentFontWeight(fontWeight)
+						console.log('Font weight from selected text shape:', fontWeight)
+					} else if (richText && richText.content && richText.content.length > 0) {
+						// Handle the structure with 'content' array
+						const hasBold = richText.content.some((block: any) => 
+							block.content && block.content.some((child: any) => 
+								child.type === 'text' && child.marks && 
+								child.marks.some((mark: any) => mark.type === 'bold')
+							)
+						)
+						const fontWeight = hasBold ? '700' : '400'
+						setCurrentFontWeight(fontWeight)
+						console.log('Font weight from selected text shape (content array):', fontWeight)
+					}
+				}
+			}
 		}
+	}, [editor])
+
+	// Add a listener for shape updates to detect when rich text changes
+	React.useEffect(() => {
+		const unsubscribe = editor.store.listen(() => {
+			// Check if we have selected text shapes and update font weight state
+			if (editor.isIn('select')) {
+				const selectedShapes = editor.getSelectedShapes()
+				const textShape = selectedShapes.find(shape => shape.type === 'text')
+				
+				if (textShape && textShape.type === 'text') {
+					const richText = (textShape.props as any).richText
+					if (richText && richText.length > 0) {
+						const hasBold = richText.some((block: any) => 
+							block.children && block.children.some((child: any) => 
+								child.type === 'text' && child.marks && 
+								child.marks.some((mark: any) => mark.type === 'bold')
+							)
+						)
+						const fontWeight = hasBold ? '700' : '400'
+						setCurrentFontWeight(fontWeight)
+						console.log('Font weight updated from store change:', fontWeight)
+					} else if (richText && richText.content && richText.content.length > 0) {
+						// Handle the structure with 'content' array
+						const hasBold = richText.content.some((block: any) => 
+							block.content && block.content.some((child: any) => 
+								child.type === 'text' && child.marks && 
+								child.marks.some((mark: any) => mark.type === 'bold')
+							)
+						)
+						const fontWeight = hasBold ? '700' : '400'
+						setCurrentFontWeight(fontWeight)
+						console.log('Font weight updated from store change (content array):', fontWeight)
+					}
+				}
+			}
+		})
+
+		return unsubscribe
 	}, [editor])
 
 	// Update current custom font size when selected shapes change
@@ -533,33 +736,6 @@ export function FigmaTypographyPanel({ styles }: FigmaTypographyPanelProps) {
 							</button>
 						))}
 					</div>
-					
-					{/* Vertical alignment */}
-					<div className="figma-typography-alignment-row">
-						{VERTICAL_ALIGN_OPTIONS.map(option => (
-							<button
-								key={option.value}
-								className={`figma-typography-align-button ${currentVerticalAlign === option.value ? 'active' : ''}`}
-								onClick={() => handleValueChange(DefaultVerticalAlignStyle, option.value)}
-								title={option.label}
-							>
-								{option.icon}
-							</button>
-						))}
-					</div>
-					
-					{/* Distribution button */}
-					<button className="figma-typography-distribute-button" title="Distribute">
-						<svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-							<path d="M2 2h12M2 8h12M2 14h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-							<circle cx="2" cy="2" r="1.5" fill="currentColor"/>
-							<circle cx="14" cy="2" r="1.5" fill="currentColor"/>
-							<circle cx="2" cy="8" r="1.5" fill="currentColor"/>
-							<circle cx="14" cy="8" r="1.5" fill="currentColor"/>
-							<circle cx="2" cy="14" r="1.5" fill="currentColor"/>
-							<circle cx="14" cy="14" r="1.5" fill="currentColor"/>
-						</svg>
-					</button>
 				</div>
 			</div>
 		</div>
