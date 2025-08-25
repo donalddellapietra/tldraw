@@ -52,6 +52,7 @@ export { DefaultToasts } from './lib/ui/components/Toasts'
 export { TldrawUiTranslationProvider } from './lib/ui/hooks/useTranslation/useTranslation'
 // eslint-disable-next-line local/no-export-star
 export * from '@tldraw/editor'
+export { DefaultFontSizeStyle } from '@tldraw/tlschema'
 export { ArrowBindingUtil } from './lib/bindings/arrow/ArrowBindingUtil'
 export { TldrawCropHandles, type TldrawCropHandlesProps } from './lib/canvas/TldrawCropHandles'
 export { TldrawHandles } from './lib/canvas/TldrawHandles'

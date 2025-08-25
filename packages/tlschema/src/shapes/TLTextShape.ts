@@ -3,6 +3,7 @@ import { TLRichText, richTextValidator, toRichText } from '../misc/TLRichText'
 import { createShapePropsMigrationIds, createShapePropsMigrationSequence } from '../records/TLShape'
 import { RecordProps } from '../recordsWithProps'
 import { DefaultColorStyle, TLDefaultColorStyle } from '../styles/TLColorStyle'
+import { DefaultFontSizeStyle, TLDefaultFontSizeStyle } from '../styles/TLFontSizeStyle'
 import { DefaultFontStyle, TLDefaultFontStyle } from '../styles/TLFontStyle'
 import { DefaultSizeStyle, TLDefaultSizeStyle } from '../styles/TLSizeStyle'
 import { DefaultTextAlignStyle, TLDefaultTextAlignStyle } from '../styles/TLTextAlignStyle'
@@ -12,6 +13,8 @@ import { TLBaseShape } from './TLBaseShape'
 export interface TLTextShapeProps {
 	color: TLDefaultColorStyle
 	size: TLDefaultSizeStyle
+	fontSize: TLDefaultFontSizeStyle
+	customFontSize?: number
 	font: TLDefaultFontStyle
 	textAlign: TLDefaultTextAlignStyle
 	w: number
@@ -27,6 +30,8 @@ export type TLTextShape = TLBaseShape<'text', TLTextShapeProps>
 export const textShapeProps: RecordProps<TLTextShape> = {
 	color: DefaultColorStyle,
 	size: DefaultSizeStyle,
+	fontSize: DefaultFontSizeStyle,
+	customFontSize: T.optional(T.number),
 	font: DefaultFontStyle,
 	textAlign: DefaultTextAlignStyle,
 	w: T.nonZeroNumber,
@@ -39,6 +44,7 @@ const Versions = createShapePropsMigrationIds('text', {
 	RemoveJustify: 1,
 	AddTextAlign: 2,
 	AddRichText: 3,
+	AddFontSize: 4,
 })
 
 export { Versions as textShapeVersions }
@@ -76,6 +82,17 @@ export const textShapeMigrations = createShapePropsMigrationSequence({
 			// down: (props) => {
 			// 	delete props.richText
 			// },
+		},
+		{
+			id: Versions.AddFontSize,
+			up: (props) => {
+				// Set default font size based on existing size
+				props.fontSize = props.size
+			},
+			down: (props) => {
+				// Remove font size and fall back to size
+				delete props.fontSize
+			},
 		},
 	],
 })

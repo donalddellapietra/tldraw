@@ -9,12 +9,20 @@ import {
 	useEditor,
 	useValue,
 } from '@tldraw/editor'
+import {
+	DefaultFontSizeStyle,
+	DefaultFontStyle,
+	DefaultTextAlignStyle,
+} from '@tldraw/tlschema'
 
 const selectToolStyles: readonly StyleProp<any>[] = Object.freeze([
 	DefaultColorStyle,
 	DefaultDashStyle,
 	DefaultFillStyle,
 	DefaultSizeStyle,
+	DefaultFontSizeStyle,
+	DefaultFontStyle,
+	DefaultTextAlignStyle,
 ])
 
 /** @public */

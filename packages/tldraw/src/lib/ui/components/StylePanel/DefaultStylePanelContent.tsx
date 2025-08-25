@@ -21,20 +21,30 @@ import {
 	useEditor,
 	useValue,
 } from '@tldraw/editor'
+import { DefaultFontSizeStyle, DefaultStrokeColorStyle } from '@tldraw/tlschema'
 import React, { useCallback, useState } from 'react'
 import { STYLES } from '../../../styles'
 import { useUiEvents } from '../../context/events'
 import { useTranslation } from '../../hooks/useTranslation/useTranslation'
+import { EXTENDED_FONT_SIZES, FONT_SIZES, STROKE_SIZES } from '../../../shapes/shared/default-shape-constants'
 import { TldrawUiButtonIcon } from '../primitives/Button/TldrawUiButtonIcon'
 import { TldrawUiButtonPicker } from '../primitives/TldrawUiButtonPicker'
 import { TldrawUiColorPicker } from '../primitives/TldrawUiColorPicker'
 import { TldrawUiSlider } from '../primitives/TldrawUiSlider'
 import { TldrawUiToolbar, TldrawUiToolbarButton } from '../primitives/TldrawUiToolbar'
-import { StylePanelButtonPicker } from './StylePanelButtonPicker'
-import { useStylePanelContext } from './StylePanelContext'
-import { StylePanelDoubleDropdownPicker } from './StylePanelDoubleDropdownPicker'
-import { StylePanelDropdownPicker } from './StylePanelDropdownPicker'
-import { StylePanelSubheading } from './StylePanelSubheading'
+import { DoubleDropdownPicker } from './DoubleDropdownPicker'
+import { DropdownPicker } from './DropdownPicker'
+
+
+// Local component for style panel subheadings
+function StylePanelSubheading({ children }: { children: React.ReactNode }) {
+	return <h3 className="tlui-style-panel__subheading">{children}</h3>
+}
+
+/** @public */
+export interface TLUiStylePanelContentProps {
+	styles: ReturnType<typeof useRelevantStyles>
+}
 
 /** @public @react */
 export function DefaultStylePanelContent() {
@@ -53,15 +63,39 @@ export function DefaultStylePanelContent() {
 	)
 }
 
-/** @public */
-export interface StylePanelSectionProps {
-	children: React.ReactNode
+function useStyleChangeCallback() {
+	const editor = useEditor()
+	const trackEvent = useUiEvents()
+
+	return React.useMemo(
+		() =>
+			function handleStyleChange<T>(style: StyleProp<T>, value: T) {
+				editor.run(() => {
+					if (editor.isIn('select')) {
+						editor.setStyleForSelectedShapes(style, value)
+					}
+					editor.setStyleForNextShapes(style, value)
+					editor.updateInstanceState({ isChangingStyle: true })
+				})
+
+				trackEvent('set-style', { source: 'style-panel', id: style.id, value: value as string })
+			},
+		[editor, trackEvent]
+	)
 }
 
-/** @public @react */
-export function StylePanelSection({ children }: StylePanelSectionProps) {
-	return <div className="tlui-style-panel__section">{children}</div>
+/** @public */
+export interface ThemeStylePickerSetProps {
+	styles: ReadonlySharedStyleMap
+	theme: TLDefaultColorTheme
 }
+
+/** @public */
+export interface StylePickerSetProps {
+	styles: ReadonlySharedStyleMap
+}
+
+
 
 /** @public @react */
 export function StylePanelColorPicker() {
@@ -80,13 +114,18 @@ export function StylePanelColorPicker() {
 	const [isTextSectionExpanded, setIsTextSectionExpanded] = useState(true)
 
 	const color = styles.get(DefaultColorStyle)
+	const strokeColor = styles.get(DefaultStrokeColorStyle)
 	const fill = styles.get(DefaultFillStyle)
 	const dash = styles.get(DefaultDashStyle)
 	const size = styles.get(DefaultSizeStyle)
 	const font = styles.get(DefaultFontStyle)
+	const fontSize = styles.get(DefaultFontSizeStyle)
 	const textAlign = styles.get(DefaultTextAlignStyle)
 	const labelAlign = styles.get(DefaultHorizontalAlignStyle)
 	const verticalLabelAlign = styles.get(DefaultVerticalAlignStyle)
+	
+	// Only show text-related styles when text shapes are actually selected
+	const hasTextShapes = font !== undefined || fontSize !== undefined || textAlign !== undefined
 
 	return (
 		<>
@@ -317,6 +356,159 @@ export function StylePanelColorPicker() {
 								)}
 							</div>
 
+							{/* Stroke Color Section - Only show when stroke color is relevant */}
+							{strokeColor !== undefined && (
+								<div style={{ marginBottom: '20px' }}>
+									<div
+										style={{
+											fontSize: '12px',
+											fontWeight: '500',
+											color: 'var(--tl-color-text-2)',
+											marginBottom: '12px',
+										}}
+									>
+										Stroke Color:
+									</div>
+
+									{/* Stroke Color Picker Dropdown */}
+									<TldrawUiToolbar orientation="horizontal" label="Stroke Color">
+										<TldrawUiColorPicker
+											title="Stroke Color"
+											value={
+												strokeColor.type === 'shared'
+													? getColorValue(theme, strokeColor.value, 'solid')
+													: '#000000'
+											}
+											onValueChange={(newColor) => {
+												console.log('Stroke color picker selected:', newColor)
+												console.log('Current editor selection:', editor.getSelectedShapeIds())
+												console.log('Current stroke color style:', strokeColor)
+
+												// Find the closest tldraw color to the hex color
+												const hexToRgb = (hex: string) => {
+													const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+													return result
+														? {
+																r: parseInt(result[1], 16),
+																g: parseInt(result[2], 16),
+																b: parseInt(result[3], 16),
+															}
+														: null
+												}
+
+												const rgbToHsl = (r: number, g: number, b: number) => {
+													r /= 255
+													g /= 255
+													b /= 255
+
+													const max = Math.max(r, g, b)
+													const min = Math.min(r, g, b)
+													let h = 0
+													let s = 0
+													const l = (max + min) / 2
+
+													if (max !== min) {
+														const d = max - min
+														s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+
+														switch (max) {
+															case r:
+																h = (g - b) / d + (g < b ? 6 : 0)
+																break
+															case g:
+																h = (b - r) / d + 2
+																break
+															case b:
+																h = (r - g) / d + 4
+																break
+														}
+														h /= 6
+													}
+
+													return { h: h * 360, s: s * 100, l: l * 100 }
+												}
+
+												const findClosestColor = (hexColor: string) => {
+													const targetRgb = hexToRgb(hexColor)
+													if (!targetRgb) return 'black'
+
+													const targetHsl = rgbToHsl(targetRgb.r, targetRgb.g, targetRgb.b)
+
+													let closestColor = 'black'
+													let minDistance = Infinity
+
+													STYLES.color.forEach((colorStyle) => {
+														const colorHex = getColorValue(theme, colorStyle.value, 'solid')
+														const colorRgb = hexToRgb(colorHex)
+														if (colorRgb) {
+															const colorHsl = rgbToHsl(colorRgb.r, colorRgb.g, colorRgb.b)
+
+															// Calculate distance using HSL (more perceptually accurate)
+															const hDiff = Math.min(
+																Math.abs(targetHsl.h - colorHsl.h),
+																360 - Math.abs(targetHsl.h - colorHsl.h)
+															)
+															const sDiff = Math.abs(targetHsl.s - colorHsl.s)
+															const lDiff = Math.abs(targetHsl.l - colorHsl.l)
+
+															const distance = Math.sqrt(
+																hDiff * hDiff + sDiff * sDiff + lDiff * lDiff
+															)
+
+															if (distance < minDistance) {
+																minDistance = distance
+																closestColor = colorStyle.value
+															}
+														}
+													})
+
+													return closestColor
+												}
+
+												const closestTldrawColor = findClosestColor(newColor)
+												console.log('Mapped to tldraw stroke color:', closestTldrawColor)
+
+												// Mark history before changing the stroke color
+												onHistoryMark?.('stroke-color-picker-change')
+
+												// Apply the stroke color change
+												handleValueChange(DefaultStrokeColorStyle, closestTldrawColor)
+
+												// Explicitly update the selected shapes to ensure the stroke color change is visible
+												const selectedShapeIds = editor.getSelectedShapeIds()
+												if (selectedShapeIds.length > 0) {
+													console.log(
+														'Updating selected shapes with new stroke color:',
+														closestTldrawColor
+													)
+													selectedShapeIds.forEach((shapeId) => {
+														const shape = editor.getShape(shapeId)
+														if (shape && 'strokeColor' in shape.props) {
+															editor.updateShape({
+																id: shapeId,
+																type: shape.type,
+																props: {
+																	...shape.props,
+																	strokeColor: closestTldrawColor,
+																},
+															})
+														}
+													})
+												}
+
+												// Force a repaint to ensure the change is visible
+												editor.updateInstanceState({})
+
+												console.log(
+													'Stroke color change applied, new selection state:',
+													editor.getSelectedShapeIds()
+												)
+											}}
+										/>
+									</TldrawUiToolbar>
+								</div>
+							)}
+
 							{/* Opacity Section */}
 							<div>
 								<div
@@ -518,6 +710,107 @@ export function StylePanelColorPicker() {
 									onHistoryMark={onHistoryMark}
 								/>
 							</TldrawUiToolbar>
+							
+
+							
+							{/* Thickness Control - Integrated with dash section */}
+							{size !== undefined && (
+								<div style={{ marginTop: '16px' }}>
+									{showUiLabels && (
+										<StylePanelSubheading>{msg('style-panel.size')}</StylePanelSubheading>
+									)}
+									<TldrawUiToolbar orientation="horizontal" label={msg('style-panel.size')}>
+										<TldrawUiButtonPicker
+											title={msg('style-panel.size')}
+											uiType="size"
+											style={DefaultSizeStyle}
+											items={STYLES.size}
+											value={size}
+											onValueChange={(style, value) => {
+												handleValueChange(style, value)
+												const selectedShapeIds = editor.getSelectedShapeIds()
+												if (selectedShapeIds.length > 0) {
+													kickoutOccludedShapes(editor, selectedShapeIds)
+												}
+											}}
+											theme={theme}
+											onHistoryMark={onHistoryMark}
+										/>
+									</TldrawUiToolbar>
+									
+									{/* Custom Thickness Input */}
+									<div style={{ marginTop: '12px' }}>
+										{showUiLabels && (
+											<div style={{ marginBottom: '8px', fontSize: '12px', color: 'var(--tl-color-text-2)' }}>
+												Custom Thickness
+											</div>
+										)}
+										<div style={{ position: 'relative', width: '100%' }}>
+											<input
+												type="number"
+												min="0.1"
+												max="20"
+												step="0.1"
+												placeholder="e.g., 3.5"
+												defaultValue={size && size.type === 'shared' ? STROKE_SIZES[size.value] : ''}
+												style={{
+													width: '100%',
+													padding: '8px 12px',
+													border: '1px solid var(--tl-color-border)',
+													borderRadius: '4px',
+													background: 'var(--tl-color-panel)',
+													color: 'var(--tl-color-text-1)',
+													fontSize: '12px',
+													fontFamily: 'inherit',
+													outline: 'none',
+													transition: 'border-color 0.15s ease',
+												}}
+												onFocus={(e) => (e.target.style.borderColor = 'var(--tl-color-focus)')}
+												onBlur={(e) => (e.target.style.borderColor = 'var(--tl-color-border)')}
+												onKeyDown={(e) => {
+													if (e.key === 'Enter') {
+														const value = parseFloat(e.currentTarget.value)
+														if (!isNaN(value) && value > 0) {
+															// Convert custom thickness to closest size preset
+															const sizes = { s: 1.5, m: 2.5, l: 4, xl: 6 }
+															let closestSize: 's' | 'm' | 'l' | 'xl' = 'm'
+															let minDiff = Math.abs(sizes.m - value)
+															
+															if (Math.abs(sizes.s - value) < minDiff) {
+																closestSize = 's'
+																minDiff = Math.abs(sizes.s - value)
+															}
+															if (Math.abs(sizes.l - value) < minDiff) {
+																closestSize = 'l'
+																minDiff = Math.abs(sizes.l - value)
+															}
+															if (Math.abs(sizes.xl - value) < minDiff) {
+																closestSize = 'xl'
+															}
+															
+															handleValueChange(DefaultSizeStyle, closestSize)
+															// Clear the input after applying
+															e.currentTarget.value = ''
+														}
+													}
+												}}
+											/>
+											<div style={{
+												position: 'absolute',
+												right: '8px',
+												top: '50%',
+												transform: 'translateY(-50%)',
+												pointerEvents: 'none',
+												color: 'var(--tl-color-text-3)',
+												fontSize: '10px',
+												fontWeight: '500',
+											}}>
+												px
+											</div>
+										</div>
+									</div>
+								</div>
+							)}
 						</div>
 					)}
 				</div>
@@ -624,7 +917,7 @@ export function StylePanelColorPicker() {
 			)}
 
 			{/* Text Session Section */}
-			{(font !== undefined || textAlign !== undefined || labelAlign !== undefined) && (
+			{hasTextShapes && (
 				<div
 					style={{
 						marginTop: '0px',
@@ -794,6 +1087,316 @@ export function StylePanelColorPicker() {
 								</div>
 							)}
 
+							{/* Font Size Controls - Only show when text shapes are selected */}
+							{fontSize !== undefined && (
+								<div style={{ marginBottom: '16px' }}>
+									{showUiLabels && (
+										<StylePanelSubheading>{msg('style-panel.font-size')}</StylePanelSubheading>
+									)}
+									{/* Font size controls - Preset buttons and numeric input work together */}
+									<div style={{ marginBottom: '16px' }}>
+										{/* Preset font size buttons - S, M, L, XL */}
+										<TldrawUiToolbar orientation="horizontal" label={msg('style-panel.font-size')}>
+											<TldrawUiButtonPicker
+												title={msg('style-panel.font-size')}
+												uiType="fontSize"
+												style={DefaultFontSizeStyle}
+												items={[
+													{ value: 's', icon: 'size-small' },
+													{ value: 'm', icon: 'size-medium' },
+													{ value: 'l', icon: 'size-large' },
+													{ value: 'xl', icon: 'size-extra-large' },
+												]}
+												value={fontSize}
+												onValueChange={handleValueChange}
+												theme={theme}
+												onHistoryMark={onHistoryMark}
+											/>
+										</TldrawUiToolbar>
+										
+										{/* Custom font size input - works independently from presets */}
+										<div style={{ marginTop: '8px' }}>
+											<input
+												type="number"
+												onChange={(e) => {
+													const value = parseInt(e.target.value)
+													if (!isNaN(value) && value > 0 && value <= 200) {
+														// Update the custom font size on selected shapes
+														editor.run(() => {
+															if (editor.isIn('select')) {
+																const selectedShapes = editor.getSelectedShapes()
+																selectedShapes.forEach(shape => {
+																	if (shape.type === 'text') {
+														editor.updateShape({
+															id: shape.id,
+															type: 'text',
+															props: { customFontSize: value }
+														})
+													}
+												})
+											}
+										})
+										onHistoryMark('custom-font-size')
+									}
+								}}
+								style={{
+									width: '100%',
+									padding: '6px 8px',
+									border: '1px solid var(--tl-color-border)',
+									borderRadius: '4px',
+									background: 'var(--tl-color-panel)',
+									color: 'var(--tl-color-text-1)',
+									fontSize: '12px',
+									fontFamily: 'inherit',
+									outline: 'none',
+								}}
+								placeholder="Custom size (px)"
+								min="1"
+								max="200"
+							/>
+						</div>
+
+						{/* Text Style Controls - Bold, Italic, Underline */}
+						<div style={{ marginTop: '16px' }}>
+							{showUiLabels && (
+								<StylePanelSubheading>{msg('style-panel.text-style')}</StylePanelSubheading>
+							)}
+							<TldrawUiToolbar orientation="horizontal" label={msg('style-panel.text-style')}>
+								{/* Bold Button */}
+								<TldrawUiToolbarButton
+									type="icon"
+									title={msg('style-panel.bold')}
+									data-testid="text-bold"
+									onClick={() => {
+										editor.run(() => {
+											if (editor.isIn('select')) {
+												const selectedShapes = editor.getSelectedShapes()
+												selectedShapes.forEach(shape => {
+													if (shape.type === 'text') {
+														// Toggle bold using rich text marks
+														const currentRichText = ('richText' in shape.props ? shape.props.richText : undefined) as any
+														if (currentRichText && currentRichText.content) {
+															// For now, we'll toggle the first text content to bold
+															// This is a simplified implementation
+															const newRichText = {
+																...currentRichText,
+																content: currentRichText.content.map((block: any) => {
+																	if (block.content && Array.isArray(block.content)) {
+																		return {
+																			...block,
+																			content: block.content.map((textItem: any) => {
+																				if (textItem.type === 'text') {
+																					const hasBold = textItem.marks?.some((mark: any) => mark.type === 'bold')
+																					const newMarks = hasBold 
+																						? textItem.marks?.filter((mark: any) => mark.type !== 'bold') || []
+																						: [...(textItem.marks || []), { type: 'bold' }]
+																					return {
+																						...textItem,
+																						marks: newMarks
+																					}
+																				}
+																				return textItem
+																			})
+																		}
+																	}
+																	return block
+																})
+															}
+															editor.updateShape({
+																id: shape.id,
+																type: 'text',
+																props: { richText: newRichText }
+															})
+														}
+													}
+												})
+											}
+										})
+										onHistoryMark('text-bold')
+									}}
+									style={{
+										background: 'transparent'
+									}}
+								>
+									<TldrawUiButtonIcon icon="bold" />
+								</TldrawUiToolbarButton>
+
+								{/* Italic Button */}
+								<TldrawUiToolbarButton
+									type="icon"
+									title={msg('style-panel.italic')}
+									data-testid="text-italic"
+									onClick={() => {
+										editor.run(() => {
+											if (editor.isIn('select')) {
+												const selectedShapes = editor.getSelectedShapes()
+												selectedShapes.forEach(shape => {
+													if (shape.type === 'text') {
+														// Toggle italic using rich text marks
+														const currentRichText = ('richText' in shape.props ? shape.props.richText : undefined) as any
+														if (currentRichText && currentRichText.content) {
+															const newRichText = {
+																...currentRichText,
+																content: currentRichText.content.map((block: any) => {
+																	if (block.content && Array.isArray(block.content)) {
+																		return {
+																			...block,
+																			content: block.content.map((textItem: any) => {
+																				if (textItem.type === 'text') {
+																					const hasItalic = textItem.marks?.some((mark: any) => mark.type === 'italic')
+																					const newMarks = hasItalic 
+																						? textItem.marks?.filter((mark: any) => mark.type !== 'italic') || []
+																						: [...(textItem.marks || []), { type: 'italic' }]
+																					return {
+																						...textItem,
+																						marks: newMarks
+																					}
+																				}
+																				return textItem
+																			})
+																		}
+																	}
+																	return block
+																})
+															}
+															editor.updateShape({
+																id: shape.id,
+																type: 'text',
+																props: { richText: newRichText }
+															})
+														}
+													}
+												})
+											}
+										})
+										onHistoryMark('text-italic')
+									}}
+									style={{
+										background: 'transparent'
+									}}
+								>
+									<TldrawUiButtonIcon icon="italic" />
+								</TldrawUiToolbarButton>
+
+								{/* Code Button */}
+								<TldrawUiToolbarButton
+									type="icon"
+									title={msg('style-panel.code')}
+									data-testid="text-code"
+									onClick={() => {
+										editor.run(() => {
+											if (editor.isIn('select')) {
+												const selectedShapes = editor.getSelectedShapes()
+												selectedShapes.forEach(shape => {
+													if (shape.type === 'text') {
+														// Toggle code using rich text marks
+														const currentRichText = ('richText' in shape.props ? shape.props.richText : undefined) as any
+														if (currentRichText && currentRichText.content) {
+															const newRichText = {
+																...currentRichText,
+																content: currentRichText.content.map((block: any) => {
+																	if (block.content && Array.isArray(block.content)) {
+																		return {
+																			...block,
+																			content: block.content.map((textItem: any) => {
+																				if (textItem.type === 'text') {
+																					const hasCode = textItem.marks?.some((mark: any) => mark.type === 'code')
+																					const newMarks = hasCode 
+																						? textItem.marks?.filter((mark: any) => mark.type !== 'code') || []
+																						: [...(textItem.marks || []), { type: 'code' }]
+																					return {
+																						...textItem,
+																						marks: newMarks
+																					}
+																				}
+																				return textItem
+																			})
+																		}
+																	}
+																	return block
+																})
+															}
+															editor.updateShape({
+																id: shape.id,
+																type: 'text',
+																props: { richText: newRichText }
+															})
+														}
+													}
+												})
+											}
+										})
+										onHistoryMark('text-code')
+									}}
+									style={{
+										background: 'transparent'
+									}}
+								>
+									<TldrawUiButtonIcon icon="code" />
+								</TldrawUiToolbarButton>
+
+								{/* Highlight Button */}
+								<TldrawUiToolbarButton
+									type="icon"
+									title={msg('style-panel.highlight')}
+									data-testid="text-highlight"
+									onClick={() => {
+										editor.run(() => {
+											if (editor.isIn('select')) {
+												const selectedShapes = editor.getSelectedShapes()
+												selectedShapes.forEach(shape => {
+													if (shape.type === 'text') {
+														// Toggle highlight using rich text marks
+														const currentRichText = ('richText' in shape.props ? shape.props.richText : undefined) as any
+														if (currentRichText && currentRichText.content) {
+															const newRichText = {
+																...currentRichText,
+																content: currentRichText.content.map((block: any) => {
+																	if (block.content && Array.isArray(block.content)) {
+																		return {
+																			...block,
+																			content: block.content.map((textItem: any) => {
+																				if (textItem.type === 'text') {
+																					const hasHighlight = textItem.marks?.some((mark: any) => mark.type === 'highlight')
+																					const newMarks = hasHighlight 
+																						? textItem.marks?.filter((mark: any) => mark.type !== 'highlight') || []
+																						: [...(textItem.marks || []), { type: 'highlight' }]
+																					return {
+																						...textItem,
+																						marks: newMarks
+																					}
+																				}
+																				return textItem
+																			})
+																		}
+																	}
+																	return block
+																})
+															}
+															editor.updateShape({
+																id: shape.id,
+																type: 'text',
+																props: { richText: newRichText }
+															})
+														}
+													}
+												})
+											}
+										})
+										onHistoryMark('text-highlight')
+									}}
+									style={{
+										background: 'transparent'
+									}}
+								>
+									<TldrawUiButtonIcon icon="highlight" />
+								</TldrawUiToolbarButton>
+							</TldrawUiToolbar>
+						</div>
+									</div>
+								</div>
+							)}
+
 							{/* Text Alignment */}
 							{textAlign !== undefined && (
 								<div style={{ marginBottom: '16px' }}>
@@ -864,6 +1467,48 @@ export function StylePanelColorPicker() {
 	)
 }
 
+// Helper function to get current font size
+function getCurrentFontSize(styles: ReturnType<typeof useRelevantStyles>): number {
+	if (!styles) return 24
+	
+	const fontSize = styles.get(DefaultFontSizeStyle)
+	const size = styles.get(DefaultSizeStyle)
+	
+	// Check if we have a custom font size first
+	const editor = useEditor()
+	if (editor.isIn('select')) {
+		const selectedShapes = editor.getSelectedShapes()
+		for (const shape of selectedShapes) {
+			if (shape.type === 'text' && 'customFontSize' in shape.props && shape.props.customFontSize) {
+				return shape.props.customFontSize as number
+			}
+		}
+	}
+	
+	// Fall back to preset values
+	if (fontSize && fontSize.type === 'shared' && typeof fontSize.value === 'string') {
+		return EXTENDED_FONT_SIZES[fontSize.value] || 24
+	}
+	if (size && size.type === 'shared' && typeof size.value === 'string') {
+		return FONT_SIZES[size.value] || 24
+	}
+	return 24
+}
+
+// Helper function to get current text style property
+function getCurrentTextStyle(styles: ReturnType<typeof useRelevantStyles>, property: string): string | undefined {
+	const editor = useEditor()
+	if (editor.isIn('select')) {
+		const selectedShapes = editor.getSelectedShapes()
+		for (const shape of selectedShapes) {
+			if (shape.type === 'text' && property in shape.props) {
+				return (shape.props as any)[property]
+			}
+		}
+	}
+	return undefined
+}
+
 /** @public @react */
 export function TextStylePickerSet({ theme, styles }: ThemeStylePickerSetProps) {
 	const msg = useTranslation()
@@ -875,10 +1520,14 @@ export function TextStylePickerSet({ theme, styles }: ThemeStylePickerSetProps) 
 	const labelStr = showUiLabels && msg('style-panel.font')
 
 	const font = styles.get(DefaultFontStyle)
+	const fontSize = styles.get(DefaultFontSizeStyle)
 	const textAlign = styles.get(DefaultTextAlignStyle)
 	const labelAlign = styles.get(DefaultHorizontalAlignStyle)
 	const verticalLabelAlign = styles.get(DefaultVerticalAlignStyle)
-	if (font === undefined && labelAlign === undefined) {
+	
+
+	
+	if (font === undefined && fontSize === undefined && labelAlign === undefined) {
 		return null
 	}
 
@@ -899,6 +1548,65 @@ export function TextStylePickerSet({ theme, styles }: ThemeStylePickerSetProps) 
 							onHistoryMark={onHistoryMark}
 						/>
 					</TldrawUiToolbar>
+				</>
+			)}
+
+			{fontSize === undefined ? null : (
+				<>
+					{showUiLabels && <StylePanelSubheading>{msg('style-panel.font-size')}</StylePanelSubheading>}
+					<TldrawUiToolbar orientation="horizontal" label={msg('style-panel.font-size')}>
+						<TldrawUiButtonPicker
+							title={msg('style-panel.font-size')}
+							uiType="fontSize"
+							style={DefaultFontSizeStyle}
+							items={STYLES.fontSize}
+							value={fontSize}
+							onValueChange={handleValueChange}
+							theme={theme}
+							onHistoryMark={onHistoryMark}
+						/>
+					</TldrawUiToolbar>
+													{/* Custom font size input - works independently from presets */}
+													<div style={{ marginTop: '8px' }}>
+														<input
+															type="number"
+															onChange={(e) => {
+																const value = parseInt(e.target.value)
+																if (!isNaN(value) && value > 0 && value <= 200) {
+																	// Update the custom font size on selected shapes
+																	editor.run(() => {
+																		if (editor.isIn('select')) {
+																			const selectedShapes = editor.getSelectedShapes()
+																			selectedShapes.forEach(shape => {
+																				if (shape.type === 'text') {
+																					editor.updateShape({
+																						id: shape.id,
+																						type: 'text',
+																						props: { customFontSize: value }
+																					})
+																				}
+																			})
+																		}
+																	})
+																	onHistoryMark('custom-font-size')
+																}
+															}}
+															style={{
+																width: '100%',
+																padding: '6px 8px',
+																border: '1px solid var(--tl-color-border)',
+																borderRadius: '4px',
+																background: 'var(--tl-color-panel)',
+																color: 'var(--tl-color-text-1)',
+																fontSize: '12px',
+																fontFamily: 'inherit',
+																outline: 'none',
+															}}
+															placeholder="Custom size (px)"
+															min="1"
+															max="200"
+														/>
+													</div>
 				</>
 			)}
 

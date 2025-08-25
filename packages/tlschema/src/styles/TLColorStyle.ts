@@ -561,6 +561,12 @@ export const DefaultColorStyle = StyleProp.defineEnum('tldraw:color', {
 })
 
 /** @public */
+export const DefaultStrokeColorStyle = StyleProp.defineEnum('tldraw:strokeColor', {
+	defaultValue: 'black',
+	values: defaultColorNames,
+})
+
+/** @public */
 export const DefaultLabelColorStyle = StyleProp.defineEnum('tldraw:labelColor', {
 	defaultValue: 'black',
 	values: defaultColorNames,
@@ -568,6 +574,9 @@ export const DefaultLabelColorStyle = StyleProp.defineEnum('tldraw:labelColor', 
 
 /** @public */
 export type TLDefaultColorStyle = T.TypeOf<typeof DefaultColorStyle>
+
+/** @public */
+export type TLDefaultStrokeColorStyle = T.TypeOf<typeof DefaultStrokeColorStyle>
 
 const defaultColorNamesSet = new Set(defaultColorNames)
 
