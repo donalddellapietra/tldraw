@@ -128,25 +128,49 @@ export const TldrawUiFigmaColorPicker = React.memo(function TldrawUiFigmaColorPi
 			'white', 'brown', 'pink', 'cyan'
 		]
 		
-		// For now, just use a simple mapping based on hue
 		const hsl = hexToHSL(hex)
 		
-		// Map based on hue ranges
-		if (hsl.h >= 0 && hsl.h < 30) return 'red'
-		if (hsl.h >= 30 && hsl.h < 60) return 'orange'
-		if (hsl.h >= 60 && hsl.h < 90) return 'yellow'
-		if (hsl.h >= 90 && hsl.h < 150) return 'green'
-		if (hsl.h >= 150 && hsl.h < 210) return 'cyan'
-		if (hsl.h >= 210 && hsl.h < 270) return 'blue'
-		if (hsl.h >= 270 && hsl.h < 330) return 'violet'
+		// Handle special cases first
+		if (hsl.l < 15) return 'black'
+		if (hsl.l > 85 && hsl.s < 20) return 'white'
+		if (hsl.s < 15) return 'grey'
+		
+		// Map based on hue ranges with better precision
+		if (hsl.h >= 0 && hsl.h < 30) {
+			return hsl.l > 60 ? 'light-red' : 'red'
+		}
+		if (hsl.h >= 30 && hsl.h < 60) {
+			return hsl.l > 60 ? 'orange' : 'brown'
+		}
+		if (hsl.h >= 60 && hsl.h < 90) {
+			return hsl.l > 60 ? 'yellow' : 'brown'
+		}
+		if (hsl.h >= 90 && hsl.h < 150) {
+			return hsl.l > 60 ? 'light-green' : 'green'
+		}
+		if (hsl.h >= 150 && hsl.h < 210) {
+			return 'cyan'
+		}
+		if (hsl.h >= 210 && hsl.h < 270) {
+			return hsl.l > 60 ? 'light-blue' : 'blue'
+		}
+		if (hsl.h >= 270 && hsl.h < 330) {
+			return hsl.l > 60 ? 'light-violet' : 'violet'
+		}
+		if (hsl.h >= 330 && hsl.h < 360) {
+			return hsl.l > 60 ? 'pink' : 'red'
+		}
+		
 		return 'red' // fallback
 	}, [hexToHSL])
 
 	const handleOpenChange = useCallback(
 		(open: boolean) => {
-			console.log('Figma color picker open change:', open, 'value:', value)
-			setIsOpen(open)
+			console.log('Figma color picker open change:', open, 'value:', value, 'current isOpen:', isOpen)
+			
+			// Only allow opening, prevent automatic closing
 			if (open) {
+				setIsOpen(true)
 				const hsl = hexToHSL(value)
 				console.log('HSL values:', hsl)
 				setHue(hsl.h)
@@ -161,7 +185,9 @@ export const TldrawUiFigmaColorPicker = React.memo(function TldrawUiFigmaColorPi
 
 	const handleColorChange = useCallback(
 		(newColor: string) => {
-			onValueChange(newColor)
+			// Convert hex to tldraw color and call onValueChange with that
+			const tldrawColor = hexToTldrawColor(newColor)
+			onValueChange(tldrawColor)
 			setHexValue(newColor)
 			
 			// Also update the selected shapes in real-time
@@ -175,13 +201,12 @@ export const TldrawUiFigmaColorPicker = React.memo(function TldrawUiFigmaColorPi
 						}
 						
 						// Then set the color using the mapped tldraw color
-						const tldrawColor = hexToTldrawColor(newColor)
 						editor.setStyleForSelectedShapes(DefaultColorStyle, tldrawColor)
 					}
 				})
 			}
 		},
-		[onValueChange, editor]
+		[onValueChange, editor, hexToTldrawColor]
 	)
 
 	const handleHexChange = useCallback(
@@ -348,47 +373,60 @@ export const TldrawUiFigmaColorPicker = React.memo(function TldrawUiFigmaColorPi
 	const currentColorWithAlpha = `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha / 100})`
 
 		return (
-		<TldrawUiPopover id="figma-color-picker" open={isOpen} onOpenChange={handleOpenChange}>
+		<TldrawUiPopover 
+			id="figma-color-picker" 
+			open={isOpen} 
+			onOpenChange={handleOpenChange}
+		>
 			<TldrawUiPopoverTrigger>
 				<div
-					className="tlui-figma-color-picker__trigger"
 					title={title}
-					onClick={() => {
-						console.log('Figma color picker button clicked!', isOpen)
-						setIsOpen(!isOpen)
+					onClick={(e) => {
+						console.log('Trigger clicked, current isOpen:', isOpen)
+						e.stopPropagation()
 					}}
 					style={{
-						width: '120px',
-						height: '32px',
+						width: '100%',
+						height: '40px',
 						background: currentColor,
-						border: '1px solid var(--tl-color-border)',
+						border: '1px solid #e1e5e9',
 						borderRadius: '6px',
 						cursor: 'pointer',
 						position: 'relative',
 						display: 'flex',
 						alignItems: 'center',
 						justifyContent: 'space-between',
-						padding: '0 8px',
+						padding: '0 12px',
 						transition: 'all 0.15s ease',
+						boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+						overflow: 'hidden',
 					}}
 				>
 					{/* Color swatch */}
 					<div
 						style={{
-							width: '16px',
-							height: '16px',
+							width: '20px',
+							height: '20px',
 							background: currentColor,
-							border: '1px solid var(--tl-color-border)',
-							borderRadius: '3px',
+							border: '1px solid rgba(255, 255, 255, 0.3)',
+							borderRadius: '4px',
+							boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.1)',
 						}}
 					/>
 					
 					{/* Color info */}
-					<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px' }}>
-						<div style={{ fontSize: '11px', fontWeight: '500', color: 'var(--tl-color-text-1)' }}>
+					<div style={{ 
+						display: 'flex', 
+						flexDirection: 'column', 
+						alignItems: 'flex-start', 
+						gap: '2px',
+						color: '#fff',
+						textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)'
+					}}>
+						<div style={{ fontSize: '12px', fontWeight: '600' }}>
 							{hexValue}
 						</div>
-						<div style={{ fontSize: '10px', color: 'var(--tl-color-text-2)' }}>
+						<div style={{ fontSize: '10px', opacity: 0.9 }}>
 							{Math.round(alpha)}%
 						</div>
 					</div>
@@ -396,102 +434,260 @@ export const TldrawUiFigmaColorPicker = React.memo(function TldrawUiFigmaColorPi
 			</TldrawUiPopoverTrigger>
 
 			<TldrawUiPopoverContent side="left" align="start" sideOffset={8}>
-				<div className="tlui-figma-color-picker">
-					<div className="tlui-figma-color-picker__content">
-
+				<div 
+					onClick={(e) => {
+						e.stopPropagation()
+						console.log('Popover content clicked, preventing close')
+					}}
+					onMouseDown={(e) => {
+						e.stopPropagation()
+						console.log('Popover content mouse down, preventing close')
+					}}
+					style={{
+						background: 'white',
+						borderRadius: '8px',
+						border: '1px solid #e1e5e9',
+						boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05)',
+						padding: '16px',
+						width: '240px',
+						fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+					}}
+				>
 					{/* Main Color Selector */}
-					<div className="tlui-figma-color-picker__main-selector">
+					<div style={{ marginBottom: '16px' }}>
 						<div
 							ref={saturationLightnessRef}
-							className="tlui-figma-color-picker__saturation-lightness"
 							style={{
+								width: '100%',
+								height: '200px',
 								background: `linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, hsl(${hue}, 100%, 50%))`,
+								borderRadius: '6px',
+								position: 'relative',
+								cursor: 'crosshair',
+								border: '1px solid #e1e5e9',
 							}}
 							onMouseDown={(e) => handleMouseDown(e, 'saturation')}
 						>
 							<div
-								className="tlui-figma-color-picker__selector"
 								style={{
+									position: 'absolute',
+									width: '12px',
+									height: '12px',
+									border: '2px solid white',
+									borderRadius: '50%',
+									boxShadow: '0 0 0 1px rgba(0, 0, 0, 0.3)',
+									transform: 'translate(-50%, -50%)',
 									left: `${saturation}%`,
 									top: `${100 - lightness}%`,
+									pointerEvents: 'none',
 								}}
 							/>
 						</div>
 					</div>
 
 					{/* Hue Slider */}
-					<div className="tlui-figma-color-picker__hue-slider">
+					<div style={{ marginBottom: '16px' }}>
 						<div
 							ref={hueSliderRef}
-							className="tlui-figma-color-picker__hue-track"
 							style={{
+								width: '100%',
+								height: '12px',
 								background: `linear-gradient(to right, hsl(0, 100%, 50%), hsl(60, 100%, 50%), hsl(120, 100%, 50%), hsl(180, 100%, 50%), hsl(240, 100%, 50%), hsl(300, 100%, 50%), hsl(360, 100%, 50%))`,
+								borderRadius: '6px',
+								position: 'relative',
+								cursor: 'pointer',
+								border: '1px solid #e1e5e9',
 							}}
 							onMouseDown={(e) => handleMouseDown(e, 'hue')}
 						>
 							<div
-								className="tlui-figma-color-picker__hue-thumb"
 								style={{
+									position: 'absolute',
+									width: '16px',
+									height: '16px',
+									background: 'white',
+									border: '2px solid #e1e5e9',
+									borderRadius: '50%',
+									boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+									transform: 'translate(-50%, -50%)',
 									left: `${(hue / 360) * 100}%`,
+									top: '50%',
+									pointerEvents: 'none',
 								}}
 							/>
 						</div>
 					</div>
 
 					{/* Alpha Slider */}
-					<div className="tlui-figma-color-picker__alpha-slider">
+					<div style={{ marginBottom: '16px' }}>
 						<div
 							ref={alphaSliderRef}
-							className="tlui-figma-color-picker__alpha-track"
 							style={{
+								width: '100%',
+								height: '12px',
 								background: `linear-gradient(to right, transparent, ${currentColor})`,
+								borderRadius: '6px',
+								position: 'relative',
+								cursor: 'pointer',
+								border: '1px solid #e1e5e9',
+								backgroundImage: `linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)`,
+								backgroundSize: '8px 8px',
+								backgroundPosition: '0 0, 0 4px, 4px -4px, -4px 0px',
 							}}
 							onMouseDown={(e) => handleMouseDown(e, 'alpha')}
 						>
 							<div
-								className="tlui-figma-color-picker__alpha-thumb"
 								style={{
+									position: 'absolute',
+									width: '16px',
+									height: '16px',
+									background: 'white',
+									border: '2px solid #e1e5e9',
+									borderRadius: '50%',
+									boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+									transform: 'translate(-50%, -50%)',
 									left: `${alpha}%`,
+									top: '50%',
+									pointerEvents: 'none',
 								}}
 							/>
 						</div>
 					</div>
 
 					{/* Color Input Fields */}
-					<div className="tlui-figma-color-picker__inputs">
-						<div className="tlui-figma-color-picker__input-group">
-							<label>Hex</label>
+					<div style={{ 
+						display: 'flex', 
+						gap: '12px', 
+						marginBottom: '16px',
+						alignItems: 'flex-end'
+					}}>
+						<div style={{ flex: 1 }}>
+							<label style={{
+								display: 'block',
+								fontSize: '11px',
+								fontWeight: '600',
+								color: '#333',
+								marginBottom: '4px',
+								textTransform: 'uppercase',
+								letterSpacing: '0.5px'
+							}}>
+								Hex
+							</label>
 							<input
 								type="text"
 								value={hexValue}
 								onChange={handleHexChange}
 								placeholder="#000000"
-								className="tlui-figma-color-picker__hex-input"
+								style={{
+									width: '100%',
+									padding: '6px 8px',
+									border: '1px solid #e1e5e9',
+									borderRadius: '4px',
+									fontSize: '12px',
+									fontFamily: 'monospace',
+									background: '#f8f9fa'
+								}}
 							/>
 						</div>
-						<div className="tlui-figma-color-picker__input-group">
-							<label>Alpha</label>
+						<div style={{ flex: 1 }}>
+							<label style={{
+								display: 'block',
+								fontSize: '11px',
+								fontWeight: '600',
+								color: '#333',
+								marginBottom: '4px',
+								textTransform: 'uppercase',
+								letterSpacing: '0.5px'
+							}}>
+								Alpha
+							</label>
 							<input
 								type="text"
 								value={`${Math.round(alpha)}%`}
 								readOnly
-								className="tlui-figma-color-picker__alpha-input"
+								style={{
+									width: '100%',
+									padding: '6px 8px',
+									border: '1px solid #e1e5e9',
+									borderRadius: '4px',
+									fontSize: '12px',
+									fontFamily: 'monospace',
+									background: '#f8f9fa',
+									textAlign: 'center'
+								}}
 							/>
 						</div>
 					</div>
 
 					{/* Recent Colors */}
-					<div className="tlui-figma-color-picker__recent">
-						<label>On this page</label>
-						<div className="tlui-figma-color-picker__color-swatches">
-							<div className="tlui-figma-color-picker__swatch" style={{ background: '#000' }} />
-							<div className="tlui-figma-color-picker__swatch" style={{ background: '#D9D9D9' }} />
-							<div className="tlui-figma-color-picker__swatch" style={{ background: '#fff' }} />
-							<div className="tlui-figma-color-picker__swatch tlui-figma-color-picker__swatch--transparent" />
+					<div style={{ marginBottom: '16px' }}>
+						<label style={{
+							display: 'block',
+							fontSize: '11px',
+							fontWeight: '600',
+							color: '#333',
+							marginBottom: '8px',
+							textTransform: 'uppercase',
+							letterSpacing: '0.5px'
+						}}>
+							On this page
+						</label>
+						<div style={{
+							display: 'flex',
+							gap: '6px',
+							flexWrap: 'wrap'
+						}}>
+							<div style={{
+								width: '24px',
+								height: '24px',
+								background: '#000',
+								borderRadius: '4px',
+								border: '1px solid #e1e5e9',
+								cursor: 'pointer',
+								boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+							}} />
+							<div style={{
+								width: '24px',
+								height: '24px',
+								background: '#D9D9D9',
+								borderRadius: '4px',
+								border: '1px solid #e1e5e9',
+								cursor: 'pointer',
+								boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+							}} />
+							<div style={{
+								width: '24px',
+								height: '24px',
+								background: '#fff',
+								borderRadius: '4px',
+								border: '1px solid #e1e5e9',
+								cursor: 'pointer',
+								boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+							}} />
+							<div style={{
+								width: '24px',
+								height: '24px',
+								background: 'transparent',
+								backgroundImage: 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)',
+								backgroundSize: '4px 4px',
+								backgroundPosition: '0 0, 0 2px, 2px -2px, -2px 0px',
+								borderRadius: '4px',
+								border: '1px solid #e1e5e9',
+								cursor: 'pointer',
+								boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+							}} />
+							<div style={{
+								width: '24px',
+								height: '24px',
+								background: '#D43333',
+								borderRadius: '4px',
+								border: '1px solid #e1e5e9',
+								cursor: 'pointer',
+								boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+							}} />
 						</div>
 					</div>
 				</div>
-			</div>
 			</TldrawUiPopoverContent>
 		</TldrawUiPopover>
 	)
