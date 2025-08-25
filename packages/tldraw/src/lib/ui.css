@@ -993,8 +993,8 @@
 	position: relative;
 	z-index: var(--tl-layer-panels);
 	pointer-events: all;
-	width: 220px;
-	max-width: 220px;
+	width: 280px;
+	max-width: 280px;
 }
 
 .tlui-style-panel[data-show-ui-labels='true'] .tlui-button[data-isactive='true'] {
