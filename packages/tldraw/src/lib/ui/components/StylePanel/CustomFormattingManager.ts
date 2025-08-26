@@ -677,6 +677,54 @@ export class CustomFormattingManager {
       console.log('🏁 setStrokeColor completed');
     },
 
+    // Method to set custom stroke color (supports hex colors)
+    setCustomStrokeColor: (color: string) => {
+      // Check if this is a hex color or a tldraw color
+      const isHexColor = color.startsWith('#') && (color.length === 7 || color.length === 4)
+      
+      // Get selected shapes that can have stroke colors
+      const shapesToUpdate = this.editor.getSelectedShapes()
+        .filter((shape: TLShape) => {
+          // Most shapes can have stroke colors, but exclude text shapes
+          return shape.type !== 'text'
+        })
+      
+      console.log('🔧 setCustomStrokeColor: Updating shapes with stroke colors:', shapesToUpdate)
+      console.log('🔧 Color type:', isHexColor ? 'hex' : 'tldraw', 'Value:', color)
+      
+      this.editor.run(() => {
+        shapesToUpdate.forEach((shape: TLShape) => {
+          if (isHexColor) {
+            // For hex colors, we need to work with tldraw's style system
+            // Since tldraw uses SVG rendering, we'll store the custom color
+            // and let the shape components handle it through their rendering logic
+            
+            // Store the custom stroke color in meta
+            this.editor.updateShapes([{
+              id: shape.id,
+              type: shape.type,
+              meta: { 
+                ...shape.meta, 
+                customStrokeColor: color 
+              }
+            }])
+            
+            // For hex colors, we need to override the stroke color at the DOM level
+            // since tldraw expects strokeColor to be a predefined color name
+            setTimeout(() => {
+              this.applyCustomStrokeColorToShape(shape.id, color)
+            }, 50)
+          } else {
+            // For tldraw colors, use the standard method
+            this.editor.setStyleForSelectedShapes(DefaultStrokeColorStyle, color)
+          }
+        })
+      })
+      
+      // Notify state change after updating
+      this.notifyStateChange()
+    },
+
     // Method to set stroke width (line thickness)
     setStrokeWidth: (width: 's' | 'm' | 'l' | 'xl') => {
       console.log('📏 setStrokeWidth called with width:', width);
@@ -759,6 +807,23 @@ export class CustomFormattingManager {
   getCurrentStrokeColor(): string {
     const selectedShapes = this.editor.getSelectedShapes()
     if (selectedShapes.length === 0) return '#000000'
+    
+    const firstShape = selectedShapes[0]
+    
+    // Check for custom stroke color first (in meta)
+    if (firstShape.meta?.customStrokeColor) {
+      console.log('🔍 Found custom stroke color in meta:', firstShape.meta.customStrokeColor)
+      return firstShape.meta.customStrokeColor
+    }
+    
+    // Check for strokeColor in props (for shapes that support it)
+    if (firstShape.props && typeof firstShape.props === 'object' && 'strokeColor' in firstShape.props) {
+      const strokeColor = (firstShape.props as any).strokeColor
+      if (strokeColor && strokeColor.startsWith('#')) {
+        console.log('🔍 Found custom stroke color in props:', strokeColor)
+        return strokeColor
+      }
+    }
     
     // Use the proper tldraw style system to get current styles
     const sharedStyles = this.editor.getSharedStyles()
@@ -1358,6 +1423,32 @@ export class CustomFormattingManager {
     element.style.backgroundColor = color
     element.style.fill = color
   }
+
+  // Apply custom stroke color to a shape
+  private applyCustomStrokeColorToShape(shapeId: TLShapeId, color: string) {
+    const shapeElement = document.querySelector(`[data-shape-id="${shapeId}"]`)
+    if (!shapeElement) return
+
+    console.log(`🔧 Applying custom stroke color ${color} to shape ${shapeId}`)
+
+    // Find SVG elements within the shape that need stroke color updates
+    const svgElements = shapeElement.querySelectorAll('svg, path, line, rect, circle, ellipse, polygon')
+    
+    svgElements.forEach((svgElement) => {
+      const element = svgElement as SVGElement
+      // Set the stroke attribute directly on SVG elements
+      element.setAttribute('stroke', color)
+      
+      // Also try to set stroke via CSS as a fallback
+      ;(element as any).style.stroke = color
+    })
+
+    // Also try to set stroke on the main shape element
+    const element = shapeElement as HTMLElement
+    element.style.borderColor = color
+  }
+
+
 }
 
 // Hook to use the formatting manager

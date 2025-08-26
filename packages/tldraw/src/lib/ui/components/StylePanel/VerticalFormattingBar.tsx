@@ -198,7 +198,7 @@ export function VerticalFormattingBar({
 
   // Apply stroke color using the formatting manager
   const applyStrokeColor = () => {
-    formattingManager.element.setStrokeColor(pendingStrokeColor);
+    formattingManager.element.setCustomStrokeColor(pendingStrokeColor);
     setShowColorPicker(null);
   };
 
