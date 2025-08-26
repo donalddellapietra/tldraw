@@ -1,5 +1,5 @@
 import { useEditor, TLShape, TLShapeId, toRichText } from '@tldraw/editor'
-import { DefaultColorStyle, DefaultFillStyle, DefaultFontStyle, DefaultFontSizeStyle, DefaultTextAlignStyle } from '@tldraw/tlschema'
+import { DefaultColorStyle, DefaultFillStyle, DefaultFontStyle, DefaultFontSizeStyle, DefaultTextAlignStyle, DefaultStrokeColorStyle } from '@tldraw/tlschema'
 import { FONT_SIZES } from '../../../shapes/shared/default-shape-constants'
 
 export class CustomFormattingManager {
@@ -324,6 +324,35 @@ export class CustomFormattingManager {
         this.editor.setStyleForNextShapes(DefaultColorStyle, tldrawColor)
         this.editor.updateInstanceState({ isChangingStyle: true })
       })
+    },
+
+    // Method to set stroke color (line/border color)
+    setStrokeColor: (color: string) => {
+      console.log('🎨 setStrokeColor called with color:', color);
+      
+      // Convert hex color to tldraw color
+      const tldrawColor = this.hexToTldrawColor(color)
+      console.log('🎨 Converted to tldraw color:', tldrawColor);
+      
+      this.editor.run(() => {
+        // Apply to currently selected shapes unconditionally
+        const selectedShapes = this.editor.getSelectedShapes();
+        console.log('📝 Selected shapes count:', selectedShapes.length);
+        
+        if (selectedShapes.length > 0) {
+          console.log('🔧 Setting stroke color for selected shapes...');
+          this.editor.setStyleForSelectedShapes(DefaultStrokeColorStyle, tldrawColor)
+          console.log('✅ Stroke color set for selected shapes');
+        }
+        
+        // Also set as default for next shapes
+        console.log('🔧 Setting stroke color for next shapes...');
+        this.editor.setStyleForNextShapes(DefaultStrokeColorStyle, tldrawColor)
+        this.editor.updateInstanceState({ isChangingStyle: true })
+        console.log('✅ Stroke color set for next shapes');
+      })
+      
+      console.log('🏁 setStrokeColor completed');
     }
   }
 
@@ -370,6 +399,23 @@ export class CustomFormattingManager {
     }
     
     return 'none'
+  }
+
+  getCurrentStrokeColor(): string {
+    const selectedShapes = this.editor.getSelectedShapes()
+    if (selectedShapes.length === 0) return '#000000'
+    
+    // Use the proper tldraw style system to get current styles
+    const sharedStyles = this.editor.getSharedStyles()
+    const currentStrokeColor = sharedStyles.get(DefaultStrokeColorStyle)
+    
+    if (currentStrokeColor && currentStrokeColor.type === 'shared') {
+      // Convert tldraw color back to hex
+      const hexColor = this.tldrawColorToHex(currentStrokeColor.value)
+      return hexColor
+    }
+    
+    return '#000000'
   }
 
   getCurrentFontFamily(): string {
