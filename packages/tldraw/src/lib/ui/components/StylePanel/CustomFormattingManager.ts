@@ -12,15 +12,21 @@ export class CustomFormattingManager {
   // Text formatting methods
   text = {
     setColor: (color: string) => {
+      // For now, we'll use the color conversion to avoid validation errors
+      // TODO: In the future, we could modify the schema to accept hex colors directly
+      const tldrawColor = this.hexToTldrawColor(color)
+      
       this.editor.updateShapes(
-        this.editor.getSelectedShapes().map((shape: TLShape) => ({
-          id: shape.id,
-          type: shape.type,
-          props: {
-            ...shape.props,
-            color: color as any
-          }
-        }))
+        this.editor.getSelectedShapes()
+          .filter((shape: TLShape) => shape.type === 'text') // Only update text shapes
+          .map((shape: TLShape) => ({
+            id: shape.id,
+            type: shape.type,
+            props: {
+              ...shape.props,
+              color: tldrawColor
+            }
+          }))
       )
     },
 
@@ -415,6 +421,88 @@ export class CustomFormattingManager {
         size: 'm',
       },
     ])
+  }
+
+  // Convert hex color to closest tldraw color
+  private hexToTldrawColor(hex: string): string {
+    // Available tldraw colors
+    const tldrawColors = [
+      'black', 'grey', 'light-violet', 'violet', 'blue', 'light-blue', 
+      'yellow', 'orange', 'green', 'light-green', 'light-red', 'red', 
+      'white', 'brown', 'pink', 'cyan'
+    ]
+    
+    // Convert hex to HSL
+    const hsl = this.hexToHSL(hex)
+    
+    // Handle special cases first
+    if (hsl.l < 15) return 'black'
+    if (hsl.l > 85 && hsl.s < 20) return 'white'
+    if (hsl.s < 15) return 'grey'
+    
+    // Map based on hue ranges with better precision
+    if (hsl.h >= 0 && hsl.h < 30) {
+      return hsl.l > 60 ? 'light-red' : 'red'
+    }
+    if (hsl.h >= 30 && hsl.h < 60) {
+      return hsl.l > 60 ? 'orange' : 'brown'
+    }
+    if (hsl.h >= 60 && hsl.h < 90) {
+      return hsl.l > 60 ? 'yellow' : 'brown'
+    }
+    if (hsl.h >= 90 && hsl.h < 150) {
+      return hsl.l > 60 ? 'light-green' : 'green'
+    }
+    if (hsl.h >= 150 && hsl.h < 210) {
+      return 'cyan'
+    }
+    if (hsl.h >= 210 && hsl.h < 270) {
+      return hsl.l > 60 ? 'light-blue' : 'blue'
+    }
+    if (hsl.h >= 270 && hsl.h < 330) {
+      return hsl.l > 60 ? 'light-violet' : 'violet'
+    }
+    if (hsl.h >= 330 && hsl.h < 360) {
+      return hsl.l > 60 ? 'pink' : 'red'
+    }
+    
+    return 'red' // fallback
+  }
+
+  // Convert hex to HSL
+  private hexToHSL(hex: string): { h: number; s: number; l: number } {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+    if (!result) return { h: 0, s: 100, l: 50 }
+
+    const r = parseInt(result[1], 16) / 255
+    const g = parseInt(result[2], 16) / 255
+    const b = parseInt(result[3], 16) / 255
+
+    const max = Math.max(r, g, b)
+    const min = Math.min(r, g, b)
+    let h = 0
+    let s = 0
+    const l = (max + min) / 2
+
+    if (max !== min) {
+      const d = max - min
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+
+      switch (max) {
+        case r:
+          h = (g - b) / d + (g < b ? 6 : 0)
+          break
+        case g:
+          h = (b - r) / d + 2
+          break
+        case b:
+          h = (r - g) / d + 4
+          break
+      }
+      h /= 6
+    }
+
+    return { h: h * 360, s: s * 100, l: l * 100 }
   }
 }
 
