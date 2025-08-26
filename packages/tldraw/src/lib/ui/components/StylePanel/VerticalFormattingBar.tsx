@@ -181,7 +181,7 @@ export function VerticalFormattingBar({
   // Get current text color using the formatting manager (memoized to avoid calling on every render)
   const getCurrentTextColor = (): string => {
     // Only get color when actually opening the color picker
-    return formattingManager.getCurrentColor();
+    return formattingManager.getCurrentTextColor();
   };
 
   // Apply text color using the formatting manager
