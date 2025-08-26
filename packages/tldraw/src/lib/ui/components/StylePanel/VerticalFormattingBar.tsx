@@ -30,7 +30,8 @@ export function VerticalFormattingBar({
   const strokeColorPickerRef = useRef<HTMLDivElement>(null);
   const strokeWidthDropdownRef = useRef<HTMLDivElement>(null);
   const fontDropdownRef = useRef<HTMLDivElement>(null);
-  const formattingManager = useCustomFormattingManager();
+  // Use the new hook structure
+  const { manager: formattingManager, state: formattingState } = useCustomFormattingManager()
 
   // Sync font size with selected text
   useEffect(() => {
@@ -300,7 +301,7 @@ export function VerticalFormattingBar({
           {/* Text Style Controls - FUNCTIONAL */}
           <button 
             onClick={() => formattingManager.text.bold()}
-            className={`formatting-button ${formattingManager.isBold() ? 'active' : ''}`}
+            className={`formatting-button ${formattingState.isBold ? 'active' : ''}`}
             title="Bold"
           >
             <Bold size={14} />
@@ -308,7 +309,7 @@ export function VerticalFormattingBar({
           
           <button 
             onClick={() => formattingManager.text.italic()}
-            className={`formatting-button ${formattingManager.isItalic() ? 'active' : ''}`}
+            className={`formatting-button ${formattingState.isItalic ? 'active' : ''}`}
             title="Italic"
           >
             <Italic size={14} />
@@ -316,7 +317,7 @@ export function VerticalFormattingBar({
           
           <button 
             onClick={() => formattingManager.text.code()}
-            className={`formatting-button ${formattingManager.isCode() ? 'active' : ''}`}
+            className={`formatting-button ${formattingState.isCode ? 'active' : ''}`}
             title="Code"
           >
             <span style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>{'</>'}</span>
@@ -328,7 +329,7 @@ export function VerticalFormattingBar({
           {/* Text Alignment - Now Functional */}
           <button 
             onClick={() => formattingManager.text.alignLeft()}
-            className={`formatting-button ${formattingManager.getCurrentTextAlign() === 'start' ? 'active' : ''}`}
+            className={`formatting-button ${formattingState.textAlign === 'start' ? 'active' : ''}`}
             title="Align Left"
           >
             <AlignLeft size={14} />
@@ -336,7 +337,7 @@ export function VerticalFormattingBar({
           
           <button 
             onClick={() => formattingManager.text.alignCenter()}
-            className={`formatting-button ${formattingManager.getCurrentTextAlign() === 'middle' ? 'active' : ''}`}
+            className={`formatting-button ${formattingState.textAlign === 'middle' ? 'active' : ''}`}
             title="Align Center"
           >
             <AlignCenter size={14} />
@@ -344,7 +345,7 @@ export function VerticalFormattingBar({
           
           <button 
             onClick={() => formattingManager.text.alignRight()}
-            className={`formatting-button ${formattingManager.getCurrentTextAlign() === 'end' ? 'active' : ''}`}
+            className={`formatting-button ${formattingState.textAlign === 'end' ? 'active' : ''}`}
             title="Align Right"
           >
             <AlignRight size={14} />
