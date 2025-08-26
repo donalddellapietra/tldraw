@@ -80,6 +80,19 @@ export class CustomFormattingManager {
     code: () => {
       console.log('Code method called')
       this.toggleTextStyle('code')
+    },
+
+    // Text alignment methods
+    alignLeft: () => {
+      this.setTextAlign('start')
+    },
+
+    alignCenter: () => {
+      this.setTextAlign('middle')
+    },
+
+    alignRight: () => {
+      this.setTextAlign('end')
     }
   }
 
@@ -216,6 +229,37 @@ export class CustomFormattingManager {
         }
       })
     })
+  }
+
+  // Helper method to set text alignment
+  private setTextAlign(alignment: 'start' | 'middle' | 'end') {
+    const selectedShapes = this.editor.getSelectedShapes()
+    const textShapes = selectedShapes.filter((shape: TLShape) => shape.type === 'text')
+    
+    if (textShapes.length === 0) return
+    
+    this.editor.run(() => {
+      textShapes.forEach((shape: TLShape) => {
+        if (shape.type === 'text') {
+          this.editor.updateShape({
+            id: shape.id,
+            type: 'text',
+            props: { textAlign: alignment }
+          })
+        }
+      })
+    })
+  }
+
+  // Helper method to get current text alignment
+  getCurrentTextAlign(): 'start' | 'middle' | 'end' {
+    const selectedShapes = this.editor.getSelectedShapes()
+    const textShapes = selectedShapes.filter((shape: TLShape) => shape.type === 'text')
+    
+    if (textShapes.length === 0) return 'start'
+    
+    const firstShape = textShapes[0]
+    return firstShape.props?.textAlign || 'start'
   }
 
   // Element formatting methods
