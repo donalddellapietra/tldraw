@@ -216,20 +216,13 @@ export function VerticalFormattingBar({
   };
 
   // Check if text is selected (tldraw-specific logic)
-  const hasTextSelected = () => {
-    const selectedElements = formattingManager.getSelectedElementsForFormatting();
-    return selectedElements.some((element: any) => {
-      return element.type === 'text' || element.props?.richText;
-    });
-  };
+  const selection = formattingManager.getSelectedElementsForFormatting();
+  const hasSelection = selection.length > 0;
+  const allTextSelected = hasSelection && selection.every((el: any) => el.type === 'text');
+  const allNonTextSelected = hasSelection && selection.every((el: any) => el.type !== 'text');
 
-  // Check if any shapes are selected for background formatting
-  const hasShapesSelected = () => {
-    const selectedElements = formattingManager.getSelectedElementsForFormatting();
-    return selectedElements.length > 0;
-  };
-
-  const showTextFormatting = hasTextSelected();
+  const showTextFormatting = allTextSelected;
+  const showShapeFormatting = allNonTextSelected;
 
   if (!isVisible) return null;
 
@@ -410,7 +403,7 @@ export function VerticalFormattingBar({
       )}
 
       {/* Background Color - show when shapes are selected */}
-      {hasShapesSelected() && (
+      {showShapeFormatting && (
         <div className="color-picker-container" ref={bgColorPickerRef}>
           <button
             onClick={() => {
@@ -456,7 +449,7 @@ export function VerticalFormattingBar({
       )}
 
       {/* Stroke Color - show when shapes are selected */}
-      {hasShapesSelected() && (
+      {showShapeFormatting && (
         <div className="color-picker-container" ref={strokeColorPickerRef}>
           <button
             onClick={() => {
@@ -502,7 +495,7 @@ export function VerticalFormattingBar({
       )}
 
       {/* Stroke Width - show when shapes are selected */}
-      {hasShapesSelected() && (
+      {showShapeFormatting && (
         <div className="stroke-width-dropdown" ref={strokeWidthDropdownRef}>
           <button
             onClick={() => setShowStrokeWidthDropdown(!showStrokeWidthDropdown)}
