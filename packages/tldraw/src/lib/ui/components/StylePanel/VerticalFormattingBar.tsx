@@ -192,7 +192,7 @@ export function VerticalFormattingBar({
 
   // Apply background color using the formatting manager
   const applyBackgroundColor = () => {
-    formattingManager.element.setBackground(pendingBackgroundColor);
+    formattingManager.element.setCustomFillColor(pendingBackgroundColor);
     setShowColorPicker(null);
   };
 

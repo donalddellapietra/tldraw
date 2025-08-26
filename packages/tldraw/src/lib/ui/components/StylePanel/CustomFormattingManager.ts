@@ -605,6 +605,49 @@ export class CustomFormattingManager {
       })
     },
 
+    // Method to set custom fill color (supports hex colors)
+    setCustomFillColor: (color: string) => {
+      // Check if this is a hex color or a tldraw color
+      const isHexColor = color.startsWith('#') && (color.length === 7 || color.length === 4)
+      
+      // Get selected shapes that can have fill colors
+      const shapesToUpdate = this.editor.getSelectedShapes()
+        .filter((shape: TLShape) => {
+          // Most shapes can have fill colors, but exclude text shapes
+          return shape.type !== 'text'
+        })
+      
+      console.log('🔧 setCustomFillColor: Updating shapes with fill colors:', shapesToUpdate)
+      console.log('🔧 Color type:', isHexColor ? 'hex' : 'tldraw', 'Value:', color)
+      
+      this.editor.run(() => {
+        shapesToUpdate.forEach((shape: TLShape) => {
+          if (isHexColor) {
+            // For hex colors, store in meta and apply via CSS
+            this.editor.updateShapes([{
+              id: shape.id,
+              type: shape.type,
+              meta: { 
+                ...shape.meta, 
+                customFillColor: color 
+              }
+            }])
+            
+            // Apply the color directly to the DOM elements for immediate visual feedback
+            setTimeout(() => {
+              this.applyCustomFillColorToShape(shape.id, color)
+            }, 50)
+          } else {
+            // For tldraw colors, use the standard method
+            this.editor.setStyleForSelectedShapes(DefaultColorStyle, color)
+          }
+        })
+      })
+      
+      // Notify state change after updating
+      this.notifyStateChange()
+    },
+
     // Method to set stroke color (line/border color)
     setStrokeColor: (color: string) => {
       console.log('🎨 setStrokeColor called with color:', color);
@@ -672,6 +715,14 @@ export class CustomFormattingManager {
   getCurrentBackgroundColor(): string {
     const selectedShapes = this.editor.getSelectedShapes()
     if (selectedShapes.length === 0) return '#ffffff'
+    
+    const firstShape = selectedShapes[0]
+    
+    // Check for custom fill color first
+    if (firstShape.meta?.customFillColor) {
+      console.log('🔍 Found custom fill color:', firstShape.meta.customFillColor)
+      return firstShape.meta.customFillColor
+    }
     
     // Use the proper tldraw style system to get current styles
     const sharedStyles = this.editor.getSharedStyles()
@@ -1293,6 +1344,19 @@ export class CustomFormattingManager {
       const element = textElement as HTMLElement
       element.style.color = color
     })
+  }
+
+  // Apply custom fill color to a shape
+  private applyCustomFillColorToShape(shapeId: TLShapeId, color: string) {
+    const shapeElement = document.querySelector(`[data-shape-id="${shapeId}"]`)
+    if (!shapeElement) return
+
+    console.log(`🔧 Applying custom fill color ${color} to shape ${shapeId}`)
+
+    // Apply the fill color to the shape element
+    const element = shapeElement as HTMLElement
+    element.style.backgroundColor = color
+    element.style.fill = color
   }
 }
 
