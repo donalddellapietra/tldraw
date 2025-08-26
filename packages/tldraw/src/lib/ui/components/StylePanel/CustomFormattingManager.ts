@@ -396,14 +396,14 @@ export class CustomFormattingManager {
         
         if (selectedShapes.length > 0) {
           console.log('🔧 Setting styles for selected shapes...');
-          this.editor.setStyleForSelectedShapes(DefaultFillStyle, 'solid')
+          this.editor.setStyleForSelectedShapes(DefaultFillStyle, 'fill')
           this.editor.setStyleForSelectedShapes(DefaultColorStyle, tldrawColor)
           console.log('✅ Styles set for selected shapes');
         }
         
         // Also set as default for next shapes
         console.log('🔧 Setting styles for next shapes...');
-        this.editor.setStyleForNextShapes(DefaultFillStyle, 'solid')
+        this.editor.setStyleForNextShapes(DefaultFillStyle, 'fill')
         this.editor.setStyleForNextShapes(DefaultColorStyle, tldrawColor)
         this.editor.updateInstanceState({ isChangingStyle: true })
         console.log('✅ Styles set for next shapes');
