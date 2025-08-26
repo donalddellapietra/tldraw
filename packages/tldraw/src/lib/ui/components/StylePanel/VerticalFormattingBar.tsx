@@ -26,6 +26,24 @@ export function VerticalFormattingBar({
   const fontDropdownRef = useRef<HTMLDivElement>(null);
   const formattingManager = useCustomFormattingManager();
 
+  // Sync font size with selected text
+  useEffect(() => {
+    const updateFontSize = () => {
+      const currentSize = formattingManager.getCurrentFontSize();
+      setFontSize(currentSize.toString());
+    };
+
+    // Update initially
+    updateFontSize();
+
+    // Listen for selection changes
+    const unsubscribe = formattingManager.getStore().listen(() => {
+      updateFontSize();
+    });
+
+    return unsubscribe;
+  }, [formattingManager]);
+
   // Font options (same as slide editor)
   const fontOptions = [
     'Arial', 'Helvetica', 'Times New Roman', 'Georgia', 'Verdana', 'Comic Sans MS',
@@ -112,8 +130,8 @@ export function VerticalFormattingBar({
         <Square size={14} />
       </button>
 
-      {/* Text formatting controls - show always for now */}
-      {true && (
+      {/* Text formatting controls - show only when text is selected */}
+      {showTextFormatting && (
         <>
           {/* Divider */}
           <div className="divider"></div>

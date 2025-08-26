@@ -1,5 +1,6 @@
 import { useEditor, TLShape, TLShapeId, toRichText } from '@tldraw/editor'
 import { DefaultColorStyle, DefaultFillStyle, DefaultFontStyle, DefaultFontSizeStyle, DefaultTextAlignStyle } from '@tldraw/tlschema'
+import { FONT_SIZES } from '../../../shapes/shared/default-shape-constants'
 
 export class CustomFormattingManager {
   private editor: any
@@ -38,15 +39,22 @@ export class CustomFormattingManager {
 
     setSize: (size: string) => {
       const sizeValue = parseInt(size.replace('px', ''))
+      if (isNaN(sizeValue) || sizeValue < 1 || sizeValue > 200) {
+        console.warn('Invalid font size:', size)
+        return
+      }
+      
       this.editor.updateShapes(
-        this.editor.getSelectedShapes().map((shape: TLShape) => ({
-          id: shape.id,
-          type: shape.type,
-          props: {
-            ...shape.props,
-            fontSize: sizeValue as any
-          }
-        }))
+        this.editor.getSelectedShapes()
+          .filter((shape: TLShape) => shape.type === 'text') // Only update text shapes
+          .map((shape: TLShape) => ({
+            id: shape.id,
+            type: shape.type,
+            props: {
+              ...shape.props,
+              customFontSize: sizeValue
+            }
+          }))
       )
     },
 
@@ -104,7 +112,23 @@ export class CustomFormattingManager {
     if (selectedShapes.length === 0) return 16
     
     const firstShape = selectedShapes[0]
-    return firstShape.props?.fontSize || 16
+    // Check for customFontSize first, then fall back to fontSize preset
+    if (firstShape.props?.customFontSize) {
+      return firstShape.props.customFontSize
+    }
+    
+    // If no custom font size, try to get from fontSize preset and convert to pixel value
+    const fontSizePreset = firstShape.props?.fontSize
+    if (fontSizePreset && fontSizePreset in FONT_SIZES) {
+      return FONT_SIZES[fontSizePreset as keyof typeof FONT_SIZES]
+    }
+    
+    return 24 // Default to medium size
+  }
+
+  // Public method to access the editor's store for listening to changes
+  getStore() {
+    return this.editor.store
   }
 
   isBold(): boolean {
@@ -136,7 +160,7 @@ export class CustomFormattingManager {
           richText: toRichText('New Text'),
           textAlign: 'middle',
           color: 'black',
-          fontSize: 16,
+          customFontSize: 16,
           font: 'draw',
         },
         autoSize: true,
