@@ -68,19 +68,154 @@ export class CustomFormattingManager {
     },
 
     bold: () => {
-      // Toggle bold - this would need to be implemented based on tldraw's text formatting
-      console.log('Bold toggle - implement based on tldraw text formatting')
+      console.log('Bold method called')
+      this.toggleTextStyle('bold')
     },
 
     italic: () => {
-      // Toggle italic - this would need to be implemented based on tldraw's text formatting
-      console.log('Italic toggle - implement based on tldraw text formatting')
+      console.log('Italic method called')
+      this.toggleTextStyle('italic')
     },
 
-    underline: () => {
-      // Toggle underline - this would need to be implemented based on tldraw's text formatting
-      console.log('Underline toggle - implement based on tldraw text formatting')
+    code: () => {
+      console.log('Code method called')
+      this.toggleTextStyle('code')
     }
+  }
+
+  // Helper method to toggle text styles (bold, italic, code)
+  private toggleTextStyle(style: 'bold' | 'italic' | 'code') {
+    console.log('toggleTextStyle called with style:', style)
+    const selectedShapes = this.editor.getSelectedShapes()
+    console.log('Selected shapes:', selectedShapes.map((s: TLShape) => ({ type: s.type, id: s.id })))
+    
+    const textShapes = selectedShapes.filter((shape: TLShape) => shape.type === 'text')
+    console.log('Text shapes found:', textShapes.length)
+    
+    if (textShapes.length === 0) {
+      console.log('No text shapes found, returning')
+      return
+    }
+    
+    this.editor.run(() => {
+      textShapes.forEach((shape: TLShape) => {
+        if (shape.type === 'text') {
+          const currentRichText = (shape.props as any).richText
+          console.log('Current rich text for shape:', shape.id, currentRichText)
+          
+          if (currentRichText && currentRichText.content && currentRichText.content.length > 0) {
+            // Handle the structure with 'content' array (the correct structure)
+            console.log('Processing rich text with content array')
+            
+            const newRichText = {
+              ...currentRichText,
+              content: currentRichText.content.map((block: any) => {
+                if (block.type === 'paragraph' && block.content) {
+                  return {
+                    ...block,
+                    content: block.content.map((child: any) => {
+                      if (child.type === 'text') {
+                        const newMarks = child.marks ? [...child.marks] : []
+                        console.log('Child text:', child.text, 'Current marks:', newMarks)
+                        
+                        // Check if the style is already applied
+                        const hasStyle = newMarks.some((mark: any) => mark.type === style)
+                        console.log('Has style', style, ':', hasStyle)
+                        
+                        if (hasStyle) {
+                          // Remove the style if it's already applied
+                          const filteredMarks = newMarks.filter((mark: any) => mark.type !== style)
+                          console.log('Removing style, new marks:', filteredMarks)
+                          return {
+                            ...child,
+                            marks: filteredMarks
+                          }
+                        } else {
+                          // Add the style if it's not applied
+                          newMarks.push({ type: style })
+                          console.log('Adding style, new marks:', newMarks)
+                          return {
+                            ...child,
+                            marks: newMarks
+                          }
+                        }
+                      }
+                      return child
+                    })
+                  }
+                }
+                return block
+              })
+            }
+            
+            console.log('New rich text:', newRichText)
+            
+            // Update the shape with new rich text
+            this.editor.updateShape({
+              id: shape.id,
+              type: 'text',
+              props: { richText: newRichText }
+            })
+            
+            console.log('Shape updated with new rich text')
+          } else if (currentRichText && currentRichText.length > 0) {
+            // Handle the old array structure (fallback)
+            console.log('Processing rich text with old array structure')
+            
+            const newRichText = currentRichText.map((block: any) => {
+              if (block.type === 'paragraph' && block.children) {
+                return {
+                  ...block,
+                  children: block.children.map((child: any) => {
+                    if (child.type === 'text') {
+                      const newMarks = child.marks ? [...child.marks] : []
+                      console.log('Child text:', child.text, 'Current marks:', newMarks)
+                      
+                      // Check if the style is already applied
+                      const hasStyle = newMarks.some((mark: any) => mark.type === style)
+                      console.log('Has style', style, ':', hasStyle)
+                      
+                      if (hasStyle) {
+                        // Remove the style if it's already applied
+                        const filteredMarks = newMarks.filter((mark: any) => mark.type !== style)
+                        console.log('Removing style, new marks:', filteredMarks)
+                        return {
+                          ...child,
+                          marks: filteredMarks
+                        }
+                      } else {
+                        // Add the style if it's not applied
+                        newMarks.push({ type: style })
+                        console.log('Adding style, new marks:', newMarks)
+                        return {
+                          ...child,
+                          marks: newMarks
+                        }
+                      }
+                    }
+                    return child
+                  })
+                }
+              }
+              return block
+            })
+            
+            console.log('New rich text:', newRichText)
+            
+            // Update the shape with new rich text
+            this.editor.updateShape({
+              id: shape.id,
+              type: 'text',
+              props: { richText: newRichText }
+            })
+            
+            console.log('Shape updated with new rich text')
+          } else {
+            console.log('No rich text found in shape')
+          }
+        }
+      })
+    })
   }
 
   // Element formatting methods
@@ -142,18 +277,61 @@ export class CustomFormattingManager {
   }
 
   isBold(): boolean {
-    // This would need to be implemented based on tldraw's text formatting
-    return false
+    return this.hasTextStyle('bold')
   }
 
   isItalic(): boolean {
-    // This would need to be implemented based on tldraw's text formatting
-    return false
+    return this.hasTextStyle('italic')
   }
 
-  isUnderlined(): boolean {
-    // This would need to be implemented based on tldraw's text formatting
-    return false
+  isCode(): boolean {
+    return this.hasTextStyle('code')
+  }
+
+  // Helper method to check if text has a specific style
+  private hasTextStyle(style: 'bold' | 'italic' | 'code'): boolean {
+    const selectedShapes = this.editor.getSelectedShapes()
+    const textShapes = selectedShapes.filter((shape: TLShape) => shape.type === 'text')
+    
+    if (textShapes.length === 0) return false
+    
+    // Check if any of the selected text shapes have the style
+    return textShapes.some((shape: TLShape) => {
+      if (shape.type === 'text') {
+        const richText = (shape.props as any).richText
+        
+        // Handle the structure with 'content' array (the correct structure)
+        if (richText && richText.content && richText.content.length > 0) {
+          return richText.content.some((block: any) => {
+            if (block.type === 'paragraph' && block.content) {
+              return block.content.some((child: any) => {
+                if (child.type === 'text' && child.marks) {
+                  return child.marks.some((mark: any) => mark.type === style)
+                }
+                return false
+              })
+            }
+            return false
+          })
+        }
+        
+        // Handle the old array structure (fallback)
+        if (richText && richText.length > 0) {
+          return richText.some((block: any) => {
+            if (block.type === 'paragraph' && block.children) {
+              return block.children.some((child: any) => {
+                if (child.type === 'text' && child.marks) {
+                  return child.marks.some((mark: any) => mark.type === style)
+                }
+                return false
+              })
+            }
+            return false
+          })
+        }
+      }
+      return false
+    })
   }
 
   getSelectedElementsForFormatting() {

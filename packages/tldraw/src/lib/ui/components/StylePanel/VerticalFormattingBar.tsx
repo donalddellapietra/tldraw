@@ -21,6 +21,7 @@ export function VerticalFormattingBar({
   const [pendingTextColor, setPendingTextColor] = useState<string>('#000000');
   const [pendingBackgroundColor, setPendingBackgroundColor] = useState<string>('#ffffff');
   const [fontSize, setFontSize] = useState<string>('16');
+  const [formattingState, setFormattingState] = useState<number>(0); // Force re-renders
   
   const colorPickerRef = useRef<HTMLDivElement>(null);
   const fontDropdownRef = useRef<HTMLDivElement>(null);
@@ -39,6 +40,25 @@ export function VerticalFormattingBar({
     // Listen for selection changes
     const unsubscribe = formattingManager.getStore().listen(() => {
       updateFontSize();
+    });
+
+    return unsubscribe;
+  }, [formattingManager]);
+
+  // Sync formatting state (bold, italic, code) with selected text
+  useEffect(() => {
+    const updateFormattingState = () => {
+      // Force re-render to update button states
+      setFontSize(formattingManager.getCurrentFontSize().toString());
+      setFormattingState(prev => prev + 1); // Increment to force re-render
+    };
+
+    // Update initially
+    updateFormattingState();
+
+    // Listen for selection changes
+    const unsubscribe = formattingManager.getStore().listen(() => {
+      updateFormattingState();
     });
 
     return unsubscribe;
@@ -222,11 +242,11 @@ export function VerticalFormattingBar({
           </button>
           
           <button 
-            onClick={() => formattingManager.text.underline()}
-            className={`formatting-button ${formattingManager.isUnderlined() ? 'active' : ''}`}
-            title="Underline"
+            onClick={() => formattingManager.text.code()}
+            className={`formatting-button ${formattingManager.isCode() ? 'active' : ''}`}
+            title="Code"
           >
-            <Underline size={14} />
+            <span style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>{'</>'}</span>
           </button>
 
           {/* Divider */}
