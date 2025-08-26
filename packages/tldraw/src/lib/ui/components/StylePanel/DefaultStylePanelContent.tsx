@@ -40,7 +40,6 @@ import { TldrawUiToolbar, TldrawUiToolbarButton } from '../primitives/TldrawUiTo
 import { DoubleDropdownPicker } from './DoubleDropdownPicker'
 import { DropdownPicker } from './DropdownPicker'
 import { FigmaTypographyPanel } from './FigmaTypographyPanel'
-import './FigmaTypographyPanel.css'
 
 
 // Local component for style panel subheadings

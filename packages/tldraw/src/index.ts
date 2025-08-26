@@ -448,6 +448,10 @@ export {
 	type TLUiStylePanelProps,
 } from './lib/ui/components/StylePanel/DefaultStylePanel'
 export {
+	CustomStylePanel,
+	type TLUiCustomStylePanelProps,
+} from './lib/ui/components/StylePanel/CustomStylePanel'
+export {
 	ArrowheadStylePickerSet,
 	CommonStylePickerSet,
 	DefaultStylePanelContent,
@@ -459,6 +463,14 @@ export {
 	type ThemeStylePickerSetProps,
 	type TLUiStylePanelContentProps,
 } from './lib/ui/components/StylePanel/DefaultStylePanelContent'
+export {
+	CustomStylePanelContent,
+	type TLUiCustomStylePanelContentProps,
+} from './lib/ui/components/StylePanel/CustomStylePanelContent'
+export {
+	VerticalFormattingBar,
+	useCustomFormattingManager,
+} from './lib/ui/components/StylePanel'
 export {
 	DefaultImageToolbar,
 	type TLUiImageToolbarProps,
