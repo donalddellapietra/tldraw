@@ -138,9 +138,9 @@ export function StylePanelColorPicker() {
 				<div
 					style={{
 						marginTop: '0px',
-						marginBottom: '12px',
+						marginBottom: '9px',
 						background: 'var(--tl-color-panel)',
-						borderRadius: '6px',
+						borderRadius: '4.5px',
 						border: '1px solid var(--tl-color-border)',
 						overflow: 'hidden',
 						width: '100%',
@@ -150,10 +150,10 @@ export function StylePanelColorPicker() {
 					{/* Fill Header */}
 					<div
 						style={{
-							padding: '12px 16px',
+							padding: '9px 12px',
 							background: 'var(--tl-color-muted-1)',
 							borderBottom: '1px solid var(--tl-color-border)',
-							fontSize: '11px',
+							fontSize: '9px',
 							fontWeight: '500',
 							color: 'var(--tl-color-text-1)',
 							textTransform: 'uppercase',
@@ -168,9 +168,9 @@ export function StylePanelColorPicker() {
 					</div>
 
 					{/* Fill Content */}
-					<div style={{ padding: '16px' }}>
+					<div style={{ padding: '12px' }}>
 						{/* Fill Type Selector */}
-						<div style={{ marginBottom: '12px' }}>
+						<div style={{ marginBottom: '9px' }}>
 							<TldrawUiToolbar orientation="horizontal" label={msg('style-panel.fill')}>
 								<TldrawUiButtonPicker
 									title={msg('style-panel.fill')}
@@ -187,7 +187,7 @@ export function StylePanelColorPicker() {
 
 						{/* Color Picker - Only show when fill is not 'none' */}
 						{fill?.type !== 'mixed' && fill?.value !== 'none' && color?.type !== 'mixed' && color && (
-							<div style={{ marginTop: '8px' }}>
+							<div style={{ marginTop: '6px' }}>
 								{showUiLabels && (
 									<StylePanelSubheading>{msg('style-panel.color')}</StylePanelSubheading>
 								)}
@@ -201,11 +201,11 @@ export function StylePanelColorPicker() {
 
 						{/* Current Fill Preview */}
 						{fill?.type !== 'mixed' && fill?.value !== 'none' && color?.type !== 'mixed' && color && (
-							<div style={{ marginTop: '12px' }}>
+							<div style={{ marginTop: '9px' }}>
 								<div style={{ 
-									fontSize: '10px', 
+									fontSize: '8.5px', 
 									color: 'var(--tl-color-text-2)', 
-									marginBottom: '6px',
+									marginBottom: '4.5px',
 									textTransform: 'uppercase',
 									letterSpacing: '0.5px'
 								}}>
@@ -213,10 +213,10 @@ export function StylePanelColorPicker() {
 								</div>
 								<div style={{
 									width: '100%',
-									height: '40px',
+									height: '30px',
 									background: getColorValue(theme, color.value, fill.value),
 									border: '1px solid var(--tl-color-border)',
-									borderRadius: '6px',
+									borderRadius: '4.5px',
 									position: 'relative',
 									overflow: 'hidden',
 									boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.1)',
@@ -256,9 +256,9 @@ export function StylePanelColorPicker() {
 				<div
 					style={{
 						marginTop: '0px',
-						marginBottom: '12px',
+						marginBottom: '9px',
 						background: 'var(--tl-color-panel)',
-						borderRadius: '6px',
+						borderRadius: '4.5px',
 						border: '1px solid var(--tl-color-border)',
 						overflow: 'hidden',
 						width: '100%',
@@ -268,10 +268,10 @@ export function StylePanelColorPicker() {
 					{/* Stroke Color Header */}
 					<div
 						style={{
-							padding: '12px 16px',
+							padding: '9px 12px',
 							background: 'var(--tl-color-muted-1)',
 							borderBottom: '1px solid var(--tl-color-border)',
-							fontSize: '11px',
+							fontSize: '9px',
 							fontWeight: '500',
 							color: 'var(--tl-color-text-1)',
 							textTransform: 'uppercase',
@@ -286,7 +286,7 @@ export function StylePanelColorPicker() {
 					</div>
 
 					{/* Stroke Color Content */}
-					<div style={{ padding: '16px' }}>
+					<div style={{ padding: '12px' }}>
 						{strokeColor?.type !== 'mixed' && strokeColor && (
 							<TldrawUiFigmaColorPicker
 								value={getColorValue(theme, strokeColor.value, 'solid')}
@@ -303,9 +303,9 @@ export function StylePanelColorPicker() {
 				<div
 					style={{
 						marginTop: '0px',
-						marginBottom: '12px',
+						marginBottom: '9px',
 						background: 'var(--tl-color-panel)',
-						borderRadius: '6px',
+						borderRadius: '4.5px',
 						border: '1px solid var(--tl-color-border)',
 						overflow: 'hidden',
 						width: '100%',
@@ -316,10 +316,10 @@ export function StylePanelColorPicker() {
 					<div
 						onClick={() => setIsDashSectionExpanded(!isDashSectionExpanded)}
 						style={{
-							padding: '12px 16px',
+							padding: '9px 12px',
 							background: 'var(--tl-color-muted-1)',
 							borderBottom: '1px solid var(--tl-color-border)',
-							fontSize: '11px',
+							fontSize: '9px',
 							fontWeight: '500',
 							color: 'var(--tl-color-text-1)',
 							textTransform: 'uppercase',
@@ -341,8 +341,8 @@ export function StylePanelColorPicker() {
 						<span style={{ fontWeight: '500' }}>Dash</span>
 						<div
 							style={{
-								width: '14px',
-								height: '14px',
+								width: '10px',
+								height: '10px',
 								display: 'flex',
 								alignItems: 'center',
 								justifyContent: 'center',
@@ -352,8 +352,8 @@ export function StylePanelColorPicker() {
 							}}
 						>
 							<svg
-								width="10"
-								height="10"
+								width="8"
+								height="8"
 								viewBox="0 0 24 24"
 								fill="none"
 								xmlns="http://www.w3.org/2000/svg"
@@ -371,7 +371,7 @@ export function StylePanelColorPicker() {
 
 					{/* Session Content - Expandable */}
 					{isDashSectionExpanded && (
-						<div style={{ padding: '16px' }}>
+						<div style={{ padding: '12px' }}>
 							{showUiLabels && (
 								<StylePanelSubheading>{msg('style-panel.dash')}</StylePanelSubheading>
 							)}
@@ -392,7 +392,7 @@ export function StylePanelColorPicker() {
 							
 							{/* Thickness Control - Integrated with dash section */}
 							{size !== undefined && (
-								<div style={{ marginTop: '16px' }}>
+								<div style={{ marginTop: '12px' }}>
 									{showUiLabels && (
 										<StylePanelSubheading>{msg('style-panel.size')}</StylePanelSubheading>
 									)}
@@ -416,9 +416,9 @@ export function StylePanelColorPicker() {
 									</TldrawUiToolbar>
 									
 									{/* Custom Thickness Input */}
-									<div style={{ marginTop: '12px' }}>
+									<div style={{ marginTop: '9px' }}>
 										{showUiLabels && (
-											<div style={{ marginBottom: '8px', fontSize: '12px', color: 'var(--tl-color-text-2)' }}>
+											<div style={{ marginBottom: '6px', fontSize: '10px', color: 'var(--tl-color-text-2)' }}>
 												Custom Thickness
 											</div>
 										)}
@@ -432,12 +432,12 @@ export function StylePanelColorPicker() {
 												defaultValue={size && size.type === 'shared' ? STROKE_SIZES[size.value] : ''}
 												style={{
 													width: '100%',
-													padding: '8px 12px',
+													padding: '6px 9px',
 													border: '1px solid var(--tl-color-border)',
-													borderRadius: '4px',
+													borderRadius: '3px',
 													background: 'var(--tl-color-panel)',
 													color: 'var(--tl-color-text-1)',
-													fontSize: '12px',
+													fontSize: '10px',
 													fontFamily: 'inherit',
 													outline: 'none',
 													transition: 'border-color 0.15s ease',
@@ -474,12 +474,12 @@ export function StylePanelColorPicker() {
 											/>
 											<div style={{
 												position: 'absolute',
-												right: '8px',
+												right: '6px',
 												top: '50%',
 												transform: 'translateY(-50%)',
 												pointerEvents: 'none',
 												color: 'var(--tl-color-text-3)',
-												fontSize: '10px',
+												fontSize: '8.5px',
 												fontWeight: '500',
 											}}>
 												px
@@ -498,9 +498,9 @@ export function StylePanelColorPicker() {
 				<div
 					style={{
 						marginTop: '0px',
-						marginBottom: '12px',
+						marginBottom: '9px',
 						background: 'var(--tl-color-panel)',
-						borderRadius: '6px',
+						borderRadius: '4.5px',
 						border: '1px solid var(--tl-color-border)',
 						overflow: 'hidden',
 						width: '100%',
@@ -511,10 +511,10 @@ export function StylePanelColorPicker() {
 					<div
 						onClick={() => setIsSizeSectionExpanded(!isSizeSectionExpanded)}
 						style={{
-							padding: '12px 16px',
+							padding: '9px 12px',
 							background: 'var(--tl-color-muted-1)',
 							borderBottom: '1px solid var(--tl-color-border)',
-							fontSize: '11px',
+							fontSize: '9px',
 							fontWeight: '500',
 							color: 'var(--tl-color-text-1)',
 							textTransform: 'uppercase',
@@ -536,8 +536,8 @@ export function StylePanelColorPicker() {
 						<span style={{ fontWeight: '500' }}>Size</span>
 						<div
 							style={{
-								width: '14px',
-								height: '14px',
+								width: '10px',
+								height: '10px',
 								display: 'flex',
 								alignItems: 'center',
 								justifyContent: 'center',
@@ -547,8 +547,8 @@ export function StylePanelColorPicker() {
 							}}
 						>
 							<svg
-								width="10"
-								height="10"
+								width="8"
+								height="8"
 								viewBox="0 0 24 24"
 								fill="none"
 								xmlns="http://www.w3.org/2000/svg"
@@ -566,7 +566,7 @@ export function StylePanelColorPicker() {
 
 					{/* Session Content - Expandable */}
 					{isSizeSectionExpanded && (
-						<div style={{ padding: '16px' }}>
+						<div style={{ padding: '12px' }}>
 							{showUiLabels && (
 								<StylePanelSubheading>{msg('style-panel.size')}</StylePanelSubheading>
 							)}
@@ -598,9 +598,9 @@ export function StylePanelColorPicker() {
 				<div
 					style={{
 						marginTop: '0px',
-						marginBottom: '12px',
+						marginBottom: '9px',
 						background: 'var(--tl-color-panel)',
-						borderRadius: '6px',
+						borderRadius: '4.5px',
 						border: '1px solid var(--tl-color-border)',
 						overflow: 'hidden',
 						width: '100%',
@@ -611,10 +611,10 @@ export function StylePanelColorPicker() {
 					<div
 						onClick={() => setIsTextSectionExpanded(!isTextSectionExpanded)}
 						style={{
-							padding: '12px 16px',
+							padding: '9px 12px',
 							background: 'var(--tl-color-muted-1)',
 							borderBottom: '1px solid var(--tl-color-border)',
-							fontSize: '11px',
+							fontSize: '9px',
 							fontWeight: '500',
 							color: 'var(--tl-color-text-1)',
 							textTransform: 'uppercase',
@@ -636,8 +636,8 @@ export function StylePanelColorPicker() {
 						<span style={{ fontWeight: '500' }}>Text</span>
 						<div
 							style={{
-								width: '14px',
-								height: '14px',
+								width: '10px',
+								height: '10px',
 								display: 'flex',
 								alignItems: 'center',
 								justifyContent: 'center',
@@ -647,8 +647,8 @@ export function StylePanelColorPicker() {
 							}}
 						>
 							<svg
-								width="10"
-								height="10"
+								width="8"
+								height="8"
 								viewBox="0 0 24 24"
 								fill="none"
 								xmlns="http://www.w3.org/2000/svg"
@@ -666,7 +666,7 @@ export function StylePanelColorPicker() {
 
 					{/* Session Content - Expandable */}
 					{isTextSectionExpanded && (
-						<div style={{ padding: '16px' }}>
+						<div style={{ padding: '12px' }}>
 							<FigmaTypographyPanel styles={styles} />
 						</div>
 					)}
@@ -777,7 +777,7 @@ export function TextStylePickerSet({ theme, styles }: ThemeStylePickerSetProps) 
 						/>
 					</TldrawUiToolbar>
 													{/* Custom font size input - works independently from presets */}
-													<div style={{ marginTop: '8px' }}>
+													<div style={{ marginTop: '6px' }}>
 														<input
 															type="number"
 															onChange={(e) => {
@@ -803,12 +803,12 @@ export function TextStylePickerSet({ theme, styles }: ThemeStylePickerSetProps) 
 															}}
 															style={{
 																width: '100%',
-																padding: '6px 8px',
+																padding: '4.5px 6px',
 																border: '1px solid var(--tl-color-border)',
-																borderRadius: '4px',
+																borderRadius: '3px',
 																background: 'var(--tl-color-panel)',
 																color: 'var(--tl-color-text-1)',
-																fontSize: '12px',
+																fontSize: '10px',
 																fontFamily: 'inherit',
 																outline: 'none',
 															}}

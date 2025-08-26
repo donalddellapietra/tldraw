@@ -976,8 +976,8 @@
 	background-color: var(--tl-color-panel);
 	height: fit-content;
 	max-height: 100%;
-	margin: 8px;
-	margin-top: 4px;
+	margin: 6px;
+	margin-top: 3px;
 	touch-action: auto;
 	overscroll-behavior: none;
 	overflow-y: auto;
@@ -986,15 +986,15 @@
 }
 /* if the style panel is the only child (ie no share menu), increase the margin */
 .tlui-style-panel__wrapper:only-child {
-	margin-top: 8px;
+	margin-top: 6px;
 }
 
 .tlui-style-panel {
 	position: relative;
 	z-index: var(--tl-layer-panels);
 	pointer-events: all;
-	width: 280px;
-	max-width: 280px;
+	width: 210px;
+	max-width: 210px;
 }
 
 .tlui-style-panel[data-show-ui-labels='true'] .tlui-button[data-isactive='true'] {
@@ -1111,6 +1111,79 @@ tldraw? probably.
 
 .tlui-style-panel__subheading + .tlui-slider__container {
 	padding-top: 0px;
+}
+
+/* Scale down style panel content to 75% but keep text readable */
+.tlui-style-panel * {
+	font-size: 0.85em;
+}
+
+.tlui-style-panel .tlui-button {
+	height: 30px;
+	min-width: 30px;
+	padding: 0px 9px;
+}
+
+.tlui-style-panel .tlui-button__label {
+	font-size: 10px;
+}
+
+.tlui-style-panel__section {
+	padding: 0.75em;
+}
+
+.tlui-style-panel__subheading {
+	font-size: 10px !important;
+	padding: 6px 9px 0px 12px !important;
+}
+
+.tlui-style-panel input {
+	font-size: 10px;
+	padding: 6px 9px;
+}
+
+.tlui-style-panel .tlui-slider__container {
+	height: 30px;
+}
+
+/* Make color picker popup much smaller (18.75% of original size - 50% then 75% then 50%) */
+.tlui-figma-color-picker {
+	transform: scale(0.1875);
+	transform-origin: top left;
+}
+
+.tlui-figma-color-picker__popup {
+	transform: scale(0.1875);
+	transform-origin: top left;
+}
+
+/* Make the color selector area smaller */
+.tlui-figma-color-picker__color-area {
+	width: 200px !important;
+	height: 150px !important;
+}
+
+.tlui-figma-color-picker__hue-slider {
+	height: 20px !important;
+}
+
+.tlui-figma-color-picker__alpha-slider {
+	height: 20px !important;
+}
+
+/* Scale down input fields and labels */
+.tlui-figma-color-picker input,
+.tlui-figma-color-picker label {
+	font-size: 10px !important;
+}
+
+.tlui-figma-color-picker__swatches {
+	gap: 4px !important;
+}
+
+.tlui-figma-color-picker__swatch {
+	width: 16px !important;
+	height: 16px !important;
 }
 
 /* --------------------- Bottom --------------------- */
