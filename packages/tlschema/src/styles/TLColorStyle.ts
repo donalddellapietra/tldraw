@@ -573,6 +573,12 @@ export const CustomFillColorStyle = StyleProp.define('tldraw:customFillColor', {
 })
 
 /** @public */
+export const CustomStrokeColorStyle = StyleProp.define('tldraw:customStrokeColor', {
+	defaultValue: '#000000',
+	type: T.string,
+})
+
+/** @public */
 export const DefaultStrokeColorStyle = StyleProp.defineEnum('tldraw:strokeColor', {
 	defaultValue: 'black',
 	values: defaultColorNames,
@@ -592,6 +598,9 @@ export type TLCustomColorStyle = T.TypeOf<typeof CustomColorStyle>
 
 /** @public */
 export type TLCustomFillColorStyle = T.TypeOf<typeof CustomFillColorStyle>
+
+/** @public */
+export type TLCustomStrokeColorStyle = T.TypeOf<typeof CustomStrokeColorStyle>
 
 /** @public */
 export type TLDefaultStrokeColorStyle = T.TypeOf<typeof DefaultStrokeColorStyle>
