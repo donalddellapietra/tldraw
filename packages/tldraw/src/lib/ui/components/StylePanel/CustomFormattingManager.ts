@@ -78,6 +78,173 @@ export class CustomFormattingManager {
       this.notifyStateChange()
     },
 
+    setCustomColor: (color: string) => {
+      // Check if this is a hex color or a tldraw color
+      const isHexColor = color.startsWith('#') && (color.length === 7 || color.length === 4)
+      
+      // Get shapes that can have text formatting (text shapes OR geo shapes with richText)
+      const shapesToUpdate = this.editor.getSelectedShapes()
+        .filter((shape: TLShape) => {
+          if (shape.type === 'text') return true
+          if (shape.type === 'geo' && (shape.props as any).richText) return true
+          return false
+        })
+      
+      console.log('🔧 setCustomColor: Updating shapes with text formatting:', shapesToUpdate)
+      console.log('🔧 Color type:', isHexColor ? 'hex' : 'tldraw', 'Value:', color)
+      
+      this.editor.run(() => {
+        shapesToUpdate.forEach((shape: TLShape) => {
+          if (shape.type === 'text') {
+            if (isHexColor) {
+              // For hex colors, store in meta and apply via CSS
+              this.editor.updateShapes([{
+                id: shape.id,
+                type: shape.type,
+                meta: { 
+                  ...shape.meta, 
+                  customTextColor: color 
+                }
+              }])
+              
+              // Apply the color directly to the DOM elements for immediate visual feedback
+              setTimeout(() => {
+                this.applyCustomTextColorToTextShape(shape.id, color)
+              }, 50)
+            } else {
+              // For tldraw colors, use the standard color property
+              this.editor.updateShapes([{
+                id: shape.id,
+                type: shape.type,
+                props: {
+                  ...shape.props,
+                  color: color
+                }
+              }])
+            }
+          } else if (shape.type === 'geo' && (shape.props as any).richText) {
+            if (isHexColor) {
+              // For hex colors, store in meta and apply via CSS
+              this.editor.updateShapes([{
+                id: shape.id,
+                type: shape.type,
+                meta: { 
+                  ...shape.meta, 
+                  customTextColor: color 
+                }
+              }])
+              
+              // Apply the color directly to the DOM elements for immediate visual feedback
+              setTimeout(() => {
+                this.applyCustomTextColorToGeoShape(shape.id, color)
+              }, 50)
+            } else {
+              // For tldraw colors, store in meta data for geo shapes
+              this.editor.updateShapes([{
+                id: shape.id,
+                type: shape.type,
+                meta: { 
+                  ...shape.meta, 
+                  textColor: color 
+                }
+              }])
+              
+              // Apply the color directly to the DOM elements for immediate visual feedback
+              setTimeout(() => {
+                this.applyTextColorToGeoShape(shape.id, color)
+              }, 50)
+            }
+          }
+        })
+      })
+      
+      // Notify state change after updating
+      this.notifyStateChange()
+    },
+
+    // Apply color to a specific shape by ID (bypasses selection issues)
+    setColorToShape: (shapeId: string, color: string) => {
+      console.log('🔧 setColorToShape: Applying color to specific shape:', shapeId, color)
+      
+      // Check if this is a hex color or a tldraw color
+      const isHexColor = color.startsWith('#') && (color.length === 7 || color.length === 4)
+      
+      this.editor.run(() => {
+        // Get the specific shape by ID
+        const shape = this.editor.getShapeById(shapeId as TLShapeId)
+        if (!shape) {
+          console.warn('🔧 Shape not found:', shapeId)
+          return
+        }
+        
+        console.log('🔧 Found shape:', shape)
+        
+        if (shape.type === 'text') {
+          if (isHexColor) {
+            // For hex colors, store in meta and apply via CSS
+            this.editor.updateShapes([{
+              id: shape.id,
+              type: shape.type,
+              meta: { 
+                ...shape.meta, 
+                customTextColor: color 
+              }
+            }])
+            
+            // Apply the color directly to the DOM elements for immediate visual feedback
+            setTimeout(() => {
+              this.applyCustomTextColorToTextShape(shape.id, color)
+            }, 50)
+          } else {
+            // For tldraw colors, use the standard color property
+            this.editor.updateShapes([{
+              id: shape.id,
+              type: shape.type,
+              props: {
+                ...shape.props,
+                color: color
+              }
+            }])
+          }
+        } else if (shape.type === 'geo' && (shape.props as any).richText) {
+          if (isHexColor) {
+            // For hex colors, store in meta and apply via CSS
+            this.editor.updateShapes([{
+              id: shape.id,
+              type: shape.type,
+              meta: { 
+                ...shape.meta, 
+                customTextColor: color 
+              }
+            }])
+            
+            // Apply the color directly to the DOM elements for immediate visual feedback
+            setTimeout(() => {
+              this.applyCustomTextColorToGeoShape(shape.id, color)
+            }, 50)
+          } else {
+            // For tldraw colors, store in meta data for geo shapes
+            this.editor.updateShapes([{
+              id: shape.id,
+              type: shape.type,
+              meta: { 
+                ...shape.meta, 
+                textColor: color 
+              }
+            }])
+            
+            // Apply the color directly to the DOM elements for immediate visual feedback
+            setTimeout(() => {
+              this.applyTextColorToGeoShape(shape.id, color)
+            }, 50)
+          }
+        }
+      })
+      
+      // Notify state change after updating
+      this.notifyStateChange()
+    },
+
     setFamily: (fontFamily: string) => {
       // Only allow valid tldraw font values
       const validFonts = ['draw', 'sans', 'serif', 'mono']
@@ -1019,17 +1186,28 @@ export class CustomFormattingManager {
     console.log('🔍 First shape:', { type: firstShape.type, id: firstShape.id })
     
     if (firstShape.type === 'text') {
-      // For text shapes, check the color property
+      // For text shapes, check for custom color first, then fall back to tldraw color
+      if (firstShape.meta?.customTextColor) {
+        console.log('🔍 Text shape custom color:', firstShape.meta.customTextColor)
+        return firstShape.meta.customTextColor
+      }
+      
       const tldrawColor = firstShape.props?.color || 'black'
-      console.log('🔍 Text shape color:', tldrawColor)
+      console.log('🔍 Text shape tldraw color:', tldrawColor)
       const hexColor = this.tldrawColorToHex(tldrawColor)
       console.log('🔍 Converted to hex:', hexColor)
       return hexColor
     } else if (firstShape.type === 'geo' && (firstShape.props as any).richText) {
-      // For geo shapes with richText, check meta data for stored text color
+      // For geo shapes with richText, check meta data for custom color first, then stored text color
       console.log('🔍 Geo shape meta data:', firstShape.meta)
+      
+      if (firstShape.meta?.customTextColor) {
+        console.log('🔍 Geo shape custom color:', firstShape.meta.customTextColor)
+        return firstShape.meta.customTextColor
+      }
+      
       const tldrawColor = firstShape.meta?.textColor || 'black'
-      console.log('🔍 Geo shape stored color:', tldrawColor)
+      console.log('🔍 Geo shape stored tldraw color:', tldrawColor)
       const hexColor = this.tldrawColorToHex(tldrawColor)
       console.log('🔍 Converted to hex:', hexColor)
       return hexColor
@@ -1073,6 +1251,42 @@ export class CustomFormattingManager {
     if (textElements.length === 0) return
 
     console.log(`🔧 Applying text color ${color} to geo shape ${shapeId}`)
+
+    // Apply the color to text elements
+    textElements.forEach((textElement) => {
+      const element = textElement as HTMLElement
+      element.style.color = color
+    })
+  }
+
+  // Apply custom text color to a text shape
+  private applyCustomTextColorToTextShape(shapeId: TLShapeId, color: string) {
+    const shapeElement = document.querySelector(`[data-shape-id="${shapeId}"]`)
+    if (!shapeElement) return
+
+    // Find text elements within the shape
+    const textElements = shapeElement.querySelectorAll('.tl-text-content, .tl-rich-text')
+    if (textElements.length === 0) return
+
+    console.log(`🔧 Applying custom text color ${color} to text shape ${shapeId}`)
+
+    // Apply the color to text elements
+    textElements.forEach((textElement) => {
+      const element = textElement as HTMLElement
+      element.style.color = color
+    })
+  }
+
+  // Apply custom text color to a geo shape
+  private applyCustomTextColorToGeoShape(shapeId: TLShapeId, color: string) {
+    const shapeElement = document.querySelector(`[data-shape-id="${shapeId}"]`)
+    if (!shapeElement) return
+
+    // Find text elements within the geo shape
+    const textElements = shapeElement.querySelectorAll('.tl-text-content, .tl-rich-text')
+    if (textElements.length === 0) return
+
+    console.log(`🔧 Applying custom text color ${color} to geo shape ${shapeId}`)
 
     // Apply the color to text elements
     textElements.forEach((textElement) => {

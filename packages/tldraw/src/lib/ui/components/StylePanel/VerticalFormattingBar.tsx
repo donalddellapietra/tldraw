@@ -186,7 +186,7 @@ export function VerticalFormattingBar({
 
   // Apply text color using the formatting manager
   const applyTextColor = () => {
-    formattingManager.text.setColor(pendingTextColor);
+    formattingManager.text.setCustomColor(pendingTextColor);
     setShowColorPicker(null);
   };
 
