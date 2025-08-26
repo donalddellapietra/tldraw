@@ -1,12 +1,26 @@
 import { useEditor, TLShape, TLShapeId, toRichText } from '@tldraw/editor'
 import { DefaultColorStyle, DefaultFillStyle, DefaultFontStyle, DefaultFontSizeStyle, DefaultTextAlignStyle, DefaultStrokeColorStyle, DefaultSizeStyle } from '@tldraw/tlschema'
 import { FONT_SIZES, STROKE_SIZES } from '../../../shapes/shared/default-shape-constants'
+import React from 'react'
 
 export class CustomFormattingManager {
   private editor: any
+  private onStateChange?: () => void
 
   constructor(editor: any) {
     this.editor = editor
+  }
+
+  // Set callback for state changes
+  setStateChangeCallback(callback: () => void) {
+    this.onStateChange = callback
+  }
+
+  // Trigger state change notification
+  private notifyStateChange() {
+    if (this.onStateChange) {
+      this.onStateChange()
+    }
   }
 
   // Text formatting methods
@@ -28,6 +42,9 @@ export class CustomFormattingManager {
             }
           }))
       )
+      
+      // Notify state change after updating
+      this.notifyStateChange()
     },
 
     setFamily: (fontFamily: string) => {
@@ -50,6 +67,9 @@ export class CustomFormattingManager {
             }
           }))
       )
+      
+      // Notify state change after updating
+      this.notifyStateChange()
     },
 
     setSize: (size: string) => {
@@ -71,6 +91,9 @@ export class CustomFormattingManager {
             }
           }))
       )
+      
+      // Notify state change after updating
+      this.notifyStateChange()
     },
 
     bold: () => {
@@ -235,6 +258,9 @@ export class CustomFormattingManager {
         }
       })
     })
+    
+    // Notify state change after updating
+    this.notifyStateChange()
   }
 
   // Helper method to set text alignment
@@ -255,6 +281,9 @@ export class CustomFormattingManager {
         }
       })
     })
+    
+    // Notify state change after updating
+    this.notifyStateChange()
   }
 
   // Helper method to get current text alignment
@@ -504,7 +533,7 @@ export class CustomFormattingManager {
   }
 
   // Helper method to check if text has a specific style
-  private hasTextStyle(style: 'bold' | 'italic' | 'code'): boolean {
+  public hasTextStyle(style: 'bold' | 'italic' | 'code'): boolean {
     const selectedShapes = this.editor.getSelectedShapes()
     const textShapes = selectedShapes.filter((shape: TLShape) => shape.type === 'text')
     
@@ -699,5 +728,70 @@ export class CustomFormattingManager {
 // Hook to use the formatting manager
 export function useCustomFormattingManager() {
   const editor = useEditor()
-  return new CustomFormattingManager(editor)
+  
+  // Use useMemo to create a persistent instance
+  const formattingManager = React.useMemo(() => {
+    return new CustomFormattingManager(editor)
+  }, [editor])
+  
+  // Add reactive state for formatting
+  const [formattingState, setFormattingState] = React.useState({
+    isBold: false,
+    isItalic: false,
+    isCode: false,
+    textAlign: 'start' as 'start' | 'middle' | 'end',
+    hasTextSelected: false
+  })
+  
+  // Listen to editor changes and update formatting state
+  React.useEffect(() => {
+    const updateFormattingState = () => {
+      const selectedShapes = editor.getSelectedShapes()
+      const textShapes = selectedShapes.filter((shape: TLShape) => shape.type === 'text')
+      
+      if (textShapes.length === 0) {
+        setFormattingState({
+          isBold: false,
+          isItalic: false,
+          isCode: false,
+          textAlign: 'start',
+          hasTextSelected: false
+        })
+        return
+      }
+      
+      // Check formatting state of selected text
+      const isBold = formattingManager.hasTextStyle('bold')
+      const isItalic = formattingManager.hasTextStyle('italic')
+      const isCode = formattingManager.hasTextStyle('code')
+      const textAlign = formattingManager.getCurrentTextAlign()
+      
+      setFormattingState({
+        isBold,
+        isItalic,
+        isCode,
+        textAlign,
+        hasTextSelected: true
+      })
+    }
+    
+    // Initial update
+    updateFormattingState()
+    
+    // Subscribe to editor changes
+    const unsubscribe = editor.store.listen(() => {
+      updateFormattingState()
+    })
+    
+    // Set up callback for immediate updates after formatting operations
+    formattingManager.setStateChangeCallback(updateFormattingState)
+    
+    return unsubscribe
+  }, [editor, formattingManager])
+  
+  // Return both the manager and the current state
+  return {
+    manager: formattingManager,
+    state: formattingState
+  }
 }
