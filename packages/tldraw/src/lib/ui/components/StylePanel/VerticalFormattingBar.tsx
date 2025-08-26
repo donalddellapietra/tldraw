@@ -44,10 +44,12 @@ export function VerticalFormattingBar({
     return unsubscribe;
   }, [formattingManager]);
 
-  // Font options (same as slide editor)
+  // Font options (tldraw supported fonts with user-friendly names)
   const fontOptions = [
-    'Arial', 'Helvetica', 'Times New Roman', 'Georgia', 'Verdana', 'Comic Sans MS',
-    'Impact', 'Trebuchet MS', 'Courier New', 'Lucida Console', 'Tahoma', 'Palatino'
+    { value: 'serif', label: 'Times New Roman', family: 'var(--tl-font-serif)' },
+    { value: 'draw', label: 'Draw', family: 'var(--tl-font-draw)' },
+    { value: 'sans', label: 'Arial', family: 'var(--tl-font-sans)' },
+    { value: 'mono', label: 'Courier New', family: 'var(--tl-font-mono)' }
   ];
 
   // Close dropdowns when clicking outside
@@ -176,7 +178,7 @@ export function VerticalFormattingBar({
             >
               <ChevronDown size={14} />
               <div className="font-family-text">
-                {formattingManager.getCurrentFontFamily().split(',')[0].replace(/['"]/g, '')}
+                {fontOptions.find(f => f.value === formattingManager.getCurrentFontFamily())?.label || 'Sans'}
               </div>
             </button>
             {showFontDropdown && (
@@ -184,14 +186,14 @@ export function VerticalFormattingBar({
                 <div className="font-dropdown-content">
                   {fontOptions.map((font) => (
                     <button
-                      key={font}
-                      onClick={() => handleFontChange(font)}
+                      key={font.value}
+                      onClick={() => handleFontChange(font.value)}
                       className={`font-option ${
-                        formattingManager.getCurrentFontFamily().includes(font) ? 'active' : ''
+                        formattingManager.getCurrentFontFamily() === font.value ? 'active' : ''
                       }`}
-                      style={{ fontFamily: font }}
+                      style={{ fontFamily: font.family }}
                     >
-                      {font}
+                      {font.label}
                     </button>
                   ))}
                 </div>
