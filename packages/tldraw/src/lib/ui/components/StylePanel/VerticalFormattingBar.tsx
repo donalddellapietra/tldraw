@@ -20,11 +20,13 @@ export function VerticalFormattingBar({
   const [showFontDropdown, setShowFontDropdown] = useState(false);
   const [pendingTextColor, setPendingTextColor] = useState<string>('#000000');
   const [pendingBackgroundColor, setPendingBackgroundColor] = useState<string>('#ffffff');
+  const [pendingStrokeColor, setPendingStrokeColor] = useState<string>('#000000');
   const [fontSize, setFontSize] = useState<string>('16');
   // Removed formattingState to avoid re-render loops
   
   const colorPickerRef = useRef<HTMLDivElement>(null);
   const bgColorPickerRef = useRef<HTMLDivElement>(null);
+  const strokeColorPickerRef = useRef<HTMLDivElement>(null);
   const fontDropdownRef = useRef<HTMLDivElement>(null);
   const formattingManager = useCustomFormattingManager();
 
@@ -67,6 +69,27 @@ export function VerticalFormattingBar({
 
     return unsubscribe;
   }, [formattingManager, showColorPicker]);
+
+  // Sync stroke color with selected shapes
+  useEffect(() => {
+    const updateStrokeColor = () => {
+      // Don't update if color picker is open
+      if (showColorPicker === 'stroke') return;
+
+      const currentStrokeColor = formattingManager.getCurrentStrokeColor();
+      setPendingStrokeColor(prev => (prev !== currentStrokeColor ? currentStrokeColor : prev));
+    };
+
+    // Update initially
+    updateStrokeColor();
+
+    // Listen for selection changes
+    const unsubscribe = formattingManager.getStore().listen(() => {
+      updateStrokeColor();
+    });
+
+    return unsubscribe;
+  }, [formattingManager, showColorPicker]);
  
   // Font options (tldraw supported fonts with user-friendly names)
   const fontOptions = [
@@ -103,6 +126,17 @@ export function VerticalFormattingBar({
         setShowColorPicker(null);
       }
 
+      // Close stroke color picker if open and click is outside its container and picker element
+      if (
+        showColorPicker === 'stroke' &&
+        strokeColorPickerRef.current &&
+        !strokeColorPickerRef.current.contains(target) &&
+        !(target as Element).closest('.sketch-picker') &&
+        !(target as Element).closest('.compact-picker')
+      ) {
+        setShowColorPicker(null);
+      }
+
       // Close font dropdown on outside click
       if (fontDropdownRef.current && !fontDropdownRef.current.contains(target)) {
         setShowFontDropdown(false);
@@ -128,6 +162,12 @@ export function VerticalFormattingBar({
   // Apply background color using the formatting manager
   const applyBackgroundColor = () => {
     formattingManager.element.setBackground(pendingBackgroundColor);
+    setShowColorPicker(null);
+  };
+
+  // Apply stroke color using the formatting manager
+  const applyStrokeColor = () => {
+    formattingManager.element.setStrokeColor(pendingStrokeColor);
     setShowColorPicker(null);
   };
 
@@ -383,6 +423,52 @@ export function VerticalFormattingBar({
               />
               <div className="color-picker-actions">
                 <button onClick={applyBackgroundColor} className="apply-button">
+                  Apply
+                </button>
+                <button
+                  onClick={() => setShowColorPicker(null)}
+                  className="cancel-button"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Stroke Color - show when shapes are selected */}
+      {hasShapesSelected() && (
+        <div className="color-picker-container" ref={strokeColorPickerRef}>
+          <button
+            onClick={() => {
+              if (showColorPicker === 'stroke') {
+                setShowColorPicker(null);
+              } else {
+                const currentStrokeColor = formattingManager.getCurrentStrokeColor();
+                setPendingStrokeColor(currentStrokeColor);
+                setShowColorPicker('stroke');
+              }
+            }}
+            className="color-picker-button"
+            title="Stroke Color"
+          >
+            <div
+              className="stroke-color-preview"
+              style={{ backgroundColor: formattingManager.getCurrentStrokeColor() }}
+            />
+            <div className="stroke-color-text">ST</div>
+          </button>
+          
+          {showColorPicker === 'stroke' && (
+            <div className="color-picker-popup">
+              <SketchPicker
+                color={pendingStrokeColor}
+                onChange={(color: any) => setPendingStrokeColor(color.hex)}
+                disableAlpha
+              />
+              <div className="color-picker-actions">
+                <button onClick={applyStrokeColor} className="apply-button">
                   Apply
                 </button>
                 <button
