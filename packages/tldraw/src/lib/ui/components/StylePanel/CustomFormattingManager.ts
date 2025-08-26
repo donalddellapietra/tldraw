@@ -271,16 +271,59 @@ export class CustomFormattingManager {
   // Element formatting methods
   element = {
     setBackground: (color: string) => {
-      this.editor.updateShapes(
-        this.editor.getSelectedShapes().map((shape: TLShape) => ({
-          id: shape.id,
-          type: shape.type,
-          props: {
-            ...shape.props,
-            fill: color as any
-          }
-        }))
-      )
+      console.log('🚀 setBackground called with color:', color);
+      
+      // Convert hex color to tldraw color
+      const tldrawColor = this.hexToTldrawColor(color)
+      console.log('🎨 Converted to tldraw color:', tldrawColor);
+      
+      this.editor.run(() => {
+        // Apply to currently selected shapes unconditionally
+        const selectedShapes = this.editor.getSelectedShapes();
+        console.log('📝 Selected shapes count:', selectedShapes.length);
+        
+        if (selectedShapes.length > 0) {
+          console.log('🔧 Setting styles for selected shapes...');
+          this.editor.setStyleForSelectedShapes(DefaultFillStyle, 'solid')
+          this.editor.setStyleForSelectedShapes(DefaultColorStyle, tldrawColor)
+          console.log('✅ Styles set for selected shapes');
+        }
+        
+        // Also set as default for next shapes
+        console.log('🔧 Setting styles for next shapes...');
+        this.editor.setStyleForNextShapes(DefaultFillStyle, 'solid')
+        this.editor.setStyleForNextShapes(DefaultColorStyle, tldrawColor)
+        this.editor.updateInstanceState({ isChangingStyle: true })
+        console.log('✅ Styles set for next shapes');
+      })
+      
+      console.log('🏁 setBackground completed');
+    },
+
+    // Method to set fill style (none, semi, solid, pattern, fill)
+    setFillStyle: (fillStyle: 'none' | 'semi' | 'solid' | 'pattern' | 'fill') => {
+      this.editor.run(() => {
+        if (this.editor.isIn('select')) {
+          this.editor.setStyleForSelectedShapes(DefaultFillStyle, fillStyle)
+        }
+        this.editor.setStyleForNextShapes(DefaultFillStyle, fillStyle)
+        this.editor.updateInstanceState({ isChangingStyle: true })
+      })
+    },
+
+    // Method to set both fill style and color at once
+    setFill: (fillStyle: 'none' | 'semi' | 'solid' | 'pattern' | 'fill', color: string) => {
+      const tldrawColor = this.hexToTldrawColor(color)
+      
+      this.editor.run(() => {
+        if (this.editor.isIn('select')) {
+          this.editor.setStyleForSelectedShapes(DefaultFillStyle, fillStyle)
+          this.editor.setStyleForSelectedShapes(DefaultColorStyle, tldrawColor)
+        }
+        this.editor.setStyleForNextShapes(DefaultFillStyle, fillStyle)
+        this.editor.setStyleForNextShapes(DefaultColorStyle, tldrawColor)
+        this.editor.updateInstanceState({ isChangingStyle: true })
+      })
     }
   }
 
@@ -291,6 +334,42 @@ export class CustomFormattingManager {
     
     const firstShape = selectedShapes[0]
     return firstShape.props?.color || '#000000'
+  }
+
+  getCurrentBackgroundColor(): string {
+    const selectedShapes = this.editor.getSelectedShapes()
+    if (selectedShapes.length === 0) return '#ffffff'
+    
+    // Use the proper tldraw style system to get current styles
+    const sharedStyles = this.editor.getSharedStyles()
+    
+    const currentFill = sharedStyles.get(DefaultFillStyle)
+    const currentColor = sharedStyles.get(DefaultColorStyle)
+    
+    // If the shape has a fill and it's not 'none', return the color
+    if (currentFill && currentFill.type === 'shared' && currentFill.value !== 'none' && 
+        currentColor && currentColor.type === 'shared') {
+      // Convert tldraw color back to hex
+      const hexColor = this.tldrawColorToHex(currentColor.value)
+      return hexColor
+    }
+    
+    return '#ffffff'
+  }
+
+  getCurrentFillStyle(): 'none' | 'semi' | 'solid' | 'pattern' | 'fill' {
+    const selectedShapes = this.editor.getSelectedShapes()
+    if (selectedShapes.length === 0) return 'none'
+    
+    // Use the proper tldraw style system
+    const sharedStyles = this.editor.getSharedStyles()
+    const currentFill = sharedStyles.get(DefaultFillStyle)
+    
+    if (currentFill && currentFill.type === 'shared') {
+      return currentFill.value
+    }
+    
+    return 'none'
   }
 
   getCurrentFontFamily(): string {
@@ -503,6 +582,31 @@ export class CustomFormattingManager {
     }
 
     return { h: h * 360, s: s * 100, l: l * 100 }
+  }
+
+  // Convert tldraw color to hex (simplified conversion)
+  private tldrawColorToHex(tldrawColor: string): string {
+    // Map tldraw colors to hex values
+    const colorMap: Record<string, string> = {
+      'black': '#000000',
+      'grey': '#6b7280',
+      'light-violet': '#a78bfa',
+      'violet': '#7c3aed',
+      'blue': '#2563eb',
+      'light-blue': '#60a5fa',
+      'yellow': '#eab308',
+      'orange': '#ea580c',
+      'green': '#16a34a',
+      'light-green': '#4ade80',
+      'light-red': '#f87171',
+      'red': '#dc2626',
+      'white': '#ffffff',
+      'brown': '#92400e',
+      'pink': '#ec4899',
+      'cyan': '#0891b2'
+    }
+    
+    return colorMap[tldrawColor] || '#000000'
   }
 }
 
