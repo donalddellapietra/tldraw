@@ -25,15 +25,24 @@ export class CustomFormattingManager {
     },
 
     setFamily: (fontFamily: string) => {
+      // Only allow valid tldraw font values
+      const validFonts = ['draw', 'sans', 'serif', 'mono']
+      if (!validFonts.includes(fontFamily)) {
+        console.warn('Invalid font family:', fontFamily, 'Valid options:', validFonts)
+        return
+      }
+      
       this.editor.updateShapes(
-        this.editor.getSelectedShapes().map((shape: TLShape) => ({
-          id: shape.id,
-          type: shape.type,
-          props: {
-            ...shape.props,
-            font: fontFamily as any
-          }
-        }))
+        this.editor.getSelectedShapes()
+          .filter((shape: TLShape) => shape.type === 'text') // Only update text shapes
+          .map((shape: TLShape) => ({
+            id: shape.id,
+            type: shape.type,
+            props: {
+              ...shape.props,
+              font: fontFamily as any
+            }
+          }))
       )
     },
 
@@ -101,10 +110,11 @@ export class CustomFormattingManager {
 
   getCurrentFontFamily(): string {
     const selectedShapes = this.editor.getSelectedShapes()
-    if (selectedShapes.length === 0) return 'Arial'
+    if (selectedShapes.length === 0) return 'sans'
     
     const firstShape = selectedShapes[0]
-    return firstShape.props?.font || 'Arial'
+    // Return the tldraw font value, not the CSS font family
+    return firstShape.props?.font || 'sans'
   }
 
   getCurrentFontSize(): number {
@@ -161,7 +171,7 @@ export class CustomFormattingManager {
           textAlign: 'middle',
           color: 'black',
           customFontSize: 16,
-          font: 'draw',
+          font: 'sans',
         },
         autoSize: true,
       },
