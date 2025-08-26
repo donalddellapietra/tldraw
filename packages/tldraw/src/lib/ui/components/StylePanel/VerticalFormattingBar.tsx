@@ -224,7 +224,7 @@ export function VerticalFormattingBar({
   const showTextFormatting = allTextSelected;
   const showShapeFormatting = allNonTextSelected;
 
-  if (!isVisible) return null;
+  if (!isVisible || !hasSelection) return null;
 
   return (
     <div className="vertical-formatting-bar">
