@@ -252,24 +252,27 @@ export function VerticalFormattingBar({
           {/* Divider */}
           <div className="divider"></div>
 
-          {/* Text Alignment - Non-functional for now */}
+          {/* Text Alignment - Now Functional */}
           <button 
-            className="formatting-button"
-            title="Align Left (Non-functional)"
+            onClick={() => formattingManager.text.alignLeft()}
+            className={`formatting-button ${formattingManager.getCurrentTextAlign() === 'start' ? 'active' : ''}`}
+            title="Align Left"
           >
             <AlignLeft size={14} />
           </button>
           
           <button 
-            className="formatting-button"
-            title="Align Center (Non-functional)"
+            onClick={() => formattingManager.text.alignCenter()}
+            className={`formatting-button ${formattingManager.getCurrentTextAlign() === 'middle' ? 'active' : ''}`}
+            title="Align Center"
           >
             <AlignCenter size={14} />
           </button>
           
           <button 
-            className="formatting-button"
-            title="Align Right (Non-functional)"
+            onClick={() => formattingManager.text.alignRight()}
+            className={`formatting-button ${formattingManager.getCurrentTextAlign() === 'end' ? 'active' : ''}`}
+            title="Align Right"
           >
             <AlignRight size={14} />
           </button>
