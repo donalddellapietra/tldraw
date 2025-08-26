@@ -1,0 +1,173 @@
+.tlui-style-panel__color-picker {
+  position: relative;
+}
+
+.tlui-style-panel__color-picker__color {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tlui-style-panel__color-picker__color:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.tlui-style-panel__color-picker__content {
+  padding: 12px;
+  min-width: 280px;
+}
+
+.tlui-style-panel__color-picker__mode-toggle {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+.tlui-style-panel__color-picker__hex-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tlui-style-panel__color-picker__hex-input {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.tlui-style-panel__color-picker__hex-input__field {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 14px;
+  background: var(--color-background);
+  color: var(--color-text);
+}
+
+.tlui-style-panel__color-picker__hex-input__field:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent-soft);
+}
+
+.tlui-style-panel__color-picker__quick-colors {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.tlui-style-panel__color-picker__quick-color {
+  width: 32px;
+  height: 32px;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tlui-style-panel__color-picker__quick-color:hover {
+  transform: scale(1.1);
+  border-color: var(--color-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.tlui-style-panel__color-picker__preset-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tlui-style-panel__color-picker__preset-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.tlui-style-panel__color-picker__preset-color {
+  width: 32px;
+  height: 32px;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-background);
+}
+
+.tlui-style-panel__color-picker__preset-color:hover {
+  transform: scale(1.1);
+  border-color: var(--color-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Color-specific styles for preset colors */
+.tlui-style-panel__color-picker__preset-color[style*="black"] {
+  background-color: #1d1d1d;
+}
+
+.tlui-style-panel__color-picker__preset-color[style*="grey"] {
+  background-color: #9fa8b2;
+}
+
+.tlui-style-panel__color-picker__color-picker__preset-color[style*="light-violet"] {
+  background-color: #d0bfff;
+}
+
+.tlui-style-panel__color-picker__preset-color[style*="violet"] {
+  background-color: #ae3ec9;
+}
+
+.tlui-style-panel__color-picker__preset-color[style*="blue"] {
+  background-color: #4465e9;
+}
+
+.tlui-style-panel__color-picker__preset-color[style*="light-blue"] {
+  background-color: #4ba1f1;
+}
+
+.tlui-style-panel__color-picker__preset-color[style*="yellow"] {
+  background-color: #f1ac4b;
+}
+
+.tlui-style-panel__color-picker__preset-color[style*="orange"] {
+  background-color: #fd7e14;
+}
+
+.tlui-style-panel__color-picker__preset-color[style*="green"] {
+  background-color: #099268;
+}
+
+.tlui-style-panel__color-picker__preset-color[style*="light-green"] {
+  background-color: #40c057;
+}
+
+.tlui-style-panel__color-picker__preset-color[style*="light-red"] {
+  background-color: #fa5252;
+}
+
+.tlui-style-panel__color-picker__preset-color[style*="red"] {
+  background-color: #e03131;
+}
+
+.tlui-style-panel__color-picker__preset-color[style*="brown"] {
+  background-color: #8B4513;
+}
+
+.tlui-style-panel__color-picker__preset-color[style*="pink"] {
+  background-color: #FF69B4;
+}
+
+.tlui-style-panel__color-picker__preset-color[style*="cyan"] {
+  background-color: #00CED1;
+}
