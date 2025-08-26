@@ -63,6 +63,7 @@ export interface TLGeoShapeProps {
 	h: number
 	growY: number
 	scale: number
+	cornerRadius: number
 
 	// Text properties
 	labelColor: TLDefaultColorStyle
@@ -88,6 +89,7 @@ export const geoShapeProps: RecordProps<TLGeoShape> = {
 	h: T.nonZeroNumber,
 	growY: T.positiveNumber,
 	scale: T.nonZeroNumber,
+	cornerRadius: T.number,
 
 	// Text properties
 	labelColor: DefaultLabelColorStyle,
@@ -113,6 +115,7 @@ const geoShapeVersions = createShapePropsMigrationIds('geo', {
 	AddScale: 9,
 	AddRichText: 10,
 	AddStrokeColor: 11,
+	AddCornerRadius: 12,
 })
 
 export { geoShapeVersions as geoShapeVersions }
@@ -222,6 +225,15 @@ export const geoShapeMigrations = createShapePropsMigrationSequence({
 			},
 			down: (props) => {
 				delete props.strokeColor
+			},
+		},
+		{
+			id: geoShapeVersions.AddCornerRadius,
+			up: (props) => {
+				props.cornerRadius = 0
+			},
+			down: (props) => {
+				delete props.cornerRadius
 			},
 		},
 	],

@@ -527,6 +527,57 @@ export function VerticalFormattingBar({
           )}
         </div>
       )}
+
+      {/* Corner Radius - show when rectangles are selected */}
+              {showShapeFormatting && (
+          <div className="corner-radius-control">
+            <div 
+              className="corner-radius-label"
+              onClick={() => {
+                // Force popup to stay open when clicking CR button
+                const popup = document.querySelector('.corner-radius-popup-slider') as HTMLElement;
+                if (popup) {
+                  popup.style.display = 'flex';
+                }
+              }}
+              style={{ cursor: 'pointer' }}
+            >
+              CR
+            </div>
+          <div className="corner-radius-slider-container">
+            <div className="corner-radius-value">
+              {formattingManager.getCurrentCornerRadius() || 0}
+            </div>
+            
+            {/* Popup Slider */}
+            <div className="corner-radius-popup-slider">
+              <div className="custom-slider">
+                <div className="slider-track">
+                  <div 
+                    className="slider-fill" 
+                    style={{ 
+                      width: `${((formattingManager.getCurrentCornerRadius() || 0) / formattingManager.getMaxCornerRadius()) * 100}%` 
+                    }}
+                  ></div>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max={formattingManager.getMaxCornerRadius()}
+                  step="1"
+                  value={formattingManager.getCurrentCornerRadius() || 0}
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value);
+                    formattingManager.setCornerRadius(value);
+                  }}
+                  className="slider-input"
+                  title="Corner Radius"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

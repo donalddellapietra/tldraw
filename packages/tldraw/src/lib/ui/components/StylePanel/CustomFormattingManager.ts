@@ -487,6 +487,69 @@ export class CustomFormattingManager {
     return 'm'
   }
 
+  getCurrentCornerRadius(): number {
+    const selectedShapes = this.editor.getSelectedShapes()
+    if (selectedShapes.length === 0) return 0
+    
+    // Check if all selected shapes are geo shapes with the same corner radius
+    const geoShapes = selectedShapes.filter((shape: TLShape) => shape.type === 'geo')
+    if (geoShapes.length === 0) return 0
+    
+    const firstCornerRadius = (geoShapes[0] as any).props.cornerRadius || 0
+    const allSame = geoShapes.every((shape: TLShape) => 
+      (shape as any).props.cornerRadius === firstCornerRadius
+    )
+    
+    return allSame ? firstCornerRadius : 0
+  }
+
+  getMaxCornerRadius(): number {
+    const selectedShapes = this.editor.getSelectedShapes()
+    if (selectedShapes.length === 0) return 100 // Default max
+    
+    // Find the smallest dimension among selected geo shapes
+    const geoShapes = selectedShapes.filter((shape: TLShape) => shape.type === 'geo')
+    if (geoShapes.length === 0) return 100
+    
+    let minDimension = Infinity
+    geoShapes.forEach((shape: TLShape) => {
+      const w = (shape as any).props.w || 100
+      const h = (shape as any).props.h || 100
+      const smallerDimension = Math.min(w, h)
+      minDimension = Math.min(minDimension, smallerDimension)
+    })
+    
+    // Return half of the smallest dimension (max possible radius)
+    // But cap at a reasonable maximum of 100px
+    return Math.min(minDimension / 2, 100)
+  }
+
+  setCornerRadius(value: number) {
+    console.log('🔧 setCornerRadius called with value:', value)
+    
+    this.editor.run(() => {
+      // Apply to currently selected shapes
+      const selectedShapes = this.editor.getSelectedShapes()
+      console.log('📝 Selected shapes count:', selectedShapes.length)
+      
+      if (selectedShapes.length > 0) {
+        console.log('🔧 Setting corner radius for selected shapes...')
+        selectedShapes.forEach((shape: TLShape) => {
+          if (shape.type === 'geo') {
+            this.editor.updateShape({
+              id: shape.id,
+              type: 'geo',
+              props: { cornerRadius: value }
+            })
+          }
+        })
+        console.log('✅ Corner radius set for selected shapes')
+      }
+    })
+    
+    console.log('🏁 setCornerRadius completed')
+  }
+
   getCurrentFontFamily(): string {
     const selectedShapes = this.editor.getSelectedShapes()
     if (selectedShapes.length === 0) return 'sans'

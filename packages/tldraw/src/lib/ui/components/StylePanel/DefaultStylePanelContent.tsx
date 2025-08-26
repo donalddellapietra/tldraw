@@ -892,26 +892,77 @@ export function TextStylePickerSet({ theme, styles }: ThemeStylePickerSetProps) 
 export function GeoStylePickerSet({ styles }: StylePickerSetProps) {
 	const msg = useTranslation()
 	const handleValueChange = useStyleChangeCallback()
+	const editor = useEditor()
 
 	const geo = styles.get(GeoShapeGeoStyle)
 	if (geo === undefined) {
 		return null
 	}
 
+	// Get corner radius from selected shapes
+	const cornerRadius = useValue('cornerRadius', () => {
+		if (!editor.isIn('select')) return 0
+		const selectedShapes = editor.getSelectedShapes()
+		if (selectedShapes.length === 0) return 0
+		
+		// Check if all selected shapes are geo shapes with the same corner radius
+		const geoShapes = selectedShapes.filter(shape => shape.type === 'geo')
+		if (geoShapes.length === 0) return 0
+		
+		const firstCornerRadius = (geoShapes[0] as any).props.cornerRadius
+		const allSame = geoShapes.every(shape => (shape as any).props.cornerRadius === firstCornerRadius)
+		
+		return allSame ? firstCornerRadius : 0
+	}, [editor])
+
+	const handleCornerRadiusChange = useCallback((value: number) => {
+		editor.run(() => {
+			if (editor.isIn('select')) {
+				const selectedShapes = editor.getSelectedShapes()
+				selectedShapes.forEach(shape => {
+					if (shape.type === 'geo') {
+						editor.updateShape({
+							id: shape.id,
+							type: 'geo',
+							props: { cornerRadius: value }
+						})
+					}
+				})
+			}
+		})
+	}, [editor])
+
 	return (
-		<TldrawUiToolbar orientation="horizontal" label={msg('style-panel.geo')}>
-			<DropdownPicker
-				id="geo"
-				type="menu"
-				label={'style-panel.geo'}
-				uiType="geo"
-				stylePanelType="geo"
-				style={GeoShapeGeoStyle}
-				items={STYLES.geo}
-				value={geo}
-				onValueChange={handleValueChange}
-			/>
-		</TldrawUiToolbar>
+		<>
+			<TldrawUiToolbar orientation="horizontal" label={msg('style-panel.geo')}>
+				<DropdownPicker
+					id="geo"
+					type="menu"
+					label={'style-panel.geo'}
+					uiType="geo"
+					stylePanelType="geo"
+					style={GeoShapeGeoStyle}
+					items={STYLES.geo}
+					value={geo}
+					onValueChange={handleValueChange}
+				/>
+			</TldrawUiToolbar>
+			{geo.type === 'shared' && geo.value === 'rectangle' && (
+				<div style={{ marginTop: '9px' }}>
+					<div style={{ marginBottom: '6px', fontSize: '10px', color: 'var(--tl-color-text-2)' }}>
+						Corner Radius
+					</div>
+					<TldrawUiSlider
+						value={Math.round(cornerRadius / 2)}
+						onValueChange={(value) => handleCornerRadiusChange(value * 2)}
+						steps={20}
+						label="Corner Radius"
+						title="Corner Radius"
+						onHistoryMark={() => editor.markHistoryStoppingPoint('corner-radius-change')}
+					/>
+				</div>
+			)}
+		</>
 	)
 }
 /** @public @react */
