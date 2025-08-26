@@ -48,6 +48,7 @@ import {
 import { useMergedTranslationOverrides } from './ui/overrides'
 import { useDefaultEditorAssetsWithOverrides } from './utils/static-assets/assetUrls'
 import { defaultAddFontsFromNode, tipTapDefaultExtensions } from './utils/text/richText'
+import { FormTextEditor } from './ui/components/StylePanel/FormTextEditor'
 
 /**
  * Override the default react components used by the editor and UI. Set components to null to
@@ -281,14 +282,18 @@ function InsideOfEditorAndUiContext({
 	const { Canvas } = useEditorComponents()
 	const { ContextMenu } = useTldrawUiComponents()
 
+	// Add FormTextEditor for automatic text editing in forms
+	const editorContent = (
+		<>
+			<FormTextEditor />
+			{Canvas && <Canvas />}
+		</>
+	)
+
 	if (ContextMenu) {
 		// should wrap canvas
 		return <ContextMenu />
 	}
 
-	if (Canvas) {
-		return <Canvas />
-	}
-
-	return null
+	return editorContent
 }

@@ -512,3 +512,456 @@
   line-height: 1;
   font-weight: 500;
 }
+
+/* Text Editing Detection and Styling */
+.tl-text-wrapper {
+  position: relative;
+}
+
+/* Enhanced text editing indicators */
+.tl-text-wrapper.tl-text-enhanced {
+  cursor: text !important;
+  pointer-events: auto !important;
+}
+
+.tl-text-wrapper.tl-text-enhanced:hover {
+  cursor: text !important;
+}
+
+/* Enhanced text hover effect */
+.tl-text-wrapper.tl-text-hover .tl-text-content,
+.tl-text-wrapper.tl-text-hover .tl-rich-text {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 2px;
+  transition: background-color 0.15s ease;
+}
+
+/* Forms with text styling */
+.tl-geo.tl-form-with-text {
+  position: relative;
+  cursor: text !important;
+}
+
+.tl-geo.tl-form-with-text::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Make geo shapes with text automatically editable */
+.tl-geo[data-has-text="true"] {
+  cursor: text !important;
+  position: relative;
+}
+
+.tl-geo[data-has-text="true"]:hover {
+  cursor: text !important;
+}
+
+/* Font size handling for geo shapes with richText */
+.tl-geo[data-has-text="true"] .tl-text-content,
+.tl-geo[data-has-text="true"] .tl-rich-text {
+  cursor: text !important;
+  pointer-events: auto !important;
+  min-height: 1.2em;
+  min-width: 1em;
+  padding: 2px 4px;
+  border-radius: 2px;
+  transition: background-color 0.15s ease;
+  /* Base font size for scaling calculations */
+  font-size: 16px !important;
+}
+
+/* Dynamic font sizing for geo shapes based on meta data */
+.tl-geo[data-has-text="true"] .tl-text-content[style*="font-size"],
+.tl-geo[data-has-text="true"] .tl-rich-text[style*="font-size"] {
+  /* Font size will be set inline by JavaScript */
+}
+
+/* CSS transform support for font size scaling */
+.tl-geo[data-has-text="true"] .tl-text-content[style*="transform"],
+.tl-geo[data-has-text="true"] .tl-rich-text[style*="transform"] {
+  transform-origin: center center;
+  will-change: transform;
+  transition: transform 0.1s ease;
+}
+
+/* Ensure text scaling doesn't break layout */
+.tl-geo[data-has-text="true"] .tl-text-wrapper {
+  position: relative;
+  overflow: visible;
+}
+
+/* Text scaling container */
+.tl-geo[data-has-text="true"] .tl-text-content,
+.tl-geo[data-has-text="true"] .tl-rich-text {
+  display: inline-block;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+/* Text alignment support for geo shapes with richText */
+.tl-geo[data-has-text="true"] .tl-text-content[style*="text-align: left"],
+.tl-geo[data-has-text="true"] .tl-rich-text[style*="text-align: left"] {
+  text-align: left !important;
+}
+
+.tl-geo[data-has-text="true"] .tl-text-content[style*="text-align: center"],
+.tl-geo[data-has-text="true"] .tl-rich-text[style*="text-align: center"] {
+  text-align: center !important;
+}
+
+.tl-geo[data-has-text="true"] .tl-text-content[style*="text-align: right"],
+.tl-geo[data-has-text="true"] .tl-rich-text[style*="text-align: right"] {
+  text-align: right !important;
+}
+
+/* Ensure text alignment works with font size scaling */
+.tl-geo[data-has-text="true"] .tl-text-content[style*="transform"],
+.tl-geo[data-has-text="true"] .tl-rich-text[style*="transform"] {
+  transform-origin: center center;
+  will-change: transform;
+  transition: transform 0.1s ease;
+}
+
+/* Text wrapper positioning for proper alignment */
+.tl-geo[data-has-text="true"] .tl-text-wrapper {
+  position: relative;
+  overflow: visible;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Text content positioning within wrapper */
+.tl-geo[data-has-text="true"] .tl-text-content,
+.tl-geo[data-has-text="true"] .tl-rich-text {
+  position: relative;
+  z-index: 1;
+}
+
+/* Hover effect for text inside forms */
+.tl-geo[data-has-text="true"]:hover .tl-text-content,
+.tl-geo[data-has-text="true"]:hover .tl-rich-text {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Text shapes inside forms */
+.tl-text-shape.tl-text-enhanced {
+  cursor: text !important;
+  pointer-events: auto !important;
+  z-index: 10;
+}
+
+.tl-text-shape.tl-text-enhanced:hover {
+  cursor: text !important;
+}
+
+.tl-text-shape.tl-text-hover {
+  background-color: rgba(0, 0, 0, 0.02);
+  border-radius: 2px;
+  transition: background-color 0.15s ease;
+}
+
+/* Empty form styling */
+.tl-geo.tl-form-empty {
+  cursor: text !important;
+  position: relative;
+}
+
+.tl-geo.tl-form-empty::after {
+  content: "Click to add text";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: rgba(0, 0, 0, 0.3);
+  font-style: italic;
+  font-size: 14px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.tl-geo.tl-form-empty:hover::after {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+/* Detect text inside forms and make it editable */
+.tl-geo[data-shape-type="rectangle"] .tl-text-wrapper,
+.tl-geo[data-shape-type="ellipse"] .tl-text-wrapper,
+.tl-geo[data-shape-type="triangle"] .tl-text-wrapper,
+.tl-geo[data-shape-type="diamond"] .tl-text-wrapper,
+.tl-geo[data-shape-type="hexagon"] .tl-text-wrapper,
+.tl-geo[data-shape-type="octagon"] .tl-text-wrapper,
+.tl-geo[data-shape-type="star"] .tl-text-wrapper,
+.tl-geo[data-shape-type="cloud"] .tl-text-wrapper,
+.tl-geo[data-shape-type="oval"] .tl-text-wrapper,
+.tl-geo[data-shape-type="trapezoid"] .tl-text-wrapper,
+.tl-geo[data-shape-type="parallelogram"] .tl-text-wrapper,
+.tl-geo[data-shape-type="rhombus"] .tl-text-wrapper,
+.tl-geo[data-shape-type="kite"] .tl-text-wrapper,
+.tl-geo[data-shape-type="pentagon"] .tl-text-wrapper,
+.tl-geo[data-shape-type="heptagon"] .tl-text-wrapper,
+.tl-geo[data-shape-type="nonagon"] .tl-text-wrapper,
+.tl-geo[data-shape-type="decagon"] .tl-text-wrapper,
+.tl-geo[data-shape-type="hendecagon"] .tl-text-wrapper,
+.tl-geo[data-shape-type="dodecagon"] .tl-text-wrapper,
+.tl-geo[data-shape-type="cross"] .tl-text-wrapper,
+.tl-geo[data-shape-type="arrow"] .tl-text-wrapper,
+.tl-geo[data-shape-type="line"] .tl-text-wrapper,
+.tl-geo[data-shape-type="polygon"] .tl-text-wrapper,
+.tl-geo[data-shape-type="polyline"] .tl-text-wrapper,
+.tl-geo[data-shape-type="path"] .tl-text-wrapper,
+.tl-geo[data-shape-type="circle"] .tl-text-wrapper,
+.tl-geo[data-shape-type="square"] .tl-text-wrapper {
+  cursor: text !important;
+  pointer-events: auto !important;
+}
+
+/* Also detect forms that have text data attribute */
+.tl-geo[data-has-text="true"] {
+  position: relative;
+}
+
+.tl-geo[data-has-text="true"] .tl-text-wrapper,
+.tl-geo[data-has-text="true"] .tl-text-shape {
+  cursor: text !important;
+  pointer-events: auto !important;
+}
+
+/* Make text inside forms always ready for editing */
+.tl-geo .tl-text-wrapper[data-is-ready-for-editing="false"] {
+  cursor: text !important;
+  pointer-events: auto !important;
+}
+
+/* Style text inside forms to look editable */
+.tl-geo .tl-text-wrapper .tl-text-content {
+  cursor: text !important;
+  pointer-events: auto !important;
+  min-height: 1.2em;
+  min-width: 1em;
+  padding: 2px 4px;
+  border-radius: 2px;
+  transition: background-color 0.15s ease;
+}
+
+/* Hover effect for text inside forms */
+.tl-geo .tl-text-wrapper:hover .tl-text-content {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Selected state for text inside forms */
+.tl-geo .tl-text-wrapper[data-isselected="true"] .tl-text-content {
+  background-color: rgba(59, 130, 246, 0.1);
+  outline: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+/* Text input styling for forms */
+.tl-geo .tl-text-wrapper .tl-text-input {
+  cursor: text !important;
+  pointer-events: auto !important;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  text-align: inherit;
+  line-height: inherit;
+  padding: inherit;
+  margin: 0;
+}
+
+/* Focus state for text input in forms */
+.tl-geo .tl-text-wrapper .tl-text-input:focus {
+  background-color: rgba(255, 255, 255, 0.9);
+  outline: 2px solid #3b82f6;
+  outline-offset: 1px;
+}
+
+/* Rich text styling for forms */
+.tl-geo .tl-text-wrapper .tl-rich-text {
+  cursor: text !important;
+  pointer-events: auto !important;
+  min-height: 1.2em;
+  min-width: 1em;
+  padding: 2px 4px;
+  border-radius: 2px;
+  transition: background-color 0.15s ease;
+}
+
+/* Hover effect for rich text in forms */
+.tl-geo .tl-text-wrapper:hover .tl-rich-text {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Selected state for rich text in forms */
+.tl-geo .tl-text-wrapper[data-isselected="true"] .tl-rich-text {
+  background-color: rgba(59, 130, 246, 0.1);
+  outline: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+/* Form detection - any shape that contains text */
+.tl-shape[data-has-text="true"] {
+  position: relative;
+}
+
+/* Text placeholder styling */
+.tl-geo .tl-text-wrapper .tl-text-content:empty::before {
+  content: "Click to edit text";
+  color: rgba(0, 0, 0, 0.3);
+  font-style: italic;
+  pointer-events: none;
+}
+
+/* Text editing overlay */
+.tl-text-editing-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.95);
+  border: 2px solid #3b82f6;
+  border-radius: 4px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+/* Text editing input */
+.tl-text-editing-input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  text-align: inherit;
+  line-height: inherit;
+  padding: 8px;
+  resize: none;
+  overflow: hidden;
+}
+
+/* Auto-resize text areas */
+.tl-text-auto-resize {
+  resize: none;
+  overflow: hidden;
+  min-height: 1.2em;
+  max-height: none;
+}
+
+/* Text selection styling */
+.tl-geo .tl-text-wrapper .tl-text-content::selection,
+.tl-geo .tl-text-wrapper .tl-text-input::selection,
+.tl-geo .tl-text-wrapper .tl-rich-text::selection {
+  background-color: rgba(59, 130, 246, 0.3);
+  color: inherit;
+}
+
+/* Text cursor for forms */
+.tl-geo .tl-text-wrapper {
+  cursor: text !important;
+}
+
+.tl-geo .tl-text-wrapper:hover {
+  cursor: text !important;
+}
+
+/* Ensure text is always on top in forms */
+.tl-geo .tl-text-wrapper {
+  z-index: 10;
+  position: relative;
+}
+
+/* Text editing state indicators */
+.tl-geo .tl-text-wrapper[data-isediting="true"] {
+  z-index: 1000;
+}
+
+.tl-geo .tl-text-wrapper[data-isediting="true"] .tl-text-content,
+.tl-geo .tl-text-wrapper[data-isediting="true"] .tl-rich-text {
+  background-color: rgba(255, 255, 255, 0.95);
+  outline: 2px solid #3b82f6;
+  outline-offset: 1px;
+}
+
+/* Text style highlighting for geo shapes with richText */
+.tl-geo[data-has-text="true"] .tl-text-content[style*="background-color"],
+.tl-geo[data-has-text="true"] .tl-rich-text[style*="background-color"] {
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 2px;
+  padding: 1px 2px;
+}
+
+/* Blue highlighting for text with styles applied */
+.tl-geo.tl-text-bold .tl-text-content,
+.tl-geo.tl-text-bold .tl-rich-text,
+.tl-geo.tl-text-italic .tl-text-content,
+.tl-geo.tl-text-italic .tl-rich-text,
+.tl-geo.tl-text-code .tl-text-content,
+.tl-geo.tl-text-code .tl-rich-text {
+  background-color: rgba(59, 130, 246, 0.3) !important;
+  box-shadow: 0 0 4px rgba(59, 130, 246, 0.4) !important;
+  border-radius: 3px !important;
+  padding: 2px 4px !important;
+  transition: all 0.2s ease !important;
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Enhanced highlighting for better visibility */
+.tl-geo[data-has-text="true"] .tl-text-content[style*="background-color: rgba(59, 130, 246, 0.2)"],
+.tl-geo[data-has-text="true"] .tl-rich-text[style*="background-color: rgba(59, 130, 246, 0.2)"] {
+  background-color: rgba(59, 130, 246, 0.3) !important;
+  box-shadow: 0 0 4px rgba(59, 130, 246, 0.4) !important;
+  border-radius: 3px !important;
+  padding: 2px 4px !important;
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Hover effect for highlighted text */
+.tl-geo.tl-text-bold:hover .tl-text-content,
+.tl-geo.tl-text-bold:hover .tl-rich-text,
+.tl-geo.tl-text-italic:hover .tl-text-content,
+.tl-geo.tl-text-italic:hover .tl-rich-text,
+.tl-geo.tl-text-code:hover .tl-text-content,
+.tl-geo.tl-text-code:hover .tl-rich-text {
+  background-color: rgba(59, 130, 246, 0.4) !important;
+  box-shadow: 0 0 6px rgba(59, 130, 246, 0.5) !important;
+}
+
+/* Specific highlight colors for different text styles */
+.tl-geo[data-has-text="true"] .tl-text-content[style*="background-color: blue"],
+.tl-geo[data-has-text="true"] .tl-rich-text[style*="background-color: blue"] {
+  background-color: rgba(59, 130, 246, 0.2) !important;
+  box-shadow: 0 0 3px rgba(59, 130, 246, 0.3) !important;
+}
+
+.tl-geo[data-has-text="true"] .tl-text-content[style*="background-color: purple"],
+.tl-geo[data-has-text="true"] .tl-rich-text[style*="background-color: purple"] {
+  background-color: rgba(147, 51, 234, 0.2) !important;
+  box-shadow: 0 0 3px rgba(147, 51, 234, 0.3) !important;
+}
+
+.tl-geo[data-has-text="true"] .tl-text-content[style*="background-color: yellow"],
+.tl-geo[data-has-text="true"] .tl-rich-text[style*="background-color: yellow"] {
+  background-color: rgba(234, 179, 8, 0.2) !important;
+  box-shadow: 0 0 3px rgba(234, 179, 8, 0.3) !important;
+}

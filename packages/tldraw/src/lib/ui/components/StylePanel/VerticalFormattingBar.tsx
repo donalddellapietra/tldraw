@@ -222,8 +222,20 @@ export function VerticalFormattingBar({
   const allTextSelected = hasSelection && selection.every((el: any) => el.type === 'text');
   const allNonTextSelected = hasSelection && selection.every((el: any) => el.type !== 'text');
 
-  const showTextFormatting = allTextSelected;
-  const showShapeFormatting = allNonTextSelected;
+  // Enhanced detection: check if we have geo shapes with text content
+  const hasGeoShapeWithText = hasSelection && selection.some((el: any) => {
+    if (el.type === 'geo') {
+      // Check if this geo shape has richText content
+      return el.props && el.props.richText && el.props.richText.content && el.props.richText.content.length > 0;
+    }
+    return false;
+  });
+
+  // Show text formatting when we have text shapes OR geo shapes with text
+  const showTextFormatting = allTextSelected || hasGeoShapeWithText;
+  
+  // Show shape formatting when we have non-text shapes (regardless of text content)
+  const showShapeFormatting = allNonTextSelected || hasGeoShapeWithText;
 
   if (!isVisible || !hasSelection) return null;
 
