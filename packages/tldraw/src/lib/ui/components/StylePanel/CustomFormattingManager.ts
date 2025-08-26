@@ -30,17 +30,25 @@ export class CustomFormattingManager {
       // TODO: In the future, we could modify the schema to accept hex colors directly
       const tldrawColor = this.hexToTldrawColor(color)
       
+      // Get shapes that can have text formatting (text shapes OR geo shapes with richText)
+      const shapesToUpdate = this.editor.getSelectedShapes()
+        .filter((shape: TLShape) => {
+          if (shape.type === 'text') return true
+          if (shape.type === 'geo' && (shape.props as any).richText) return true
+          return false
+        })
+      
+      console.log('🔧 setColor: Updating shapes with text formatting:', shapesToUpdate)
+      
       this.editor.updateShapes(
-        this.editor.getSelectedShapes()
-          .filter((shape: TLShape) => shape.type === 'text') // Only update text shapes
-          .map((shape: TLShape) => ({
-            id: shape.id,
-            type: shape.type,
-            props: {
-              ...shape.props,
-              color: tldrawColor
-            }
-          }))
+        shapesToUpdate.map((shape: TLShape) => ({
+          id: shape.id,
+          type: shape.type,
+          props: {
+            ...shape.props,
+            color: tldrawColor
+          }
+        }))
       )
       
       // Notify state change after updating
@@ -55,17 +63,25 @@ export class CustomFormattingManager {
         return
       }
       
+      // Get shapes that can have text formatting (text shapes OR geo shapes with richText)
+      const shapesToUpdate = this.editor.getSelectedShapes()
+        .filter((shape: TLShape) => {
+          if (shape.type === 'text') return true
+          if (shape.type === 'geo' && (shape.props as any).richText) return true
+          return false
+        })
+      
+      console.log('🔧 setFamily: Updating shapes with text formatting:', shapesToUpdate)
+      
       this.editor.updateShapes(
-        this.editor.getSelectedShapes()
-          .filter((shape: TLShape) => shape.type === 'text') // Only update text shapes
-          .map((shape: TLShape) => ({
-            id: shape.id,
-            type: shape.type,
-            props: {
-              ...shape.props,
-              font: fontFamily as any
-            }
-          }))
+        shapesToUpdate.map((shape: TLShape) => ({
+          id: shape.id,
+          type: shape.type,
+          props: {
+            ...shape.props,
+            font: fontFamily as any
+          }
+        }))
       )
       
       // Notify state change after updating
@@ -79,18 +95,51 @@ export class CustomFormattingManager {
         return
       }
       
-      this.editor.updateShapes(
-        this.editor.getSelectedShapes()
-          .filter((shape: TLShape) => shape.type === 'text') // Only update text shapes
-          .map((shape: TLShape) => ({
-            id: shape.id,
-            type: shape.type,
-            props: {
-              ...shape.props,
-              customFontSize: sizeValue
-            }
-          }))
-      )
+      // Get shapes that can have text formatting (text shapes OR geo shapes with richText)
+      const shapesToUpdate = this.editor.getSelectedShapes()
+        .filter((shape: TLShape) => {
+          if (shape.type === 'text') return true
+          if (shape.type === 'geo' && (shape.props as any).richText) return true
+          return false
+        })
+      
+      console.log('🔧 setSize: Updating shapes with text formatting:', shapesToUpdate)
+      
+      this.editor.run(() => {
+        shapesToUpdate.forEach((shape: TLShape) => {
+          if (shape.type === 'text') {
+            // For text shapes, use customFontSize
+            this.editor.updateShapes([{
+              id: shape.id,
+              type: shape.type,
+              props: {
+                ...shape.props,
+                customFontSize: sizeValue
+              }
+            }])
+          } else if (shape.type === 'geo' && (shape.props as any).richText) {
+            // For geo shapes with richText, we can't use fontSize marks (not supported)
+            // Instead, we'll use CSS styling to control the font size
+            // The richText will maintain its structure, but the rendering will be controlled by CSS
+            console.log('🔧 Geo shape font size change - using CSS approach for size:', sizeValue)
+            
+            // We'll store the font size in the shape's meta data for CSS to use
+            this.editor.updateShapes([{
+              id: shape.id,
+              type: shape.type,
+              meta: {
+                ...shape.meta,
+                textFontSize: sizeValue
+              }
+            }])
+            
+            // Apply the font size change immediately to the DOM
+            setTimeout(() => {
+              this.applyFontSizeToGeoShape(shape.id, sizeValue)
+            }, 50)
+          }
+        })
+      })
       
       // Notify state change after updating
       this.notifyStateChange()
@@ -131,84 +180,36 @@ export class CustomFormattingManager {
     const selectedShapes = this.editor.getSelectedShapes()
     console.log('Selected shapes:', selectedShapes.map((s: TLShape) => ({ type: s.type, id: s.id })))
     
-    const textShapes = selectedShapes.filter((shape: TLShape) => shape.type === 'text')
-    console.log('Text shapes found:', textShapes.length)
+    // Get shapes that can have text formatting (text shapes OR geo shapes with richText)
+    const shapesWithText = selectedShapes.filter((shape: TLShape) => {
+      if (shape.type === 'text') return true
+      if (shape.type === 'geo' && (shape.props as any).richText) return true
+      return false
+    })
     
-    if (textShapes.length === 0) {
-      console.log('No text shapes found, returning')
+    console.log('Shapes with text found:', shapesWithText.length)
+    
+    if (shapesWithText.length === 0) {
+      console.log('No shapes with text found, returning')
       return
     }
     
     this.editor.run(() => {
-      textShapes.forEach((shape: TLShape) => {
-        if (shape.type === 'text') {
-          const currentRichText = (shape.props as any).richText
-          console.log('Current rich text for shape:', shape.id, currentRichText)
+      shapesWithText.forEach((shape: TLShape) => {
+        const currentRichText = (shape.props as any).richText
+        console.log('Current rich text for shape:', shape.id, currentRichText)
+        
+        if (currentRichText && currentRichText.content && currentRichText.content.length > 0) {
+          // Handle the structure with 'content' array (the correct structure)
+          console.log('Processing rich text with content array')
           
-          if (currentRichText && currentRichText.content && currentRichText.content.length > 0) {
-            // Handle the structure with 'content' array (the correct structure)
-            console.log('Processing rich text with content array')
-            
-            const newRichText = {
-              ...currentRichText,
-              content: currentRichText.content.map((block: any) => {
-                if (block.type === 'paragraph' && block.content) {
-                  return {
-                    ...block,
-                    content: block.content.map((child: any) => {
-                      if (child.type === 'text') {
-                        const newMarks = child.marks ? [...child.marks] : []
-                        console.log('Child text:', child.text, 'Current marks:', newMarks)
-                        
-                        // Check if the style is already applied
-                        const hasStyle = newMarks.some((mark: any) => mark.type === style)
-                        console.log('Has style', style, ':', hasStyle)
-                        
-                        if (hasStyle) {
-                          // Remove the style if it's already applied
-                          const filteredMarks = newMarks.filter((mark: any) => mark.type !== style)
-                          console.log('Removing style, new marks:', filteredMarks)
-                          return {
-                            ...child,
-                            marks: filteredMarks
-                          }
-                        } else {
-                          // Add the style if it's not applied
-                          newMarks.push({ type: style })
-                          console.log('Adding style, new marks:', newMarks)
-                          return {
-                            ...child,
-                            marks: newMarks
-                          }
-                        }
-                      }
-                      return child
-                    })
-                  }
-                }
-                return block
-              })
-            }
-            
-            console.log('New rich text:', newRichText)
-            
-            // Update the shape with new rich text
-            this.editor.updateShape({
-              id: shape.id,
-              type: 'text',
-              props: { richText: newRichText }
-            })
-            
-            console.log('Shape updated with new rich text')
-          } else if (currentRichText && currentRichText.length > 0) {
-            // Handle the old array structure (fallback)
-            console.log('Processing rich text with old array structure')
-            
-            const newRichText = currentRichText.map((block: any) => {
-              if (block.type === 'paragraph' && block.children) {
+          const newRichText = {
+            ...currentRichText,
+            content: currentRichText.content.map((block: any) => {
+              if (block.type === 'paragraph' && block.content) {
                 return {
                   ...block,
-                  children: block.children.map((child: any) => {
+                  content: block.content.map((child: any) => {
                     if (child.type === 'text') {
                       const newMarks = child.marks ? [...child.marks] : []
                       console.log('Child text:', child.text, 'Current marks:', newMarks)
@@ -227,11 +228,12 @@ export class CustomFormattingManager {
                         }
                       } else {
                         // Add the style if it's not applied
-                        newMarks.push({ type: style })
-                        console.log('Adding style, new marks:', newMarks)
+                        const newMark = { type: style }
+                        const updatedMarks = [...newMarks, newMark]
+                        console.log('Adding style, new marks:', updatedMarks)
                         return {
                           ...child,
-                          marks: newMarks
+                          marks: updatedMarks
                         }
                       }
                     }
@@ -241,19 +243,34 @@ export class CustomFormattingManager {
               }
               return block
             })
+          }
+          
+          console.log('New rich text:', newRichText)
+          
+          // Update the shape with the new rich text
+          this.editor.updateShapes([{
+            id: shape.id,
+            type: shape.type,
+            props: {
+              ...shape.props,
+              richText: newRichText
+            }
+          }])
+          
+          // For geo shapes with richText, apply blue highlighting immediately to DOM
+          if (shape.type === 'geo' && (shape.props as any).richText) {
+            // Check if the style is being applied or removed
+            const hasStyleInRichText = newRichText.content.some((block: any) => 
+              block.type === 'paragraph' && block.content && 
+              block.content.some((child: any) => 
+                child.type === 'text' && child.marks && 
+                child.marks.some((mark: any) => mark.type === style)
+              )
+            )
             
-            console.log('New rich text:', newRichText)
-            
-            // Update the shape with new rich text
-            this.editor.updateShape({
-              id: shape.id,
-              type: 'text',
-              props: { richText: newRichText }
-            })
-            
-            console.log('Shape updated with new rich text')
-          } else {
-            console.log('No rich text found in shape')
+            setTimeout(() => {
+              this.applyTextStyleHighlighting(shape.id, style, hasStyleInRichText)
+            }, 50)
           }
         }
       })
@@ -266,18 +283,47 @@ export class CustomFormattingManager {
   // Helper method to set text alignment
   private setTextAlign(alignment: 'start' | 'middle' | 'end') {
     const selectedShapes = this.editor.getSelectedShapes()
-    const textShapes = selectedShapes.filter((shape: TLShape) => shape.type === 'text')
     
-    if (textShapes.length === 0) return
+    // Get shapes that can have text formatting (text shapes OR geo shapes with richText)
+    const shapesWithText = selectedShapes.filter((shape: TLShape) => {
+      if (shape.type === 'text') return true
+      if (shape.type === 'geo' && (shape.props as any).richText) return true
+      return false
+    })
+    
+    if (shapesWithText.length === 0) return
+    
+    console.log('🔧 setTextAlign: Updating shapes with text formatting:', shapesWithText)
     
     this.editor.run(() => {
-      textShapes.forEach((shape: TLShape) => {
+      shapesWithText.forEach((shape: TLShape) => {
         if (shape.type === 'text') {
-          this.editor.updateShape({
+          // For text shapes, use textAlign property
+          this.editor.updateShapes([{
             id: shape.id,
-            type: 'text',
-            props: { textAlign: alignment }
-          })
+            type: shape.type,
+            props: { 
+              ...shape.props,
+              textAlign: alignment 
+            }
+          }])
+        } else if (shape.type === 'geo' && (shape.props as any).richText) {
+          // For geo shapes with richText, store alignment in meta data
+          console.log('🔧 Geo shape text alignment change - storing in meta data:', alignment)
+          
+          this.editor.updateShapes([{
+            id: shape.id,
+            type: shape.type,
+            meta: {
+              ...shape.meta,
+              textAlign: alignment
+            }
+          }])
+          
+          // Apply the alignment immediately to the DOM
+          setTimeout(() => {
+            this.applyTextAlignToGeoShape(shape.id, alignment)
+          }, 50)
         }
       })
     })
@@ -289,12 +335,26 @@ export class CustomFormattingManager {
   // Helper method to get current text alignment
   getCurrentTextAlign(): 'start' | 'middle' | 'end' {
     const selectedShapes = this.editor.getSelectedShapes()
-    const textShapes = selectedShapes.filter((shape: TLShape) => shape.type === 'text')
     
-    if (textShapes.length === 0) return 'start'
+    // Get shapes that can have text formatting (text shapes OR geo shapes with richText)
+    const shapesWithText = selectedShapes.filter((shape: TLShape) => {
+      if (shape.type === 'text') return true
+      if (shape.type === 'geo' && (shape.props as any).richText) return true
+      return false
+    })
     
-    const firstShape = textShapes[0]
-    return firstShape.props?.textAlign || 'start'
+    if (shapesWithText.length === 0) return 'start'
+    
+    const firstShape = shapesWithText[0]
+    
+    if (firstShape.type === 'text') {
+      return firstShape.props?.textAlign || 'start'
+    } else if (firstShape.type === 'geo' && (firstShape.props as any).richText) {
+      // For geo shapes with richText, check meta data for text alignment
+      return firstShape.meta?.textAlign || 'start'
+    }
+    
+    return 'start'
   }
 
   // Element formatting methods
@@ -559,23 +619,54 @@ export class CustomFormattingManager {
     return firstShape.props?.font || 'sans'
   }
 
+  // Helper method to get current font size
   getCurrentFontSize(): number {
     const selectedShapes = this.editor.getSelectedShapes()
+    
     if (selectedShapes.length === 0) return 16
     
     const firstShape = selectedShapes[0]
-    // Check for customFontSize first, then fall back to fontSize preset
-    if (firstShape.props?.customFontSize) {
-      return firstShape.props.customFontSize
+    
+    if (firstShape.type === 'text') {
+      if (firstShape.props?.customFontSize) {
+        return firstShape.props.customFontSize
+      }
+      const fontSizePreset = firstShape.props?.fontSize
+      if (fontSizePreset && fontSizePreset in FONT_SIZES) {
+        return FONT_SIZES[fontSizePreset as keyof typeof FONT_SIZES]
+      }
+    } else if (firstShape.type === 'geo' && (firstShape.props as any).richText) {
+      if (firstShape.meta?.textFontSize) {
+        return firstShape.meta.textFontSize
+      }
     }
     
-    // If no custom font size, try to get from fontSize preset and convert to pixel value
-    const fontSizePreset = firstShape.props?.fontSize
-    if (fontSizePreset && fontSizePreset in FONT_SIZES) {
-      return FONT_SIZES[fontSizePreset as keyof typeof FONT_SIZES]
-    }
+    return 16 // Default to base font size
+  }
+
+  // Refresh text style highlighting for selected shapes
+  refreshTextStyleHighlighting() {
+    const selectedShapes = this.editor.getSelectedShapes()
     
-    return 24 // Default to medium size
+    selectedShapes.forEach((shape: TLShape) => {
+      if (shape.type === 'geo' && (shape.props as any).richText) {
+        // Check each style and apply highlighting if needed
+        const hasBold = this.hasTextStyle('bold')
+        const hasItalic = this.hasTextStyle('italic')
+        const hasCode = this.hasTextStyle('code')
+        
+        // Apply highlighting for each active style
+        if (hasBold) {
+          setTimeout(() => this.applyTextStyleHighlighting(shape.id, 'bold', true), 10)
+        }
+        if (hasItalic) {
+          setTimeout(() => this.applyTextStyleHighlighting(shape.id, 'italic', true), 10)
+        }
+        if (hasCode) {
+          setTimeout(() => this.applyTextStyleHighlighting(shape.id, 'code', true), 10)
+        }
+      }
+    })
   }
 
   // Public method to access the editor's store for listening to changes
@@ -598,51 +689,94 @@ export class CustomFormattingManager {
   // Helper method to check if text has a specific style
   public hasTextStyle(style: 'bold' | 'italic' | 'code'): boolean {
     const selectedShapes = this.editor.getSelectedShapes()
-    const textShapes = selectedShapes.filter((shape: TLShape) => shape.type === 'text')
     
-    if (textShapes.length === 0) return false
+    console.log('🔍 hasTextStyle called for style:', style)
+    console.log('🔍 Selected shapes:', selectedShapes.map((s: TLShape) => ({ type: s.type, id: s.id })))
     
-    // Check if any of the selected text shapes have the style
-    return textShapes.some((shape: TLShape) => {
-      if (shape.type === 'text') {
-        const richText = (shape.props as any).richText
-        
-        // Handle the structure with 'content' array (the correct structure)
-        if (richText && richText.content && richText.content.length > 0) {
-          return richText.content.some((block: any) => {
-            if (block.type === 'paragraph' && block.content) {
-              return block.content.some((child: any) => {
-                if (child.type === 'text' && child.marks) {
-                  return child.marks.some((mark: any) => mark.type === style)
-                }
-                return false
-              })
-            }
-            return false
-          })
-        }
-        
-        // Handle the old array structure (fallback)
-        if (richText && richText.length > 0) {
-          return richText.some((block: any) => {
-            if (block.type === 'paragraph' && block.children) {
-              return block.children.some((child: any) => {
-                if (child.type === 'text' && child.marks) {
-                  return child.marks.some((mark: any) => mark.type === style)
-                }
-                return false
-              })
-            }
-            return false
-          })
-        }
-      }
+    // Get shapes that can have text formatting (text shapes OR geo shapes with richText)
+    const shapesWithText = selectedShapes.filter((shape: TLShape) => {
+      if (shape.type === 'text') return true
+      if (shape.type === 'geo' && (shape.props as any).richText) return true
       return false
     })
+    
+    console.log('🔍 Shapes with text found:', shapesWithText.length)
+    
+    if (shapesWithText.length === 0) return false
+    
+    // Check if any of the selected shapes have the style
+    const hasStyle = shapesWithText.some((shape: TLShape) => {
+      const richText = (shape.props as any).richText
+      console.log(`🔍 Checking shape ${shape.id} for ${style}:`, richText)
+      
+      // Handle the structure with 'content' array (the correct structure)
+      if (richText && richText.content && richText.content.length > 0) {
+        console.log(`🔍 RichText has content array with ${richText.content.length} blocks`)
+        const found = richText.content.some((block: any) => {
+          if (block.type === 'paragraph' && block.content) {
+            return block.content.some((child: any) => {
+              if (child.type === 'text' && child.marks) {
+                const hasMark = child.marks.some((mark: any) => mark.type === style)
+                console.log(`🔍 Text child "${child.text}" has marks:`, child.marks, `Looking for ${style}:`, hasMark)
+                return hasMark
+              }
+              return false
+            })
+          }
+          return false
+        })
+        console.log(`🔍 Found ${style} style in content array:`, found)
+        return found
+      }
+      
+      // Handle the old array structure (fallback)
+      if (richText && richText.length > 0) {
+        console.log(`🔍 RichText has old array structure with ${richText.length} blocks`)
+        const found = richText.some((block: any) => {
+          if (block.type === 'paragraph' && block.children) {
+            return block.children.some((child: any) => {
+              if (child.type === 'text' && child.marks) {
+                const hasMark = child.marks.some((mark: any) => mark.type === style)
+                console.log(`🔍 Text child "${child.text}" has marks:`, child.marks, `Looking for ${style}:`, hasMark)
+                return hasMark
+              }
+              return false
+            })
+          }
+          return false
+        })
+        console.log(`🔍 Found ${style} style in old array:`, found)
+        return found
+      }
+      
+      console.log(`🔍 No valid richText structure found for shape ${shape.id}`)
+      return false
+    })
+    
+    console.log(`🔍 Final result for ${style}:`, hasStyle)
+    return hasStyle
   }
 
   getSelectedElementsForFormatting() {
-    return this.editor.getSelectedShapes()
+    const selectedShapes = this.editor.getSelectedShapes()
+    console.log('🔍 getSelectedElementsForFormatting called')
+    console.log('🔍 Editor selected shapes:', selectedShapes)
+    console.log('🔍 Editor selected shape IDs:', selectedShapes.map((s: TLShape) => s.id))
+    console.log('🔍 Editor selected shape types:', selectedShapes.map((s: TLShape) => s.type))
+    
+    // Also try alternative methods to get selection
+    try {
+      const currentPageShapes = this.editor.getCurrentPageShapes()
+      console.log('🔍 All current page shapes:', currentPageShapes.map((s: TLShape) => ({ id: s.id, type: s.type })))
+      
+      // Check if there are any shapes with selection state
+      const shapesWithSelection = currentPageShapes.filter((s: TLShape) => (s as any).isSelected)
+      console.log('🔍 Shapes with isSelected flag:', shapesWithSelection.map((s: TLShape) => ({ id: s.id, type: s.type })))
+    } catch (error) {
+      console.log('🔍 Error getting alternative selection info:', error)
+    }
+    
+    return selectedShapes
   }
 
   addTextElement() {
@@ -786,6 +920,85 @@ export class CustomFormattingManager {
     
     return colorMap[tldrawColor] || '#000000'
   }
+
+  // Apply font size to a geo shape using CSS transform
+  private applyFontSizeToGeoShape(shapeId: TLShapeId, fontSize: number) {
+    // Find the DOM element for this shape
+    const shapeElement = document.querySelector(`[data-shape-id="${shapeId}"]`)
+    if (!shapeElement) return
+    
+    // Find text elements within the geo shape
+    const textElements = shapeElement.querySelectorAll('.tl-text-content, .tl-rich-text')
+    if (textElements.length === 0) return
+    
+    // Calculate scale factor (assuming base font size is 16px)
+    const baseFontSize = 16
+    const scaleFactor = fontSize / baseFontSize
+    
+    console.log(`🔧 Applying font size ${fontSize}px with scale factor ${scaleFactor}`)
+    
+    // Apply CSS transform to scale the text
+    textElements.forEach((textElement) => {
+      const element = textElement as HTMLElement
+      
+      // Preserve existing text alignment if it exists
+      const existingTextAlign = element.style.textAlign || 'left'
+      
+      // Combine font size scaling with text alignment
+      element.style.transform = `scale(${scaleFactor})`
+      element.style.transformOrigin = 'center center'
+      element.style.fontSize = `${baseFontSize}px` // Keep base font size
+      element.style.textAlign = existingTextAlign // Preserve text alignment
+    })
+  }
+
+  // Apply text alignment to a geo shape using CSS text-align
+  private applyTextAlignToGeoShape(shapeId: TLShapeId, alignment: 'start' | 'middle' | 'end') {
+    // Find the DOM element for this shape
+    const shapeElement = document.querySelector(`[data-shape-id="${shapeId}"]`)
+    if (!shapeElement) return
+
+    // Find text elements within the geo shape
+    const textElements = shapeElement.querySelectorAll('.tl-text-content, .tl-rich-text')
+    if (textElements.length === 0) return
+
+    // Convert tldraw alignment values to CSS text-align values
+    let cssAlignment = 'left';
+    if (alignment === 'start') {
+      cssAlignment = 'left';
+    } else if (alignment === 'middle') {
+      cssAlignment = 'center';
+    } else if (alignment === 'end') {
+      cssAlignment = 'right';
+    }
+
+    console.log(`🔧 Applying text alignment ${alignment} with CSS text-align: ${cssAlignment}`);
+
+    // Apply CSS text-align to align the text
+    textElements.forEach((textElement) => {
+      const element = textElement as HTMLElement;
+      element.style.textAlign = cssAlignment;
+    });
+  }
+
+  // Apply text style highlighting to a geo shape
+  private applyTextStyleHighlighting(shapeId: TLShapeId, style: 'bold' | 'italic' | 'code', isApplying: boolean) {
+    // Find the DOM element for this shape
+    const shapeElement = document.querySelector(`[data-shape-id="${shapeId}"]`)
+    if (!shapeElement) return
+
+    // Find text elements within the geo shape
+    const textElements = shapeElement.querySelectorAll('.tl-text-content, .tl-rich-text')
+    if (textElements.length === 0) return
+
+    // Apply a class to the shape element to indicate the style
+    const shapeClass = `tl-text-${style}`;
+    if (isApplying) {
+      shapeElement.classList.add(shapeClass);
+    } else {
+      shapeElement.classList.remove(shapeClass);
+    }
+  }
 }
 
 // Hook to use the formatting manager
@@ -810,9 +1023,15 @@ export function useCustomFormattingManager() {
   React.useEffect(() => {
     const updateFormattingState = () => {
       const selectedShapes = editor.getSelectedShapes()
-      const textShapes = selectedShapes.filter((shape: TLShape) => shape.type === 'text')
       
-      if (textShapes.length === 0) {
+      // Check for both text shapes AND geo shapes with richText
+      const hasTextShapes = selectedShapes.some((shape: TLShape) => shape.type === 'text')
+      const hasGeoWithText = selectedShapes.some((shape: TLShape) => 
+        shape.type === 'geo' && (shape.props as any).richText && 
+        (shape.props as any).richText.content && (shape.props as any).richText.content.length > 0
+      )
+      
+      if (!hasTextShapes && !hasGeoWithText) {
         setFormattingState({
           isBold: false,
           isItalic: false,
@@ -823,11 +1042,13 @@ export function useCustomFormattingManager() {
         return
       }
       
-      // Check formatting state of selected text
+      // Check formatting state of selected text (works for both text shapes and geo shapes with richText)
       const isBold = formattingManager.hasTextStyle('bold')
       const isItalic = formattingManager.hasTextStyle('italic')
       const isCode = formattingManager.hasTextStyle('code')
       const textAlign = formattingManager.getCurrentTextAlign()
+      
+      console.log('🔧 updateFormattingState - Text styles detected:', { isBold, isItalic, isCode, textAlign })
       
       setFormattingState({
         isBold,
@@ -852,6 +1073,103 @@ export function useCustomFormattingManager() {
     return unsubscribe
   }, [editor, formattingManager])
   
+  // Check if text is selected (tldraw-specific logic)
+  const selection = formattingManager.getSelectedElementsForFormatting();
+  const hasSelection = selection.length > 0;
+  const allTextSelected = hasSelection && selection.every((el: any) => el.type === 'text');
+  const allNonTextSelected = hasSelection && selection.every((el: any) => el.type !== 'text');
+
+  // DEBUG LOGGING
+  console.log('🔍 DEBUG: StylePanel Selection Analysis');
+  console.log('Selection:', selection);
+  console.log('Has Selection:', hasSelection);
+  console.log('All Text Selected:', allTextSelected);
+  console.log('All Non-Text Selected:', allNonTextSelected);
+
+  // Enhanced detection: check if we have text inside forms
+  const hasTextInForms = hasSelection && selection.some((el: any) => {
+    if (el.type === 'text') {
+      // Check if this text is positioned inside a geo shape
+      const textBounds = editor.getShapeGeometry(el).bounds;
+      const allShapes = editor.getCurrentPageShapes();
+      const geoShapes = allShapes.filter((shape: any) => shape.type === 'geo');
+      
+      console.log('🔍 Text shape bounds:', textBounds);
+      console.log('🔍 All shapes:', allShapes.map(s => ({ type: s.type, id: s.id })));
+      console.log('🔍 Geo shapes:', geoShapes.map(s => ({ type: s.type, id: s.id })));
+      
+      const isInside = geoShapes.some((geoShape: any) => {
+        const geoBounds = editor.getShapeGeometry(geoShape).bounds;
+        console.log('🔍 Comparing text bounds with geo bounds:', { textBounds, geoBounds });
+        
+        // Check if text is inside the geo shape bounds
+        const inside = textBounds.minX >= geoBounds.minX && 
+               textBounds.maxX <= geoBounds.maxX && 
+               textBounds.minY >= geoBounds.minY && 
+               textBounds.maxY <= geoBounds.maxY;
+        
+        console.log('🔍 Is text inside this geo shape?', inside);
+        return inside;
+      });
+      
+      console.log('🔍 Text is inside any geo shape:', isInside);
+      return isInside;
+    }
+    return false;
+  });
+
+  // Also check if we have a geo shape selected that contains text
+  const hasGeoShapeWithText = hasSelection && selection.some((el: any) => {
+    if (el.type === 'geo') {
+      console.log('🔍 Found geo shape in selection:', el);
+      
+      // Check if this geo shape has richText content
+      const hasRichText = el.props && el.props.richText && el.props.richText.content && el.props.richText.content.length > 0;
+      console.log('🔍 Geo shape has richText content:', hasRichText);
+      
+      if (hasRichText) {
+        console.log('🔍 Geo shape contains text, will show text formatting');
+        return true;
+      }
+      
+      // Also check if there are text shapes positioned inside this geo shape
+      const geoBounds = editor.getShapeGeometry(el).bounds;
+      const allShapes = editor.getCurrentPageShapes();
+      const textShapes = allShapes.filter((shape: any) => shape.type === 'text');
+      
+      console.log('🔍 Geo shape bounds:', geoBounds);
+      console.log('🔍 All text shapes:', textShapes.map(s => ({ id: s.id, props: s.props })));
+      
+      const containsText = textShapes.some((textShape: any) => {
+        const textBounds = editor.getShapeGeometry(textShape).bounds;
+        console.log('🔍 Text shape bounds:', textBounds);
+        
+        // Check if text is inside the geo shape bounds
+        const inside = textBounds.minX >= geoBounds.minX && 
+               textBounds.maxX <= geoBounds.maxX && 
+               textBounds.minY >= geoBounds.minY && 
+               textBounds.maxY <= geoBounds.maxY;
+        
+        console.log('🔍 Is this text inside the selected geo shape?', inside);
+        return inside;
+      });
+      
+      console.log('🔍 Selected geo shape contains positioned text:', containsText);
+      return containsText;
+    }
+    return false;
+  });
+
+  console.log('🔍 Has Text In Forms:', hasTextInForms);
+  console.log('🔍 Has Geo Shape With Text:', hasGeoShapeWithText);
+
+  const showTextFormatting = allTextSelected || hasTextInForms || hasGeoShapeWithText;
+  const showShapeFormatting = allNonTextSelected && !hasTextInForms && !hasGeoShapeWithText;
+
+  console.log('🔍 Show Text Formatting:', showTextFormatting);
+  console.log('🔍 Show Shape Formatting:', showShapeFormatting);
+  console.log('🔍 Final decision - Text formatting will be shown:', showTextFormatting);
+
   // Return both the manager and the current state
   return {
     manager: formattingManager,
