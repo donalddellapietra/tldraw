@@ -235,29 +235,9 @@ export function VerticalFormattingBar({
 
   return (
     <div className="vertical-formatting-bar">
-      {/* Add Elements */}
-      <button
-        onClick={() => formattingManager.addTextElement()}
-        className="formatting-button"
-        title="Add Text"
-      >
-        <Type size={14} />
-      </button>
-      
-      <button
-        onClick={() => formattingManager.addShapeElement()}
-        className="formatting-button"
-        title="Add Shape"
-      >
-        <Square size={14} />
-      </button>
-
       {/* Text formatting controls - show only when text is selected */}
       {showTextFormatting && (
         <>
-          {/* Divider */}
-          <div className="divider"></div>
-
           {/* Font Size Controls */}
           <div className="font-size-controls">
             <button
