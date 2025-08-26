@@ -142,6 +142,9 @@ function _getGeoPath(shape: TLGeoShape) {
 				geometry: { isFilled },
 			}).close()
 		case 'rectangle':
+			if (shape.props.cornerRadius > 0) {
+				return getRoundedRectanglePath(w, h, shape.props.cornerRadius, isFilled)
+			}
 			return new PathBuilder()
 				.moveTo(0, 0, { geometry: { isFilled } })
 				.lineTo(w, 0)
@@ -511,5 +514,57 @@ function getCloudPath(
 		path.circularArcTo(radius, false, true, rightWigglePoint.x, rightWigglePoint.y)
 	}
 
+	return path.close()
+}
+
+function getRoundedRectanglePath(
+	width: number,
+	height: number,
+	cornerRadius: number,
+	isFilled: boolean
+) {
+	// Clamp corner radius to not exceed half of the smaller dimension
+	const maxRadius = Math.min(width, height) / 2
+	const radius = Math.min(cornerRadius, maxRadius)
+	
+	// If radius is 0 or very small, return a regular rectangle
+	if (radius <= 0) {
+		return new PathBuilder()
+			.moveTo(0, 0, { geometry: { isFilled } })
+			.lineTo(width, 0)
+			.lineTo(width, height)
+			.lineTo(0, height)
+			.close()
+	}
+
+	const path = new PathBuilder()
+	
+	// Start from top-left corner
+	path.moveTo(radius, 0, { geometry: { isFilled } })
+	
+	// Top edge
+	path.lineTo(width - radius, 0)
+	
+	// Top-right corner
+	path.arcTo(radius, radius, false, true, 0, width, radius)
+	
+	// Right edge
+	path.lineTo(width, height - radius)
+	
+	// Bottom-right corner
+	path.arcTo(radius, radius, false, true, 0, width - radius, height)
+	
+	// Bottom edge
+	path.lineTo(radius, height)
+	
+	// Bottom-left corner
+	path.arcTo(radius, radius, false, true, 0, 0, height - radius)
+	
+	// Left edge
+	path.lineTo(0, radius)
+	
+	// Top-left corner
+	path.arcTo(radius, radius, false, true, 0, radius, 0)
+	
 	return path.close()
 }

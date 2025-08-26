@@ -67,6 +67,7 @@ export class GeoShapeUtil extends BaseBoxShapeUtil<TLGeoShape> {
 			growY: 0,
 			url: '',
 			scale: 1,
+			cornerRadius: 0,
 
 			// Text properties
 			color: 'black',
