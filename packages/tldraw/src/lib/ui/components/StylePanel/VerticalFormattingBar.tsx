@@ -18,6 +18,7 @@ export function VerticalFormattingBar({
 }: VerticalFormattingBarProps) {
   const [showColorPicker, setShowColorPicker] = useState<string | null>(null);
   const [showFontDropdown, setShowFontDropdown] = useState(false);
+  const [showStrokeWidthDropdown, setShowStrokeWidthDropdown] = useState(false);
   const [pendingTextColor, setPendingTextColor] = useState<string>('#000000');
   const [pendingBackgroundColor, setPendingBackgroundColor] = useState<string>('#ffffff');
   const [pendingStrokeColor, setPendingStrokeColor] = useState<string>('#000000');
@@ -27,6 +28,7 @@ export function VerticalFormattingBar({
   const colorPickerRef = useRef<HTMLDivElement>(null);
   const bgColorPickerRef = useRef<HTMLDivElement>(null);
   const strokeColorPickerRef = useRef<HTMLDivElement>(null);
+  const strokeWidthDropdownRef = useRef<HTMLDivElement>(null);
   const fontDropdownRef = useRef<HTMLDivElement>(null);
   const formattingManager = useCustomFormattingManager();
 
@@ -90,6 +92,21 @@ export function VerticalFormattingBar({
 
     return unsubscribe;
   }, [formattingManager, showColorPicker]);
+
+  // Sync stroke width with selected shapes
+  useEffect(() => {
+    const updateStrokeWidth = () => {
+      // This will be handled by the button states automatically
+      // since we're calling getCurrentStrokeWidth() in the render
+    };
+
+    // Listen for selection changes to trigger re-render
+    const unsubscribe = formattingManager.getStore().listen(() => {
+      updateStrokeWidth();
+    });
+
+    return unsubscribe;
+  }, [formattingManager]);
  
   // Font options (tldraw supported fonts with user-friendly names)
   const fontOptions = [
@@ -97,6 +114,14 @@ export function VerticalFormattingBar({
     { value: 'draw', label: 'Draw', family: 'var(--tl-font-draw)' },
     { value: 'sans', label: 'Arial', family: 'var(--tl-font-sans)' },
     { value: 'mono', label: 'Courier New', family: 'var(--tl-font-mono)' }
+  ];
+
+  // Stroke width options (tldraw supported sizes with user-friendly names)
+  const strokeWidthOptions = [
+    { value: 's', label: 'Small (1.5px)' },
+    { value: 'm', label: 'Medium (2.5px)' },
+    { value: 'l', label: 'Large (4px)' },
+    { value: 'xl', label: 'XL (6px)' }
   ];
 
   // Close dropdowns when clicking outside
@@ -141,6 +166,11 @@ export function VerticalFormattingBar({
       if (fontDropdownRef.current && !fontDropdownRef.current.contains(target)) {
         setShowFontDropdown(false);
       }
+
+      // Close stroke width dropdown on outside click
+      if (strokeWidthDropdownRef.current && !strokeWidthDropdownRef.current.contains(target)) {
+        setShowStrokeWidthDropdown(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -175,6 +205,14 @@ export function VerticalFormattingBar({
   const handleFontChange = (font: string) => {
     formattingManager.text.setFamily(font);
     setShowFontDropdown(false);
+  };
+
+  // Handle stroke width change
+  const handleStrokeWidthChange = (width: string) => {
+    if (width === 's' || width === 'm' || width === 'l' || width === 'xl') {
+      formattingManager.element.setStrokeWidth(width);
+      setShowStrokeWidthDropdown(false);
+    }
   };
 
   // Check if text is selected (tldraw-specific logic)
@@ -477,6 +515,39 @@ export function VerticalFormattingBar({
                 >
                   Cancel
                 </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Stroke Width - show when shapes are selected */}
+      {hasShapesSelected() && (
+        <div className="stroke-width-dropdown" ref={strokeWidthDropdownRef}>
+          <button
+            onClick={() => setShowStrokeWidthDropdown(!showStrokeWidthDropdown)}
+            className="stroke-width-button"
+            title="Stroke Width"
+          >
+            <ChevronDown size={14} />
+            <div className="stroke-width-text">
+              {strokeWidthOptions.find(w => w.value === formattingManager.getCurrentStrokeWidth())?.label || 'M'}
+            </div>
+          </button>
+          {showStrokeWidthDropdown && (
+            <div className="stroke-width-dropdown-menu">
+              <div className="stroke-width-dropdown-content">
+                {strokeWidthOptions.map((width) => (
+                  <button
+                    key={width.value}
+                    onClick={() => handleStrokeWidthChange(width.value)}
+                    className={`stroke-width-option ${
+                      formattingManager.getCurrentStrokeWidth() === width.value ? 'active' : ''
+                    }`}
+                  >
+                    {width.label}
+                  </button>
+                ))}
               </div>
             </div>
           )}
