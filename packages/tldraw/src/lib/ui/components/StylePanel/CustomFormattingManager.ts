@@ -1,6 +1,6 @@
 import { useEditor, TLShape, TLShapeId, toRichText } from '@tldraw/editor'
-import { DefaultColorStyle, DefaultFillStyle, DefaultFontStyle, DefaultFontSizeStyle, DefaultTextAlignStyle, DefaultStrokeColorStyle } from '@tldraw/tlschema'
-import { FONT_SIZES } from '../../../shapes/shared/default-shape-constants'
+import { DefaultColorStyle, DefaultFillStyle, DefaultFontStyle, DefaultFontSizeStyle, DefaultTextAlignStyle, DefaultStrokeColorStyle, DefaultSizeStyle } from '@tldraw/tlschema'
+import { FONT_SIZES, STROKE_SIZES } from '../../../shapes/shared/default-shape-constants'
 
 export class CustomFormattingManager {
   private editor: any
@@ -353,6 +353,31 @@ export class CustomFormattingManager {
       })
       
       console.log('🏁 setStrokeColor completed');
+    },
+
+    // Method to set stroke width (line thickness)
+    setStrokeWidth: (width: 's' | 'm' | 'l' | 'xl') => {
+      console.log('📏 setStrokeWidth called with width:', width);
+      
+      this.editor.run(() => {
+        // Apply to currently selected shapes unconditionally
+        const selectedShapes = this.editor.getSelectedShapes();
+        console.log('📝 Selected shapes count:', selectedShapes.length);
+        
+        if (selectedShapes.length > 0) {
+          console.log('🔧 Setting stroke width for selected shapes...');
+          this.editor.setStyleForSelectedShapes(DefaultSizeStyle, width)
+          console.log('✅ Stroke width set for selected shapes');
+        }
+        
+        // Also set as default for next shapes
+        console.log('🔧 Setting stroke width for next shapes...');
+        this.editor.setStyleForNextShapes(DefaultSizeStyle, width)
+        this.editor.updateInstanceState({ isChangingStyle: true })
+        console.log('✅ Stroke width set for next shapes');
+      })
+      
+      console.log('🏁 setStrokeWidth completed');
     }
   }
 
@@ -416,6 +441,21 @@ export class CustomFormattingManager {
     }
     
     return '#000000'
+  }
+
+  getCurrentStrokeWidth(): 's' | 'm' | 'l' | 'xl' {
+    const selectedShapes = this.editor.getSelectedShapes()
+    if (selectedShapes.length === 0) return 'm'
+    
+    // Use the proper tldraw style system
+    const sharedStyles = this.editor.getSharedStyles()
+    const currentSize = sharedStyles.get(DefaultSizeStyle)
+    
+    if (currentSize && currentSize.type === 'shared') {
+      return currentSize.value
+    }
+    
+    return 'm'
   }
 
   getCurrentFontFamily(): string {
