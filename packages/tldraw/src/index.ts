@@ -447,6 +447,12 @@ export {
 	type TLUiStylePanelProps,
 } from './lib/ui/components/StylePanel/DefaultStylePanel'
 export {
+	CustomStylePanel,
+	type TLUiCustomStylePanelProps,
+} from './lib/ui/components/StylePanel/CustomStylePanel'
+export {
+	ArrowheadStylePickerSet,
+	CommonStylePickerSet,
 	DefaultStylePanelContent,
 	StylePanelArrowheadPicker,
 	StylePanelArrowKindPicker,
@@ -464,27 +470,13 @@ export {
 	type StylePanelSectionProps,
 } from './lib/ui/components/StylePanel/DefaultStylePanelContent'
 export {
-	StylePanelButtonPicker,
-	type StylePanelButtonPickerProps,
-} from './lib/ui/components/StylePanel/StylePanelButtonPicker'
+	CustomStylePanelContent,
+	type TLUiCustomStylePanelContentProps,
+} from './lib/ui/components/StylePanel/CustomStylePanelContent'
 export {
-	StylePanelContextProvider,
-	useStylePanelContext,
-	type StylePanelContext,
-	type StylePanelContextProviderProps,
-} from './lib/ui/components/StylePanel/StylePanelContext'
-export {
-	StylePanelDoubleDropdownPicker,
-	type StylePanelDoubleDropdownPickerProps,
-} from './lib/ui/components/StylePanel/StylePanelDoubleDropdownPicker'
-export {
-	StylePanelDropdownPicker,
-	type StylePanelDropdownPickerProps,
-} from './lib/ui/components/StylePanel/StylePanelDropdownPicker'
-export {
-	StylePanelSubheading,
-	type StylePanelSubheadingProps,
-} from './lib/ui/components/StylePanel/StylePanelSubheading'
+	VerticalFormattingBar,
+	useCustomFormattingManager,
+} from './lib/ui/components/StylePanel'
 export {
 	DefaultImageToolbar,
 	type TLUiImageToolbarProps,

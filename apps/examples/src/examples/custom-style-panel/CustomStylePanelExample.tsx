@@ -1,9 +1,9 @@
 import { Tldraw, CustomStylePanel } from 'tldraw'
 import 'tldraw/tldraw.css'
 
-export default function BasicExample() {
+export default function CustomStylePanelExample() {
 	return (
-		<div className="tldraw__editor">
+		<div style={{ position: 'fixed', inset: 0 }}>
 			<Tldraw
 				components={{
 					StylePanel: CustomStylePanel,

@@ -59,8 +59,10 @@
 		"classnames": "^2.5.1",
 		"hotkeys-js": "^3.13.9",
 		"idb": "^7.1.1",
+		"lucide-react": "^0.541.0",
 		"lz-string": "^1.5.0",
-		"radix-ui": "^1.4.2"
+		"radix-ui": "^1.4.2",
+		"react-color": "^2.19.3"
 	},
 	"peerDependencies": {
 		"react": "^18.2.0 || ^19.0.0",
@@ -72,6 +74,7 @@
 		"@types/classnames": "^2.3.4",
 		"@types/lz-string": "^1.5.0",
 		"@types/react": "^18.3.18",
+		"@types/react-color": "^2",
 		"chokidar-cli": "^3.0.0",
 		"lazyrepo": "0.0.0-alpha.27",
 		"react": "^18.3.1",
