@@ -21,9 +21,10 @@ export function VerticalFormattingBar({
   const [pendingTextColor, setPendingTextColor] = useState<string>('#000000');
   const [pendingBackgroundColor, setPendingBackgroundColor] = useState<string>('#ffffff');
   const [fontSize, setFontSize] = useState<string>('16');
-  const [formattingState, setFormattingState] = useState<number>(0); // Force re-renders
+  // Removed formattingState to avoid re-render loops
   
   const colorPickerRef = useRef<HTMLDivElement>(null);
+  const bgColorPickerRef = useRef<HTMLDivElement>(null);
   const fontDropdownRef = useRef<HTMLDivElement>(null);
   const formattingManager = useCustomFormattingManager();
 
@@ -31,7 +32,8 @@ export function VerticalFormattingBar({
   useEffect(() => {
     const updateFontSize = () => {
       const currentSize = formattingManager.getCurrentFontSize();
-      setFontSize(currentSize.toString());
+      const next = currentSize.toString();
+      setFontSize(prev => (prev !== next ? next : prev));
     };
 
     // Update initially
@@ -45,25 +47,27 @@ export function VerticalFormattingBar({
     return unsubscribe;
   }, [formattingManager]);
 
-  // Sync formatting state (bold, italic, code) with selected text
+  // Sync background color with selected shapes
   useEffect(() => {
-    const updateFormattingState = () => {
-      // Force re-render to update button states
-      setFontSize(formattingManager.getCurrentFontSize().toString());
-      setFormattingState(prev => prev + 1); // Increment to force re-render
+    const updateBackgroundColor = () => {
+      // Don't update if color picker is open
+      if (showColorPicker === 'background') return;
+
+      const currentBgColor = formattingManager.getCurrentBackgroundColor();
+      setPendingBackgroundColor(prev => (prev !== currentBgColor ? currentBgColor : prev));
     };
 
     // Update initially
-    updateFormattingState();
+    updateBackgroundColor();
 
     // Listen for selection changes
     const unsubscribe = formattingManager.getStore().listen(() => {
-      updateFormattingState();
+      updateBackgroundColor();
     });
 
     return unsubscribe;
-  }, [formattingManager]);
-
+  }, [formattingManager, showColorPicker]);
+ 
   // Font options (tldraw supported fonts with user-friendly names)
   const fontOptions = [
     { value: 'serif', label: 'Times New Roman', family: 'var(--tl-font-serif)' },
@@ -75,24 +79,39 @@ export function VerticalFormattingBar({
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      // Check if click is outside color picker (including react-color components)
-      if (colorPickerRef.current && !colorPickerRef.current.contains(event.target as Node)) {
-        const target = event.target as Element;
-        if (!target.closest('.sketch-picker') && !target.closest('.compact-picker')) {
-          setShowColorPicker(null);
-        }
+      const target = event.target as Node;
+
+      // Close text color picker if open and click is outside its container and picker element
+      if (
+        showColorPicker === 'text' &&
+        colorPickerRef.current &&
+        !colorPickerRef.current.contains(target) &&
+        !(target as Element).closest('.sketch-picker') &&
+        !(target as Element).closest('.compact-picker')
+      ) {
+        setShowColorPicker(null);
       }
-      // Check if click is outside font dropdown
-      if (fontDropdownRef.current && !fontDropdownRef.current.contains(event.target as Node)) {
+
+      // Close background color picker if open and click is outside its container and picker element
+      if (
+        showColorPicker === 'background' &&
+        bgColorPickerRef.current &&
+        !bgColorPickerRef.current.contains(target) &&
+        !(target as Element).closest('.sketch-picker') &&
+        !(target as Element).closest('.compact-picker')
+      ) {
+        setShowColorPicker(null);
+      }
+
+      // Close font dropdown on outside click
+      if (fontDropdownRef.current && !fontDropdownRef.current.contains(target)) {
         setShowFontDropdown(false);
       }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showColorPicker]);
 
   // Get current text color using the formatting manager (memoized to avoid calling on every render)
   const getCurrentTextColor = (): string => {
@@ -126,12 +145,15 @@ export function VerticalFormattingBar({
     });
   };
 
+  // Check if any shapes are selected for background formatting
+  const hasShapesSelected = () => {
+    const selectedElements = formattingManager.getSelectedElementsForFormatting();
+    return selectedElements.length > 0;
+  };
+
   const showTextFormatting = hasTextSelected();
 
   if (!isVisible) return null;
-
-  // Debug: Log what we're rendering
-  console.log('VerticalFormattingBar rendering, showTextFormatting:', showTextFormatting);
 
   return (
     <div className="vertical-formatting-bar">
@@ -329,48 +351,51 @@ export function VerticalFormattingBar({
         </>
       )}
 
-      {/* Background Color - FUNCTIONAL */}
-      <div className="color-picker-container">
-        <button
-          onClick={() => {
-            if (showColorPicker === 'background') {
-              setShowColorPicker(null);
-            } else {
-              setPendingBackgroundColor('#ffffff');
-              setShowColorPicker('background');
-            }
-          }}
-          className="color-picker-button"
-          title="Background Color"
-        >
-          <div className="background-color-preview"></div>
-          <div className="background-color-text">BG</div>
-        </button>
-        
-        {showColorPicker === 'background' && (
-          <div className="color-picker-popup">
-            <SketchPicker
-              color={pendingBackgroundColor}
-              onChange={(color: any) => setPendingBackgroundColor(color.hex)}
-              disableAlpha
+      {/* Background Color - show when shapes are selected */}
+      {hasShapesSelected() && (
+        <div className="color-picker-container" ref={bgColorPickerRef}>
+          <button
+            onClick={() => {
+              if (showColorPicker === 'background') {
+                setShowColorPicker(null);
+              } else {
+                const currentBgColor = formattingManager.getCurrentBackgroundColor();
+                setPendingBackgroundColor(currentBgColor);
+                setShowColorPicker('background');
+              }
+            }}
+            className="color-picker-button"
+            title="Background Color"
+          >
+            <div
+              className="background-color-preview"
+              style={{ backgroundColor: formattingManager.getCurrentBackgroundColor() }}
             />
-            <div className="color-picker-actions">
-              <button
-                onClick={applyBackgroundColor}
-                className="apply-button"
-              >
-                Apply
-              </button>
-              <button
-                onClick={() => setShowColorPicker(null)}
-                className="cancel-button"
-              >
-                Cancel
-              </button>
+            <div className="background-color-text">BG</div>
+          </button>
+          
+          {showColorPicker === 'background' && (
+            <div className="color-picker-popup">
+              <SketchPicker
+                color={pendingBackgroundColor}
+                onChange={(color: any) => setPendingBackgroundColor(color.hex)}
+                disableAlpha
+              />
+              <div className="color-picker-actions">
+                <button onClick={applyBackgroundColor} className="apply-button">
+                  Apply
+                </button>
+                <button
+                  onClick={() => setShowColorPicker(null)}
+                  className="cancel-button"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
