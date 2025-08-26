@@ -53,6 +53,11 @@ export function FormTextEditor({}: FormTextEditorProps) {
               applyTextStyleHighlighting(geoShape, (shape.props as any).richText);
             }
             
+            // Apply text color from meta data if it exists
+            if (shape.meta && shape.meta.textColor) {
+              applyTextColorToGeoShape(geoShape, shape.meta.textColor);
+            }
+            
             // Refresh text style highlighting to ensure current state is visible
             setTimeout(() => {
               refreshTextStyleHighlighting(geoShape, (shape.props as any).richText);
@@ -136,6 +141,14 @@ export function FormTextEditor({}: FormTextEditorProps) {
         (textElement as HTMLElement).classList.remove(...classes.split(' ')); // Remove all existing classes
         (textElement as HTMLElement).classList.add(...classes.split(' ')); // Add new classes
       }
+    });
+  };
+
+  // Function to apply text color to geo shape text elements
+  const applyTextColorToGeoShape = (geoShape: Element, textColor: string) => {
+    const textElements = geoShape.querySelectorAll('.tl-text-content, .tl-rich-text');
+    textElements.forEach((textElement) => {
+      (textElement as HTMLElement).style.color = textColor;
     });
   };
 

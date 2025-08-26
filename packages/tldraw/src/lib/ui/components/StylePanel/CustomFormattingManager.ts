@@ -40,16 +40,39 @@ export class CustomFormattingManager {
       
       console.log('🔧 setColor: Updating shapes with text formatting:', shapesToUpdate)
       
-      this.editor.updateShapes(
-        shapesToUpdate.map((shape: TLShape) => ({
-          id: shape.id,
-          type: shape.type,
-          props: {
-            ...shape.props,
-            color: tldrawColor
+      this.editor.run(() => {
+        shapesToUpdate.forEach((shape: TLShape) => {
+          if (shape.type === 'text') {
+            // For text shapes, set the color property
+            this.editor.updateShapes([{
+              id: shape.id,
+              type: shape.type,
+              props: {
+                ...shape.props,
+                color: tldrawColor
+              }
+            }])
+          } else if (shape.type === 'geo' && (shape.props as any).richText) {
+            // For geo shapes with richText, we need to apply color to the richText content
+            console.log('🔧 Geo shape color change - applying color to richText content:', tldrawColor)
+            
+            // Store the color in meta data for geo shapes
+            this.editor.updateShapes([{
+              id: shape.id,
+              type: shape.type,
+              meta: { 
+                ...shape.meta, 
+                textColor: tldrawColor 
+              }
+            }])
+            
+            // Apply the color directly to the DOM elements for immediate visual feedback
+            setTimeout(() => {
+              this.applyTextColorToGeoShape(shape.id, tldrawColor)
+            }, 50)
           }
-        }))
-      )
+        })
+      })
       
       // Notify state change after updating
       this.notifyStateChange()
@@ -712,17 +735,25 @@ export class CustomFormattingManager {
       // Handle the structure with 'content' array (the correct structure)
       if (richText && richText.content && richText.content.length > 0) {
         console.log(`🔍 RichText has content array with ${richText.content.length} blocks`)
+        console.log(`🔍 Full richText content structure:`, JSON.stringify(richText.content, null, 2))
+        
         const found = richText.content.some((block: any) => {
           if (block.type === 'paragraph' && block.content) {
+            console.log(`🔍 Paragraph block found:`, block)
             return block.content.some((child: any) => {
               if (child.type === 'text' && child.marks) {
                 const hasMark = child.marks.some((mark: any) => mark.type === style)
                 console.log(`🔍 Text child "${child.text}" has marks:`, child.marks, `Looking for ${style}:`, hasMark)
                 return hasMark
+              } else if (child.type === 'text') {
+                console.log(`🔍 Text child "${child.text}" has NO marks`)
+                return false
               }
+              console.log(`🔍 Non-text child:`, child)
               return false
             })
           }
+          console.log(`🔍 Non-paragraph block:`, block)
           return false
         })
         console.log(`🔍 Found ${style} style in content array:`, found)
@@ -896,31 +927,6 @@ export class CustomFormattingManager {
     return { h: h * 360, s: s * 100, l: l * 100 }
   }
 
-  // Convert tldraw color to hex (simplified conversion)
-  private tldrawColorToHex(tldrawColor: string): string {
-    // Map tldraw colors to hex values
-    const colorMap: Record<string, string> = {
-      'black': '#000000',
-      'grey': '#6b7280',
-      'light-violet': '#a78bfa',
-      'violet': '#7c3aed',
-      'blue': '#2563eb',
-      'light-blue': '#60a5fa',
-      'yellow': '#eab308',
-      'orange': '#ea580c',
-      'green': '#16a34a',
-      'light-green': '#4ade80',
-      'light-red': '#f87171',
-      'red': '#dc2626',
-      'white': '#ffffff',
-      'brown': '#92400e',
-      'pink': '#ec4899',
-      'cyan': '#0891b2'
-    }
-    
-    return colorMap[tldrawColor] || '#000000'
-  }
-
   // Apply font size to a geo shape using CSS transform
   private applyFontSizeToGeoShape(shapeId: TLShapeId, fontSize: number) {
     // Find the DOM element for this shape
@@ -998,6 +1004,81 @@ export class CustomFormattingManager {
     } else {
       shapeElement.classList.remove(shapeClass);
     }
+  }
+
+  // Helper method to get current text color
+  getCurrentTextColor(): string {
+    const selectedShapes = this.editor.getSelectedShapes()
+    
+    console.log('🔍 getCurrentTextColor called')
+    console.log('🔍 Selected shapes:', selectedShapes.map((s: TLShape) => ({ type: s.type, id: s.id })))
+    
+    if (selectedShapes.length === 0) return '#000000'
+    
+    const firstShape = selectedShapes[0]
+    console.log('🔍 First shape:', { type: firstShape.type, id: firstShape.id })
+    
+    if (firstShape.type === 'text') {
+      // For text shapes, check the color property
+      const tldrawColor = firstShape.props?.color || 'black'
+      console.log('🔍 Text shape color:', tldrawColor)
+      const hexColor = this.tldrawColorToHex(tldrawColor)
+      console.log('🔍 Converted to hex:', hexColor)
+      return hexColor
+    } else if (firstShape.type === 'geo' && (firstShape.props as any).richText) {
+      // For geo shapes with richText, check meta data for stored text color
+      console.log('🔍 Geo shape meta data:', firstShape.meta)
+      const tldrawColor = firstShape.meta?.textColor || 'black'
+      console.log('🔍 Geo shape stored color:', tldrawColor)
+      const hexColor = this.tldrawColorToHex(tldrawColor)
+      console.log('🔍 Converted to hex:', hexColor)
+      return hexColor
+    }
+    
+    console.log('🔍 No text or geo shape found, returning black')
+    return '#000000'
+  }
+
+  // Convert tldraw color names to hex colors
+  private tldrawColorToHex(tldrawColor: string): string {
+    const colorMap: { [key: string]: string } = {
+      'black': '#000000',
+      'grey': '#6b7280',
+      'light-violet': '#a78bfa',
+      'violet': '#7c3aed',
+      'blue': '#3b82f6',
+      'light-blue': '#60a5fa',
+      'yellow': '#eab308',
+      'orange': '#f97316',
+      'green': '#16a34a',
+      'light-green': '#4ade80',
+      'light-red': '#f87171',
+      'red': '#dc2626',
+      'white': '#ffffff',
+      'brown': '#a16207',
+      'pink': '#ec4899',
+      'cyan': '#06b6d4'
+    }
+    
+    return colorMap[tldrawColor] || '#000000'
+  }
+
+  // Apply text color to a geo shape
+  private applyTextColorToGeoShape(shapeId: TLShapeId, color: string) {
+    const shapeElement = document.querySelector(`[data-shape-id="${shapeId}"]`)
+    if (!shapeElement) return
+
+    // Find text elements within the geo shape
+    const textElements = shapeElement.querySelectorAll('.tl-text-content, .tl-rich-text')
+    if (textElements.length === 0) return
+
+    console.log(`🔧 Applying text color ${color} to geo shape ${shapeId}`)
+
+    // Apply the color to text elements
+    textElements.forEach((textElement) => {
+      const element = textElement as HTMLElement
+      element.style.color = color
+    })
   }
 }
 
