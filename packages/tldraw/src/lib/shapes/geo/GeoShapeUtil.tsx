@@ -76,7 +76,7 @@ export class GeoShapeUtil extends BaseBoxShapeUtil<TLGeoShape> {
 			fill: 'none',
 			size: 'm',
 			font: 'draw',
-			align: 'middle',
+			align: 'start',
 			verticalAlign: 'middle',
 			richText: toRichText(''),
 		}
@@ -199,6 +199,40 @@ export class GeoShapeUtil extends BaseBoxShapeUtil<TLGeoShape> {
 		const showHtmlContainer = isReadyForEditing || !isEmpty
 		const isForceSolid = useValue('force solid', () => editor.getZoomLevel() < 0.2, [editor])
 
+		// Enhanced text styling handling to preserve custom styling during editing
+		let textColor: string
+		if (shape.meta?.customTextColor && typeof shape.meta.customTextColor === 'string') {
+			// Priority 1: Custom hex color from meta
+			textColor = shape.meta.customTextColor
+		} else if (shape.meta?.textColor && typeof shape.meta.textColor === 'string') {
+			// Priority 2: TLDraw color name from meta
+			if (shape.meta.textColor.startsWith('#')) {
+				textColor = shape.meta.textColor
+			} else {
+				textColor = getColorValue(theme, shape.meta.textColor as any, 'solid')
+			}
+		} else {
+			// Priority 3: Fall back to labelColor from props
+			textColor = getColorValue(theme, props.labelColor, 'solid')
+		}
+
+		// Enhanced font size handling to preserve custom font sizes
+		let finalFontSize: number
+		if (shape.meta?.textFontSize && typeof shape.meta.textFontSize === 'number') {
+			// Priority 1: Custom font size from meta
+			finalFontSize = shape.meta.textFontSize
+		} else {
+			// Priority 2: Use default size from props
+			finalFontSize = LABEL_FONT_SIZES[size]
+		}
+
+		// Enhanced alignment handling to preserve custom alignments
+		let finalAlign = align
+		if (shape.meta?.textAlign && typeof shape.meta.textAlign === 'string') {
+			// Use custom alignment from meta if available
+			finalAlign = shape.meta.textAlign as any
+		}
+
 		return (
 			<>
 				<SVGContainer>
@@ -216,16 +250,17 @@ export class GeoShapeUtil extends BaseBoxShapeUtil<TLGeoShape> {
 							shapeId={id}
 							type={type}
 							font={font}
-							fontSize={LABEL_FONT_SIZES[size] * shape.props.scale}
+							fontSize={finalFontSize} // Use enhanced font size that preserves custom sizes
 							lineHeight={TEXT_PROPS.lineHeight}
 							padding={LABEL_PADDING * shape.props.scale}
 							fill={fill}
-							align={align}
+							align={finalAlign} // Use enhanced alignment that preserves custom alignments
 							verticalAlign={verticalAlign}
 							richText={richText}
 							isSelected={isOnlySelected}
-							labelColor={getColorValue(theme, props.labelColor, 'solid')}
+							labelColor={textColor}
 							wrap
+							textWidth={shape.props.w - LABEL_PADDING * 2 * shape.props.scale} // Constrain text width to box boundaries for proper wrapping
 						/>
 					</HTMLContainer>
 				)}
@@ -275,11 +310,24 @@ export class GeoShapeUtil extends BaseBoxShapeUtil<TLGeoShape> {
 		if (!isEmptyRichText(props.richText)) {
 			const theme = getDefaultColorTheme(ctx)
 			const bounds = new Box(0, 0, props.w, (shape.props.h + shape.props.growY) / scale)
+
+			// Enhanced font size and alignment handling for export
+			let exportFontSize = LABEL_FONT_SIZES[props.size]
+			let exportAlign = props.align
+
+			// Check for custom values in the original shape's meta data
+			if (shape.meta?.textFontSize && typeof shape.meta.textFontSize === 'number') {
+				exportFontSize = shape.meta.textFontSize
+			}
+			if (shape.meta?.textAlign && typeof shape.meta.textAlign === 'string') {
+				exportAlign = shape.meta.textAlign as any
+			}
+
 			textEl = (
 				<RichTextSVG
-					fontSize={LABEL_FONT_SIZES[props.size]}
+					fontSize={exportFontSize}
 					font={props.font}
-					align={props.align}
+					align={exportAlign}
 					verticalAlign={props.verticalAlign}
 					richText={props.richText}
 					labelColor={getColorValue(theme, props.labelColor, 'solid')}
@@ -423,11 +471,20 @@ export class GeoShapeUtil extends BaseBoxShapeUtil<TLGeoShape> {
 	}
 
 	override onBeforeUpdate(prev: TLGeoShape, next: TLGeoShape) {
-		// No change to text, font, or size, no need to update update
+		// Check for changes in text, font, size, or meta data (font size, alignment)
+		const hasTextChange = !isEqual(prev.props.richText, next.props.richText)
+		const hasFontChange = prev.props.font !== next.props.font
+		const hasSizeChange = prev.props.size !== next.props.size
+		const hasMetaFontSizeChange = prev.meta?.textFontSize !== next.meta?.textFontSize
+		const hasMetaAlignChange = prev.meta?.textAlign !== next.meta?.textAlign
+
+		// No changes detected, no need to update
 		if (
-			isEqual(prev.props.richText, next.props.richText) &&
-			prev.props.font === next.props.font &&
-			prev.props.size === next.props.size
+			!hasTextChange &&
+			!hasFontChange &&
+			!hasSizeChange &&
+			!hasMetaFontSizeChange &&
+			!hasMetaAlignChange
 		) {
 			return
 		}
@@ -452,6 +509,24 @@ export class GeoShapeUtil extends BaseBoxShapeUtil<TLGeoShape> {
 
 		// Get the next width and height in unscaled values
 		const unscaledNextLabelSize = getUnscaledLabelSize(this.editor, next)
+
+		// Handle font size or alignment changes that require resizing
+		if (hasMetaFontSizeChange || hasMetaAlignChange) {
+			// Calculate new dimensions based on the updated meta data
+			const unscaledNextWidth = Math.max(unscaledPrevWidth, unscaledNextLabelSize.w)
+			const unscaledNextHeight = Math.max(unscaledPrevHeight, unscaledNextLabelSize.h)
+
+			return {
+				...next,
+				props: {
+					...next.props,
+					// Scale the results
+					w: unscaledNextWidth * next.props.scale,
+					h: unscaledNextHeight * next.props.scale,
+					growY: 0,
+				},
+			}
+		}
 
 		// When entering the first character in a label (not pasting in multiple characters...)
 		if (wasEmpty && !isEmpty && renderPlaintextFromRichText(this.editor, next.props.richText)) {
@@ -583,20 +658,28 @@ function getUnscaledLabelSize(editor: Editor, shape: TLGeoShape) {
 	// way too expensive to be recomputing on every update
 	const minWidth = minWidths[size]
 
+	// Enhanced font size handling to preserve custom font sizes
+	let finalFontSize: number
+	if (shape.meta?.textFontSize && typeof shape.meta.textFontSize === 'number') {
+		// Priority 1: Custom font size from meta
+		finalFontSize = shape.meta.textFontSize
+	} else {
+		// Priority 2: Use default size from props
+		finalFontSize = LABEL_FONT_SIZES[size]
+	}
+
 	const html = renderHtmlFromRichTextForMeasurement(editor, richText)
+
+	// Proper text wrapping: measure text with box width constraints
+	// This ensures text wraps to new lines when it reaches box boundaries
+	const availableWidth = Math.max(0, w / shape.props.scale - LABEL_PADDING * 2)
+
 	const textSize = editor.textMeasure.measureHtml(html, {
 		...TEXT_PROPS,
 		fontFamily: FONT_FAMILIES[font],
-		fontSize: LABEL_FONT_SIZES[size],
+		fontSize: finalFontSize, // Use enhanced font size
 		minWidth: minWidth,
-		maxWidth: Math.max(
-			// Guard because a DOM nodes can't be less 0
-			0,
-			// A 'w' width that we're setting as the min-width
-			Math.ceil(minWidth + extraPaddings[size]),
-			// The actual text size
-			Math.ceil(w / shape.props.scale - LABEL_PADDING * 2)
-		),
+		maxWidth: availableWidth, // Constrain text to box width for proper wrapping
 	})
 
 	return {

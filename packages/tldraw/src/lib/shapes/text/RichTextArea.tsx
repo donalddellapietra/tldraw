@@ -64,14 +64,16 @@ export const RichTextArea = React.forwardRef<HTMLDivElement, TextAreaProps>(func
 	const tipTapId = useUniqueSafeId('tip-tap-editor')
 	const tipTapConfig = editor.getTextOptions().tipTapConfig
 
-	const rInitialRichText = useRef(richText)
+	const rInitialRichText = useRef<TLRichText | undefined>(richText)
 	const rTextEditor = useRef<TTEditor | null>(null)
 	const rTextEditorEl = useRef<HTMLDivElement>(null)
 
 	useLayoutEffect(() => {
-		if (!rTextEditor.current) {
-			rInitialRichText.current = richText
-		} else if (rInitialRichText.current !== richText) {
+		// Always update the initial rich text when the prop changes
+		rInitialRichText.current = richText
+
+		// If we have an active text editor, update its content
+		if (rTextEditor.current) {
 			rTextEditor.current.commands.setContent(richText as JSONContent)
 		}
 	}, [richText])
@@ -141,6 +143,97 @@ export const RichTextArea = React.forwardRef<HTMLDivElement, TextAreaProps>(func
 
 				const textEditor = props.editor
 				editor.setRichTextEditor(textEditor)
+
+				// Preserve text styling during editing
+				const shape = editor.getShape(shapeId)
+				if (shape) {
+					// Preserve text color
+					let textColor: string | undefined
+
+					// Check for custom text color in meta data
+					if (shape.meta?.customTextColor && typeof shape.meta.customTextColor === 'string') {
+						textColor = shape.meta.customTextColor
+					} else if (shape.meta?.textColor && typeof shape.meta.textColor === 'string') {
+						textColor = shape.meta.textColor
+					} else if ('color' in shape.props && shape.props.color) {
+						// For text shapes, use the color property
+						textColor = shape.props.color as string
+					}
+
+					// Apply the text color to the editor if we have one
+					if (textColor) {
+						// Apply color to the editor element
+						const editorElement = textEditor.view.dom
+						if (editorElement) {
+							editorElement.style.color = textColor
+						}
+					}
+
+					// Preserve font size
+					let fontSize: number | undefined
+
+					if ('customFontSize' in shape.props && shape.props.customFontSize) {
+						// For text shapes, use customFontSize property
+						fontSize = shape.props.customFontSize as number
+					} else if ('fontSize' in shape.props && shape.props.fontSize) {
+						// For text shapes, use fontSize property - convert enum to number if needed
+						const fontSizeValue = shape.props.fontSize
+						if (typeof fontSizeValue === 'number') {
+							fontSize = fontSizeValue
+						} else if (typeof fontSizeValue === 'string') {
+							// Convert string enum to number using FONT_SIZES mapping
+							const FONT_SIZES: Record<string, number> = {
+								s: 18,
+								m: 24,
+								l: 36,
+								xl: 44,
+							}
+							fontSize = FONT_SIZES[fontSizeValue] || 24
+						}
+					} else if (shape.meta?.textFontSize) {
+						// For geo shapes, use textFontSize from meta
+						fontSize = shape.meta.textFontSize as number
+					}
+
+					// Apply the font size to the editor if we have one
+					if (fontSize) {
+						const editorElement = textEditor.view.dom
+						if (editorElement) {
+							editorElement.style.fontSize = `${fontSize}px`
+						}
+					}
+
+					// Preserve text alignment
+					let textAlign: string | undefined
+
+					if ('textAlign' in shape.props && shape.props.textAlign) {
+						// For text shapes, use textAlign property
+						textAlign = shape.props.textAlign as string
+					} else if (shape.meta?.textAlign) {
+						// For geo shapes, use textAlign from meta
+						textAlign = shape.meta.textAlign as string
+					}
+
+					// For geo shapes, if no alignment is set, default to left alignment
+					if (!textAlign && shape.type === 'geo') {
+						textAlign = 'start'
+					}
+
+					// Apply the text alignment to the editor
+					const editorElement = textEditor.view.dom
+					if (editorElement) {
+						// Convert tldraw alignment to CSS alignment
+						const cssAlignment =
+							textAlign === 'start'
+								? 'left'
+								: textAlign === 'middle'
+									? 'center'
+									: textAlign === 'end'
+										? 'right'
+										: 'left'
+						editorElement.style.textAlign = cssAlignment
+					}
+				}
 
 				const { selectAll, caretPosition } = rCreateInfo.current
 

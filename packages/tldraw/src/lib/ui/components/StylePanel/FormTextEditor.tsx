@@ -54,8 +54,11 @@ export function FormTextEditor({}: FormTextEditorProps) {
 						}
 
 						// Apply text color from meta data if it exists
-						if (shape.meta && shape.meta.textColor) {
-							applyTextColorToGeoShape(geoShape, shape.meta.textColor as string)
+						if (shape.meta?.customTextColor || shape.meta?.textColor) {
+							const textColor = shape.meta?.customTextColor || shape.meta?.textColor
+							if (textColor && typeof textColor === 'string') {
+								applyTextColorToGeoShape(geoShape, textColor)
+							}
 						}
 
 						// Refresh text style highlighting to ensure current state is visible
@@ -93,7 +96,16 @@ export function FormTextEditor({}: FormTextEditorProps) {
 	const applyTextAlignToGeoShape = (geoShape: Element, textAlign: string) => {
 		const textElements = geoShape.querySelectorAll('.tl-text-content, .tl-rich-text')
 		textElements.forEach((textElement) => {
-			;(textElement as HTMLElement).style.textAlign = textAlign
+			// Convert tldraw alignment to CSS alignment
+			const cssAlignment =
+				textAlign === 'start'
+					? 'left'
+					: textAlign === 'middle'
+						? 'center'
+						: textAlign === 'end'
+							? 'right'
+							: 'left'
+			;(textElement as HTMLElement).style.textAlign = cssAlignment
 		})
 	}
 
@@ -203,6 +215,39 @@ export function FormTextEditor({}: FormTextEditorProps) {
 				const shape = editor.getShape(geoShapeId as any)
 				if (shape && shape.type === 'geo' && (shape.props as any).richText) {
 					console.log('🔧 Starting text editing for geo shape:', shape)
+
+					// Apply text styling from meta data if it exists
+					if (shape.meta?.customTextColor || shape.meta?.textColor) {
+						const textColor = shape.meta?.customTextColor || shape.meta?.textColor
+						if (textColor && typeof textColor === 'string') {
+							// Apply the color to the text elements for immediate visual feedback
+							setTimeout(() => {
+								applyTextColorToGeoShape(geoShape, textColor)
+							}, 50)
+						}
+					}
+
+					// Apply font size from meta data if it exists
+					if (shape.meta?.textFontSize) {
+						const fontSize = shape.meta.textFontSize as number
+						if (fontSize && typeof fontSize === 'number') {
+							// Apply the font size to the text elements for immediate visual feedback
+							setTimeout(() => {
+								applyFontSizeToGeoShape(geoShape, fontSize)
+							}, 50)
+						}
+					}
+
+					// Apply text alignment from meta data if it exists
+					if (shape.meta?.textAlign) {
+						const textAlign = shape.meta.textAlign as string
+						if (textAlign && typeof textAlign === 'string') {
+							// Apply the text alignment to the text elements for immediate visual feedback
+							setTimeout(() => {
+								applyTextAlignToGeoShape(geoShape, textAlign)
+							}, 50)
+						}
+					}
 
 					// Use tldraw's built-in text editing system
 					editor.setEditingShape(shape)

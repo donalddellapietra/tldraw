@@ -23,10 +23,10 @@ import {
 } from '@tldraw/editor'
 import { DefaultFontSizeStyle, DefaultStrokeColorStyle } from '@tldraw/tlschema'
 import React, { useCallback, useState } from 'react'
+import { EXTENDED_FONT_SIZES, STROKE_SIZES } from '../../../shapes/shared/default-shape-constants'
 import { STYLES } from '../../../styles'
 import { useUiEvents } from '../../context/events'
 import { useTranslation } from '../../hooks/useTranslation/useTranslation'
-import { EXTENDED_FONT_SIZES, FONT_SIZES, STROKE_SIZES } from '../../../shapes/shared/default-shape-constants'
 import { TldrawUiButtonIcon } from '../primitives/Button/TldrawUiButtonIcon'
 import { TldrawUiButtonPicker } from '../primitives/TldrawUiButtonPicker'
 
@@ -36,7 +36,6 @@ import { TldrawUiToolbar, TldrawUiToolbarButton } from '../primitives/TldrawUiTo
 import { DoubleDropdownPicker } from './DoubleDropdownPicker'
 import { DropdownPicker } from './DropdownPicker'
 import { FigmaTypographyPanel } from './FigmaTypographyPanel'
-
 
 // Local component for style panel subheadings
 function StylePanelSubheading({ children }: { children: React.ReactNode }) {
@@ -97,8 +96,6 @@ export interface StylePickerSetProps {
 	styles: ReadonlySharedStyleMap
 }
 
-
-
 /** @public @react */
 export function StylePanelColorPicker() {
 	const { styles } = useStylePanelContext()
@@ -109,7 +106,6 @@ export function StylePanelColorPicker() {
 	const showUiLabels = useValue('showUiLabels', () => editor.user.getShowUiLabels(), [editor])
 
 	const handleValueChange = useStyleChangeCallback()
-
 
 	const [isDashSectionExpanded, setIsDashSectionExpanded] = useState(true)
 	const [isSizeSectionExpanded, setIsSizeSectionExpanded] = useState(true)
@@ -125,552 +121,575 @@ export function StylePanelColorPicker() {
 	const textAlign = styles.get(DefaultTextAlignStyle)
 	const labelAlign = styles.get(DefaultHorizontalAlignStyle)
 	const verticalLabelAlign = styles.get(DefaultVerticalAlignStyle)
-	
+
 	// Only show text-related styles when text shapes are actually selected
 	const hasTextShapes = font !== undefined || fontSize !== undefined || textAlign !== undefined
 
 	return (
 		<>
 			<div data-testid="style.panel">
-					{/* Fill Section */}
+				{/* Fill Section */}
 				{fill !== undefined && (
-				<div
-					style={{
-						marginTop: '0px',
-						marginBottom: '9px',
-						background: 'var(--tl-color-panel)',
-						borderRadius: '4.5px',
-						border: '1px solid var(--tl-color-border)',
-						overflow: 'hidden',
-						width: '100%',
-						boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-					}}
-				>
-					{/* Fill Header */}
 					<div
 						style={{
-							padding: '9px 12px',
-							background: 'var(--tl-color-muted-1)',
-							borderBottom: '1px solid var(--tl-color-border)',
-							fontSize: '9px',
-							fontWeight: '500',
-							color: 'var(--tl-color-text-1)',
-							textTransform: 'uppercase',
-							letterSpacing: '0.5px',
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'space-between',
-							userSelect: 'none',
+							marginTop: '0px',
+							marginBottom: '9px',
+							background: 'var(--tl-color-panel)',
+							borderRadius: '4.5px',
+							border: '1px solid var(--tl-color-border)',
+							overflow: 'hidden',
+							width: '100%',
+							boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
 						}}
 					>
-						<span style={{ fontWeight: '500' }}>Fill</span>
-					</div>
-
-					{/* Fill Content */}
-					<div style={{ padding: '12px' }}>
-						{/* Fill Type Selector */}
-						<div style={{ marginBottom: '9px' }}>
-							<TldrawUiToolbar orientation="horizontal" label={msg('style-panel.fill')}>
-								<TldrawUiButtonPicker
-									title={msg('style-panel.fill')}
-									uiType="fill"
-									style={DefaultFillStyle}
-									items={STYLES.fill}
-									value={fill}
-									onValueChange={handleValueChange}
-									theme={theme}
-									onHistoryMark={onHistoryMark}
-								/>
-							</TldrawUiToolbar>
-						</div>
-
-						{/* Color Picker - Only show when fill is not 'none' */}
-						{fill?.type !== 'mixed' && fill?.value !== 'none' && color?.type !== 'mixed' && color && (
-							<div style={{ marginTop: '6px' }}>
-								{showUiLabels && (
-									<StylePanelSubheading>{msg('style-panel.color')}</StylePanelSubheading>
-								)}
-								<TldrawUiFigmaColorPicker
-									value={getColorValue(theme, color.value, 'solid')}
-									onValueChange={(newColor) => handleValueChange(DefaultColorStyle, newColor)}
-									title={msg('style-panel.color')}
-								/>
-							</div>
-						)}
-
-						{/* Current Fill Preview */}
-						{fill?.type !== 'mixed' && fill?.value !== 'none' && color?.type !== 'mixed' && color && (
-							<div style={{ marginTop: '9px' }}>
-								<div style={{ 
-									fontSize: '8.5px', 
-									color: 'var(--tl-color-text-2)', 
-									marginBottom: '4.5px',
-									textTransform: 'uppercase',
-									letterSpacing: '0.5px'
-								}}>
-									Preview
-								</div>
-								<div style={{
-									width: '100%',
-									height: '30px',
-									background: getColorValue(theme, color.value, fill.value),
-									border: '1px solid var(--tl-color-border)',
-									borderRadius: '4.5px',
-									position: 'relative',
-									overflow: 'hidden',
-									boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.1)',
-								}}>
-									{/* Pattern overlay for pattern fill */}
-									{fill.value === 'pattern' && (
-										<div style={{
-											position: 'absolute',
-											top: '0',
-											left: '0',
-											right: '0',
-											bottom: '0',
-											backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(0,0,0,0.1) 1px, transparent 1px)',
-											backgroundColor: getColorValue(theme, color.value, 'solid'),
-										}} />
-									)}
-									{/* Semi-transparent overlay for semi fill */}
-									{fill.value === 'semi' && (
-										<div style={{
-											position: 'absolute',
-											top: '0',
-											left: '0',
-											right: '0',
-											bottom: '0',
-											background: 'rgba(255,255,255,0.5)',
-										}} />
-									)}
-								</div>
-							</div>
-						)}
-					</div>
-				</div>
-			)}
-
-			{/* Stroke Color Section */}
-			{strokeColor !== undefined && (
-				<div
-					style={{
-						marginTop: '0px',
-						marginBottom: '9px',
-						background: 'var(--tl-color-panel)',
-						borderRadius: '4.5px',
-						border: '1px solid var(--tl-color-border)',
-						overflow: 'hidden',
-						width: '100%',
-						boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-					}}
-				>
-					{/* Stroke Color Header */}
-					<div
-						style={{
-							padding: '9px 12px',
-							background: 'var(--tl-color-muted-1)',
-							borderBottom: '1px solid var(--tl-color-border)',
-							fontSize: '9px',
-							fontWeight: '500',
-							color: 'var(--tl-color-text-1)',
-							textTransform: 'uppercase',
-							letterSpacing: '0.5px',
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'space-between',
-							userSelect: 'none',
-						}}
-					>
-						<span style={{ fontWeight: '500' }}>Stroke Color</span>
-					</div>
-
-					{/* Stroke Color Content */}
-					<div style={{ padding: '12px' }}>
-						{strokeColor?.type !== 'mixed' && strokeColor && (
-							<TldrawUiFigmaColorPicker
-								value={getColorValue(theme, strokeColor.value, 'solid')}
-								onValueChange={(newColor) => handleValueChange(DefaultStrokeColorStyle, newColor)}
-								title="Stroke Color"
-							/>
-						)}
-					</div>
-				</div>
-			)}
-
-			{/* Dash Session Section */}
-			{dash !== undefined && (
-				<div
-					style={{
-						marginTop: '0px',
-						marginBottom: '9px',
-						background: 'var(--tl-color-panel)',
-						borderRadius: '4.5px',
-						border: '1px solid var(--tl-color-border)',
-						overflow: 'hidden',
-						width: '100%',
-						boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-					}}
-				>
-					{/* Session Header - Clickable for Expand/Collapse */}
-					<div
-						onClick={() => setIsDashSectionExpanded(!isDashSectionExpanded)}
-						style={{
-							padding: '9px 12px',
-							background: 'var(--tl-color-muted-1)',
-							borderBottom: '1px solid var(--tl-color-border)',
-							fontSize: '9px',
-							fontWeight: '500',
-							color: 'var(--tl-color-text-1)',
-							textTransform: 'uppercase',
-							letterSpacing: '0.5px',
-							cursor: 'pointer',
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'space-between',
-							userSelect: 'none',
-							transition: 'background-color 0.15s ease',
-						}}
-						onMouseEnter={(e) =>
-							(e.currentTarget.style.backgroundColor = 'var(--tl-color-muted-2)')
-						}
-						onMouseLeave={(e) =>
-							(e.currentTarget.style.backgroundColor = 'var(--tl-color-muted-1)')
-						}
-					>
-						<span style={{ fontWeight: '500' }}>Dash</span>
+						{/* Fill Header */}
 						<div
 							style={{
-								width: '10px',
-								height: '10px',
+								padding: '9px 12px',
+								background: 'var(--tl-color-muted-1)',
+								borderBottom: '1px solid var(--tl-color-border)',
+								fontSize: '9px',
+								fontWeight: '500',
+								color: 'var(--tl-color-text-1)',
+								textTransform: 'uppercase',
+								letterSpacing: '0.5px',
 								display: 'flex',
 								alignItems: 'center',
-								justifyContent: 'center',
-								transform: isDashSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-								transition: 'transform 0.2s ease',
-								color: 'var(--tl-color-text-2)',
+								justifyContent: 'space-between',
+								userSelect: 'none',
 							}}
 						>
-							<svg
-								width="8"
-								height="8"
-								viewBox="0 0 24 24"
-								fill="none"
-								xmlns="http://www.w3.org/2000/svg"
-							>
-								<path
-									d="M6 9L12 15L18 9"
-									stroke="currentColor"
-									strokeWidth="1.5"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-								/>
-							</svg>
+							<span style={{ fontWeight: '500' }}>Fill</span>
+						</div>
+
+						{/* Fill Content */}
+						<div style={{ padding: '12px' }}>
+							{/* Fill Type Selector */}
+							<div style={{ marginBottom: '9px' }}>
+								<TldrawUiToolbar orientation="horizontal" label={msg('style-panel.fill')}>
+									<TldrawUiButtonPicker
+										title={msg('style-panel.fill')}
+										uiType="fill"
+										style={DefaultFillStyle}
+										items={STYLES.fill}
+										value={fill}
+										onValueChange={handleValueChange}
+										theme={theme}
+										onHistoryMark={onHistoryMark}
+									/>
+								</TldrawUiToolbar>
+							</div>
+
+							{/* Color Picker - Only show when fill is not 'none' */}
+							{fill?.type !== 'mixed' &&
+								fill?.value !== 'none' &&
+								color?.type !== 'mixed' &&
+								color && (
+									<div style={{ marginTop: '6px' }}>
+										{showUiLabels && (
+											<StylePanelSubheading>{msg('style-panel.color')}</StylePanelSubheading>
+										)}
+										<TldrawUiFigmaColorPicker
+											value={getColorValue(theme, color.value, 'solid')}
+											onValueChange={(newColor) => handleValueChange(DefaultColorStyle, newColor)}
+											title={msg('style-panel.color')}
+										/>
+									</div>
+								)}
+
+							{/* Current Fill Preview */}
+							{fill?.type !== 'mixed' &&
+								fill?.value !== 'none' &&
+								color?.type !== 'mixed' &&
+								color && (
+									<div style={{ marginTop: '9px' }}>
+										<div
+											style={{
+												fontSize: '8.5px',
+												color: 'var(--tl-color-text-2)',
+												marginBottom: '4.5px',
+												textTransform: 'uppercase',
+												letterSpacing: '0.5px',
+											}}
+										>
+											Preview
+										</div>
+										<div
+											style={{
+												width: '100%',
+												height: '30px',
+												background: getColorValue(theme, color.value, fill.value),
+												border: '1px solid var(--tl-color-border)',
+												borderRadius: '4.5px',
+												position: 'relative',
+												overflow: 'hidden',
+												boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.1)',
+											}}
+										>
+											{/* Pattern overlay for pattern fill */}
+											{fill.value === 'pattern' && (
+												<div
+													style={{
+														position: 'absolute',
+														top: '0',
+														left: '0',
+														right: '0',
+														bottom: '0',
+														backgroundImage:
+															'radial-gradient(circle at 2px 2px, rgba(0,0,0,0.1) 1px, transparent 1px)',
+														backgroundColor: getColorValue(theme, color.value, 'solid'),
+													}}
+												/>
+											)}
+											{/* Semi-transparent overlay for semi fill */}
+											{fill.value === 'semi' && (
+												<div
+													style={{
+														position: 'absolute',
+														top: '0',
+														left: '0',
+														right: '0',
+														bottom: '0',
+														background: 'rgba(255,255,255,0.5)',
+													}}
+												/>
+											)}
+										</div>
+									</div>
+								)}
 						</div>
 					</div>
+				)}
 
-					{/* Session Content - Expandable */}
-					{isDashSectionExpanded && (
+				{/* Stroke Color Section */}
+				{strokeColor !== undefined && (
+					<div
+						style={{
+							marginTop: '0px',
+							marginBottom: '9px',
+							background: 'var(--tl-color-panel)',
+							borderRadius: '4.5px',
+							border: '1px solid var(--tl-color-border)',
+							overflow: 'hidden',
+							width: '100%',
+							boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+						}}
+					>
+						{/* Stroke Color Header */}
+						<div
+							style={{
+								padding: '9px 12px',
+								background: 'var(--tl-color-muted-1)',
+								borderBottom: '1px solid var(--tl-color-border)',
+								fontSize: '9px',
+								fontWeight: '500',
+								color: 'var(--tl-color-text-1)',
+								textTransform: 'uppercase',
+								letterSpacing: '0.5px',
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'space-between',
+								userSelect: 'none',
+							}}
+						>
+							<span style={{ fontWeight: '500' }}>Stroke Color</span>
+						</div>
+
+						{/* Stroke Color Content */}
 						<div style={{ padding: '12px' }}>
-							{showUiLabels && (
-								<StylePanelSubheading>{msg('style-panel.dash')}</StylePanelSubheading>
-							)}
-							<TldrawUiToolbar orientation="horizontal" label={msg('style-panel.dash')}>
-								<TldrawUiButtonPicker
-									title={msg('style-panel.dash')}
-									uiType="dash"
-									style={DefaultDashStyle}
-									items={STYLES.dash}
-									value={dash}
-									onValueChange={handleValueChange}
-									theme={theme}
-									onHistoryMark={onHistoryMark}
+							{strokeColor?.type !== 'mixed' && strokeColor && (
+								<TldrawUiFigmaColorPicker
+									value={getColorValue(theme, strokeColor.value, 'solid')}
+									onValueChange={(newColor) => handleValueChange(DefaultStrokeColorStyle, newColor)}
+									title="Stroke Color"
 								/>
-							</TldrawUiToolbar>
-							
+							)}
+						</div>
+					</div>
+				)}
 
-							
-							{/* Thickness Control - Integrated with dash section */}
-							{size !== undefined && (
-								<div style={{ marginTop: '12px' }}>
-									{showUiLabels && (
-										<StylePanelSubheading>{msg('style-panel.size')}</StylePanelSubheading>
-									)}
-									<TldrawUiToolbar orientation="horizontal" label={msg('style-panel.size')}>
-										<TldrawUiButtonPicker
-											title={msg('style-panel.size')}
-											uiType="size"
-											style={DefaultSizeStyle}
-											items={STYLES.size}
-											value={size}
-											onValueChange={(style, value) => {
-												handleValueChange(style, value)
-												const selectedShapeIds = editor.getSelectedShapeIds()
-												if (selectedShapeIds.length > 0) {
-													kickoutOccludedShapes(editor, selectedShapeIds)
-												}
-											}}
-											theme={theme}
-											onHistoryMark={onHistoryMark}
-										/>
-									</TldrawUiToolbar>
-									
-									{/* Custom Thickness Input */}
-									<div style={{ marginTop: '9px' }}>
+				{/* Dash Session Section */}
+				{dash !== undefined && (
+					<div
+						style={{
+							marginTop: '0px',
+							marginBottom: '9px',
+							background: 'var(--tl-color-panel)',
+							borderRadius: '4.5px',
+							border: '1px solid var(--tl-color-border)',
+							overflow: 'hidden',
+							width: '100%',
+							boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+						}}
+					>
+						{/* Session Header - Clickable for Expand/Collapse */}
+						<div
+							onClick={() => setIsDashSectionExpanded(!isDashSectionExpanded)}
+							style={{
+								padding: '9px 12px',
+								background: 'var(--tl-color-muted-1)',
+								borderBottom: '1px solid var(--tl-color-border)',
+								fontSize: '9px',
+								fontWeight: '500',
+								color: 'var(--tl-color-text-1)',
+								textTransform: 'uppercase',
+								letterSpacing: '0.5px',
+								cursor: 'pointer',
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'space-between',
+								userSelect: 'none',
+								transition: 'background-color 0.15s ease',
+							}}
+							onMouseEnter={(e) =>
+								(e.currentTarget.style.backgroundColor = 'var(--tl-color-muted-2)')
+							}
+							onMouseLeave={(e) =>
+								(e.currentTarget.style.backgroundColor = 'var(--tl-color-muted-1)')
+							}
+						>
+							<span style={{ fontWeight: '500' }}>Dash</span>
+							<div
+								style={{
+									width: '10px',
+									height: '10px',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									transform: isDashSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+									transition: 'transform 0.2s ease',
+									color: 'var(--tl-color-text-2)',
+								}}
+							>
+								<svg
+									width="8"
+									height="8"
+									viewBox="0 0 24 24"
+									fill="none"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<path
+										d="M6 9L12 15L18 9"
+										stroke="currentColor"
+										strokeWidth="1.5"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+									/>
+								</svg>
+							</div>
+						</div>
+
+						{/* Session Content - Expandable */}
+						{isDashSectionExpanded && (
+							<div style={{ padding: '12px' }}>
+								{showUiLabels && (
+									<StylePanelSubheading>{msg('style-panel.dash')}</StylePanelSubheading>
+								)}
+								<TldrawUiToolbar orientation="horizontal" label={msg('style-panel.dash')}>
+									<TldrawUiButtonPicker
+										title={msg('style-panel.dash')}
+										uiType="dash"
+										style={DefaultDashStyle}
+										items={STYLES.dash}
+										value={dash}
+										onValueChange={handleValueChange}
+										theme={theme}
+										onHistoryMark={onHistoryMark}
+									/>
+								</TldrawUiToolbar>
+
+								{/* Thickness Control - Integrated with dash section */}
+								{size !== undefined && (
+									<div style={{ marginTop: '12px' }}>
 										{showUiLabels && (
-											<div style={{ marginBottom: '6px', fontSize: '10px', color: 'var(--tl-color-text-2)' }}>
-												Custom Thickness
-											</div>
+											<StylePanelSubheading>{msg('style-panel.size')}</StylePanelSubheading>
 										)}
-										<div style={{ position: 'relative', width: '100%' }}>
-											<input
-												type="number"
-												min="0.1"
-												max="20"
-												step="0.1"
-												placeholder="e.g., 3.5"
-												defaultValue={size && size.type === 'shared' ? STROKE_SIZES[size.value] : ''}
-												style={{
-													width: '100%',
-													padding: '6px 9px',
-													border: '1px solid var(--tl-color-border)',
-													borderRadius: '3px',
-													background: 'var(--tl-color-panel)',
-													color: 'var(--tl-color-text-1)',
-													fontSize: '10px',
-													fontFamily: 'inherit',
-													outline: 'none',
-													transition: 'border-color 0.15s ease',
-												}}
-												onFocus={(e) => (e.target.style.borderColor = 'var(--tl-color-focus)')}
-												onBlur={(e) => (e.target.style.borderColor = 'var(--tl-color-border)')}
-												onKeyDown={(e) => {
-													if (e.key === 'Enter') {
-														const value = parseFloat(e.currentTarget.value)
-														if (!isNaN(value) && value > 0) {
-															// Convert custom thickness to closest size preset
-															const sizes = { s: 1.5, m: 2.5, l: 4, xl: 6 }
-															let closestSize: 's' | 'm' | 'l' | 'xl' = 'm'
-															let minDiff = Math.abs(sizes.m - value)
-															
-															if (Math.abs(sizes.s - value) < minDiff) {
-																closestSize = 's'
-																minDiff = Math.abs(sizes.s - value)
-															}
-															if (Math.abs(sizes.l - value) < minDiff) {
-																closestSize = 'l'
-																minDiff = Math.abs(sizes.l - value)
-															}
-															if (Math.abs(sizes.xl - value) < minDiff) {
-																closestSize = 'xl'
-															}
-															
-															handleValueChange(DefaultSizeStyle, closestSize)
-															// Clear the input after applying
-															e.currentTarget.value = ''
-														}
+										<TldrawUiToolbar orientation="horizontal" label={msg('style-panel.size')}>
+											<TldrawUiButtonPicker
+												title={msg('style-panel.size')}
+												uiType="size"
+												style={DefaultSizeStyle}
+												items={STYLES.size}
+												value={size}
+												onValueChange={(style, value) => {
+													handleValueChange(style, value)
+													const selectedShapeIds = editor.getSelectedShapeIds()
+													if (selectedShapeIds.length > 0) {
+														kickoutOccludedShapes(editor, selectedShapeIds)
 													}
 												}}
+												theme={theme}
+												onHistoryMark={onHistoryMark}
 											/>
-											<div style={{
-												position: 'absolute',
-												right: '6px',
-												top: '50%',
-												transform: 'translateY(-50%)',
-												pointerEvents: 'none',
-												color: 'var(--tl-color-text-3)',
-												fontSize: '8.5px',
-												fontWeight: '500',
-											}}>
-												px
+										</TldrawUiToolbar>
+
+										{/* Custom Thickness Input */}
+										<div style={{ marginTop: '9px' }}>
+											{showUiLabels && (
+												<div
+													style={{
+														marginBottom: '6px',
+														fontSize: '10px',
+														color: 'var(--tl-color-text-2)',
+													}}
+												>
+													Custom Thickness
+												</div>
+											)}
+											<div style={{ position: 'relative', width: '100%' }}>
+												<input
+													type="number"
+													min="0.1"
+													max="20"
+													step="0.1"
+													placeholder="e.g., 3.5"
+													defaultValue={
+														size && size.type === 'shared' ? STROKE_SIZES[size.value] : ''
+													}
+													style={{
+														width: '100%',
+														padding: '6px 9px',
+														border: '1px solid var(--tl-color-border)',
+														borderRadius: '3px',
+														background: 'var(--tl-color-panel)',
+														color: 'var(--tl-color-text-1)',
+														fontSize: '10px',
+														fontFamily: 'inherit',
+														outline: 'none',
+														transition: 'border-color 0.15s ease',
+													}}
+													onFocus={(e) => (e.target.style.borderColor = 'var(--tl-color-focus)')}
+													onBlur={(e) => (e.target.style.borderColor = 'var(--tl-color-border)')}
+													onKeyDown={(e) => {
+														if (e.key === 'Enter') {
+															const value = parseFloat(e.currentTarget.value)
+															if (!isNaN(value) && value > 0) {
+																// Convert custom thickness to closest size preset
+																const sizes = { s: 1.5, m: 2.5, l: 4, xl: 6 }
+																let closestSize: 's' | 'm' | 'l' | 'xl' = 'm'
+																let minDiff = Math.abs(sizes.m - value)
+
+																if (Math.abs(sizes.s - value) < minDiff) {
+																	closestSize = 's'
+																	minDiff = Math.abs(sizes.s - value)
+																}
+																if (Math.abs(sizes.l - value) < minDiff) {
+																	closestSize = 'l'
+																	minDiff = Math.abs(sizes.l - value)
+																}
+																if (Math.abs(sizes.xl - value) < minDiff) {
+																	closestSize = 'xl'
+																}
+
+																handleValueChange(DefaultSizeStyle, closestSize)
+																// Clear the input after applying
+																e.currentTarget.value = ''
+															}
+														}
+													}}
+												/>
+												<div
+													style={{
+														position: 'absolute',
+														right: '6px',
+														top: '50%',
+														transform: 'translateY(-50%)',
+														pointerEvents: 'none',
+														color: 'var(--tl-color-text-3)',
+														fontSize: '8.5px',
+														fontWeight: '500',
+													}}
+												>
+													px
+												</div>
 											</div>
 										</div>
 									</div>
-								</div>
-							)}
-						</div>
-					)}
-				</div>
-			)}
+								)}
+							</div>
+						)}
+					</div>
+				)}
 
-			{/* Size Session Section */}
-			{size !== undefined && (
-				<div
-					style={{
-						marginTop: '0px',
-						marginBottom: '9px',
-						background: 'var(--tl-color-panel)',
-						borderRadius: '4.5px',
-						border: '1px solid var(--tl-color-border)',
-						overflow: 'hidden',
-						width: '100%',
-						boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-					}}
-				>
-					{/* Session Header - Clickable for Expand/Collapse */}
+				{/* Size Session Section */}
+				{size !== undefined && (
 					<div
-						onClick={() => setIsSizeSectionExpanded(!isSizeSectionExpanded)}
 						style={{
-							padding: '9px 12px',
-							background: 'var(--tl-color-muted-1)',
-							borderBottom: '1px solid var(--tl-color-border)',
-							fontSize: '9px',
-							fontWeight: '500',
-							color: 'var(--tl-color-text-1)',
-							textTransform: 'uppercase',
-							letterSpacing: '0.5px',
-							cursor: 'pointer',
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'space-between',
-							userSelect: 'none',
-							transition: 'background-color 0.15s ease',
+							marginTop: '0px',
+							marginBottom: '9px',
+							background: 'var(--tl-color-panel)',
+							borderRadius: '4.5px',
+							border: '1px solid var(--tl-color-border)',
+							overflow: 'hidden',
+							width: '100%',
+							boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
 						}}
-						onMouseEnter={(e) =>
-							(e.currentTarget.style.backgroundColor = 'var(--tl-color-muted-2)')
-						}
-						onMouseLeave={(e) =>
-							(e.currentTarget.style.backgroundColor = 'var(--tl-color-muted-1)')
-						}
 					>
-						<span style={{ fontWeight: '500' }}>Size</span>
+						{/* Session Header - Clickable for Expand/Collapse */}
 						<div
+							onClick={() => setIsSizeSectionExpanded(!isSizeSectionExpanded)}
 							style={{
-								width: '10px',
-								height: '10px',
+								padding: '9px 12px',
+								background: 'var(--tl-color-muted-1)',
+								borderBottom: '1px solid var(--tl-color-border)',
+								fontSize: '9px',
+								fontWeight: '500',
+								color: 'var(--tl-color-text-1)',
+								textTransform: 'uppercase',
+								letterSpacing: '0.5px',
+								cursor: 'pointer',
 								display: 'flex',
 								alignItems: 'center',
-								justifyContent: 'center',
-								transform: isSizeSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-								transition: 'transform 0.2s ease',
-								color: 'var(--tl-color-text-2)',
+								justifyContent: 'space-between',
+								userSelect: 'none',
+								transition: 'background-color 0.15s ease',
 							}}
+							onMouseEnter={(e) =>
+								(e.currentTarget.style.backgroundColor = 'var(--tl-color-muted-2)')
+							}
+							onMouseLeave={(e) =>
+								(e.currentTarget.style.backgroundColor = 'var(--tl-color-muted-1)')
+							}
 						>
-							<svg
-								width="8"
-								height="8"
-								viewBox="0 0 24 24"
-								fill="none"
-								xmlns="http://www.w3.org/2000/svg"
+							<span style={{ fontWeight: '500' }}>Size</span>
+							<div
+								style={{
+									width: '10px',
+									height: '10px',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									transform: isSizeSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+									transition: 'transform 0.2s ease',
+									color: 'var(--tl-color-text-2)',
+								}}
 							>
-								<path
-									d="M6 9L12 15L18 9"
-									stroke="currentColor"
-									strokeWidth="1.5"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-								/>
-							</svg>
+								<svg
+									width="8"
+									height="8"
+									viewBox="0 0 24 24"
+									fill="none"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<path
+										d="M6 9L12 15L18 9"
+										stroke="currentColor"
+										strokeWidth="1.5"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+									/>
+								</svg>
+							</div>
 						</div>
+
+						{/* Session Content - Expandable */}
+						{isSizeSectionExpanded && (
+							<div style={{ padding: '12px' }}>
+								{showUiLabels && (
+									<StylePanelSubheading>{msg('style-panel.size')}</StylePanelSubheading>
+								)}
+								<TldrawUiToolbar orientation="horizontal" label={msg('style-panel.size')}>
+									<TldrawUiButtonPicker
+										title={msg('style-panel.size')}
+										uiType="size"
+										style={DefaultSizeStyle}
+										items={STYLES.size}
+										value={size}
+										onValueChange={(style, value) => {
+											handleValueChange(style, value)
+											const selectedShapeIds = editor.getSelectedShapeIds()
+											if (selectedShapeIds.length > 0) {
+												kickoutOccludedShapes(editor, selectedShapeIds)
+											}
+										}}
+										theme={theme}
+										onHistoryMark={onHistoryMark}
+									/>
+								</TldrawUiToolbar>
+							</div>
+						)}
 					</div>
+				)}
 
-					{/* Session Content - Expandable */}
-					{isSizeSectionExpanded && (
-						<div style={{ padding: '12px' }}>
-							{showUiLabels && (
-								<StylePanelSubheading>{msg('style-panel.size')}</StylePanelSubheading>
-							)}
-							<TldrawUiToolbar orientation="horizontal" label={msg('style-panel.size')}>
-								<TldrawUiButtonPicker
-									title={msg('style-panel.size')}
-									uiType="size"
-									style={DefaultSizeStyle}
-									items={STYLES.size}
-									value={size}
-									onValueChange={(style, value) => {
-										handleValueChange(style, value)
-										const selectedShapeIds = editor.getSelectedShapeIds()
-										if (selectedShapeIds.length > 0) {
-											kickoutOccludedShapes(editor, selectedShapeIds)
-										}
-									}}
-									theme={theme}
-									onHistoryMark={onHistoryMark}
-								/>
-							</TldrawUiToolbar>
-						</div>
-					)}
-				</div>
-			)}
-
-			{/* Text Session Section */}
-			{hasTextShapes && (
-				<div
-					style={{
-						marginTop: '0px',
-						marginBottom: '9px',
-						background: 'var(--tl-color-panel)',
-						borderRadius: '4.5px',
-						border: '1px solid var(--tl-color-border)',
-						overflow: 'hidden',
-						width: '100%',
-						boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-					}}
-				>
-					{/* Session Header - Clickable for Expand/Collapse */}
+				{/* Text Session Section */}
+				{hasTextShapes && (
 					<div
-						onClick={() => setIsTextSectionExpanded(!isTextSectionExpanded)}
 						style={{
-							padding: '9px 12px',
-							background: 'var(--tl-color-muted-1)',
-							borderBottom: '1px solid var(--tl-color-border)',
-							fontSize: '9px',
-							fontWeight: '500',
-							color: 'var(--tl-color-text-1)',
-							textTransform: 'uppercase',
-							letterSpacing: '0.5px',
-							cursor: 'pointer',
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'space-between',
-							userSelect: 'none',
-							transition: 'background-color 0.15s ease',
+							marginTop: '0px',
+							marginBottom: '9px',
+							background: 'var(--tl-color-panel)',
+							borderRadius: '4.5px',
+							border: '1px solid var(--tl-color-border)',
+							overflow: 'hidden',
+							width: '100%',
+							boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
 						}}
-						onMouseEnter={(e) =>
-							(e.currentTarget.style.backgroundColor = 'var(--tl-color-muted-2)')
-						}
-						onMouseLeave={(e) =>
-							(e.currentTarget.style.backgroundColor = 'var(--tl-color-muted-1)')
-						}
 					>
-						<span style={{ fontWeight: '500' }}>Text</span>
+						{/* Session Header - Clickable for Expand/Collapse */}
 						<div
+							onClick={() => setIsTextSectionExpanded(!isTextSectionExpanded)}
 							style={{
-								width: '10px',
-								height: '10px',
+								padding: '9px 12px',
+								background: 'var(--tl-color-muted-1)',
+								borderBottom: '1px solid var(--tl-color-border)',
+								fontSize: '9px',
+								fontWeight: '500',
+								color: 'var(--tl-color-text-1)',
+								textTransform: 'uppercase',
+								letterSpacing: '0.5px',
+								cursor: 'pointer',
 								display: 'flex',
 								alignItems: 'center',
-								justifyContent: 'center',
-								transform: isTextSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-								transition: 'transform 0.2s ease',
-								color: 'var(--tl-color-text-2)',
+								justifyContent: 'space-between',
+								userSelect: 'none',
+								transition: 'background-color 0.15s ease',
 							}}
+							onMouseEnter={(e) =>
+								(e.currentTarget.style.backgroundColor = 'var(--tl-color-muted-2)')
+							}
+							onMouseLeave={(e) =>
+								(e.currentTarget.style.backgroundColor = 'var(--tl-color-muted-1)')
+							}
 						>
-							<svg
-								width="8"
-								height="8"
-								viewBox="0 0 24 24"
-								fill="none"
-								xmlns="http://www.w3.org/2000/svg"
+							<span style={{ fontWeight: '500' }}>Text</span>
+							<div
+								style={{
+									width: '10px',
+									height: '10px',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									transform: isTextSectionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+									transition: 'transform 0.2s ease',
+									color: 'var(--tl-color-text-2)',
+								}}
 							>
-								<path
-									d="M6 9L12 15L18 9"
-									stroke="currentColor"
-									strokeWidth="1.5"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-								/>
-							</svg>
+								<svg
+									width="8"
+									height="8"
+									viewBox="0 0 24 24"
+									fill="none"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<path
+										d="M6 9L12 15L18 9"
+										stroke="currentColor"
+										strokeWidth="1.5"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+									/>
+								</svg>
+							</div>
 						</div>
-					</div>
 
-					{/* Session Content - Expandable */}
-					{isTextSectionExpanded && (
-						<div style={{ padding: '12px' }}>
-							<FigmaTypographyPanel styles={styles} />
-						</div>
-					)}
-				</div>
-			)}
+						{/* Session Content - Expandable */}
+						{isTextSectionExpanded && (
+							<div style={{ padding: '12px' }}>
+								<FigmaTypographyPanel styles={styles} />
+							</div>
+						)}
+					</div>
+				)}
 			</div>
 		</>
 	)
@@ -679,10 +698,9 @@ export function StylePanelColorPicker() {
 // Helper function to get current font size
 function getCurrentFontSize(styles: ReturnType<typeof useRelevantStyles>): number {
 	if (!styles) return 24
-	
+
 	const fontSize = styles.get(DefaultFontSizeStyle)
-	const size = styles.get(DefaultSizeStyle)
-	
+
 	// Check if we have a custom font size first
 	const editor = useEditor()
 	if (editor.isIn('select')) {
@@ -693,19 +711,19 @@ function getCurrentFontSize(styles: ReturnType<typeof useRelevantStyles>): numbe
 			}
 		}
 	}
-	
-	// Fall back to preset values
+
+	// Only use font size styles, never fall back to stroke size
 	if (fontSize && fontSize.type === 'shared' && typeof fontSize.value === 'string') {
 		return EXTENDED_FONT_SIZES[fontSize.value] || 24
-	}
-	if (size && size.type === 'shared' && typeof size.value === 'string') {
-		return FONT_SIZES[size.value] || 24
 	}
 	return 24
 }
 
 // Helper function to get current text style property
-function getCurrentTextStyle(styles: ReturnType<typeof useRelevantStyles>, property: string): string | undefined {
+function getCurrentTextStyle(
+	styles: ReturnType<typeof useRelevantStyles>,
+	property: string
+): string | undefined {
 	const editor = useEditor()
 	if (editor.isIn('select')) {
 		const selectedShapes = editor.getSelectedShapes()
@@ -733,9 +751,7 @@ export function TextStylePickerSet({ theme, styles }: ThemeStylePickerSetProps) 
 	const textAlign = styles.get(DefaultTextAlignStyle)
 	const labelAlign = styles.get(DefaultHorizontalAlignStyle)
 	const verticalLabelAlign = styles.get(DefaultVerticalAlignStyle)
-	
 
-	
 	if (font === undefined && fontSize === undefined && labelAlign === undefined) {
 		return null
 	}
@@ -762,7 +778,9 @@ export function TextStylePickerSet({ theme, styles }: ThemeStylePickerSetProps) 
 
 			{fontSize === undefined ? null : (
 				<>
-					{showUiLabels && <StylePanelSubheading>{msg('style-panel.font-size')}</StylePanelSubheading>}
+					{showUiLabels && (
+						<StylePanelSubheading>{msg('style-panel.font-size')}</StylePanelSubheading>
+					)}
 					<TldrawUiToolbar orientation="horizontal" label={msg('style-panel.font-size')}>
 						<TldrawUiButtonPicker
 							title={msg('style-panel.font-size')}
@@ -775,47 +793,47 @@ export function TextStylePickerSet({ theme, styles }: ThemeStylePickerSetProps) 
 							onHistoryMark={onHistoryMark}
 						/>
 					</TldrawUiToolbar>
-													{/* Custom font size input - works independently from presets */}
-													<div style={{ marginTop: '6px' }}>
-														<input
-															type="number"
-															onChange={(e) => {
-																const value = parseInt(e.target.value)
-																if (!isNaN(value) && value > 0 && value <= 200) {
-																	// Update the custom font size on selected shapes
-																	editor.run(() => {
-																		if (editor.isIn('select')) {
-																			const selectedShapes = editor.getSelectedShapes()
-																			selectedShapes.forEach(shape => {
-																				if (shape.type === 'text') {
-																					editor.updateShape({
-																						id: shape.id,
-																						type: 'text',
-																						props: { customFontSize: value }
-																					})
-																				}
-																			})
-																		}
-																	})
-																	onHistoryMark('custom-font-size')
-																}
-															}}
-															style={{
-																width: '100%',
-																padding: '4.5px 6px',
-																border: '1px solid var(--tl-color-border)',
-																borderRadius: '3px',
-																background: 'var(--tl-color-panel)',
-																color: 'var(--tl-color-text-1)',
-																fontSize: '10px',
-																fontFamily: 'inherit',
-																outline: 'none',
-															}}
-															placeholder="Custom size (px)"
-															min="1"
-															max="200"
-														/>
-													</div>
+					{/* Custom font size input - works independently from presets */}
+					<div style={{ marginTop: '6px' }}>
+						<input
+							type="number"
+							onChange={(e) => {
+								const value = parseInt(e.target.value)
+								if (!isNaN(value) && value > 0 && value <= 200) {
+									// Update the custom font size on selected shapes
+									editor.run(() => {
+										if (editor.isIn('select')) {
+											const selectedShapes = editor.getSelectedShapes()
+											selectedShapes.forEach((shape) => {
+												if (shape.type === 'text') {
+													editor.updateShape({
+														id: shape.id,
+														type: 'text',
+														props: { customFontSize: value },
+													})
+												}
+											})
+										}
+									})
+									onHistoryMark('custom-font-size')
+								}
+							}}
+							style={{
+								width: '100%',
+								padding: '4.5px 6px',
+								border: '1px solid var(--tl-color-border)',
+								borderRadius: '3px',
+								background: 'var(--tl-color-panel)',
+								color: 'var(--tl-color-text-1)',
+								fontSize: '10px',
+								fontFamily: 'inherit',
+								outline: 'none',
+							}}
+							placeholder="Custom size (px)"
+							min="1"
+							max="200"
+						/>
+					</div>
 				</>
 			)}
 
@@ -900,37 +918,46 @@ export function GeoStylePickerSet({ styles }: StylePickerSetProps) {
 	}
 
 	// Get corner radius from selected shapes
-	const cornerRadius = useValue('cornerRadius', () => {
-		if (!editor.isIn('select')) return 0
-		const selectedShapes = editor.getSelectedShapes()
-		if (selectedShapes.length === 0) return 0
-		
-		// Check if all selected shapes are geo shapes with the same corner radius
-		const geoShapes = selectedShapes.filter(shape => shape.type === 'geo')
-		if (geoShapes.length === 0) return 0
-		
-		const firstCornerRadius = (geoShapes[0] as any).props.cornerRadius
-		const allSame = geoShapes.every(shape => (shape as any).props.cornerRadius === firstCornerRadius)
-		
-		return allSame ? firstCornerRadius : 0
-	}, [editor])
+	const cornerRadius = useValue(
+		'cornerRadius',
+		() => {
+			if (!editor.isIn('select')) return 0
+			const selectedShapes = editor.getSelectedShapes()
+			if (selectedShapes.length === 0) return 0
 
-	const handleCornerRadiusChange = useCallback((value: number) => {
-		editor.run(() => {
-			if (editor.isIn('select')) {
-				const selectedShapes = editor.getSelectedShapes()
-				selectedShapes.forEach(shape => {
-					if (shape.type === 'geo') {
-						editor.updateShape({
-							id: shape.id,
-							type: 'geo',
-							props: { cornerRadius: value }
-						})
-					}
-				})
-			}
-		})
-	}, [editor])
+			// Check if all selected shapes are geo shapes with the same corner radius
+			const geoShapes = selectedShapes.filter((shape) => shape.type === 'geo')
+			if (geoShapes.length === 0) return 0
+
+			const firstCornerRadius = (geoShapes[0] as any).props.cornerRadius
+			const allSame = geoShapes.every(
+				(shape) => (shape as any).props.cornerRadius === firstCornerRadius
+			)
+
+			return allSame ? firstCornerRadius : 0
+		},
+		[editor]
+	)
+
+	const handleCornerRadiusChange = useCallback(
+		(value: number) => {
+			editor.run(() => {
+				if (editor.isIn('select')) {
+					const selectedShapes = editor.getSelectedShapes()
+					selectedShapes.forEach((shape) => {
+						if (shape.type === 'geo') {
+							editor.updateShape({
+								id: shape.id,
+								type: 'geo',
+								props: { cornerRadius: value },
+							})
+						}
+					})
+				}
+			})
+		},
+		[editor]
+	)
 
 	return (
 		<>
