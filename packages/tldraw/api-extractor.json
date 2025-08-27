@@ -1,4 +1,12 @@
 {
 	"$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
-	"extends": "../../internal/config/api-extractor.json"
+	"extends": "../../internal/config/api-extractor.json",
+	"messages": {
+		"extractorMessageReporting": {
+			"ae-forgotten-export": {
+				"logLevel": "none",
+				"addToApiReportFile": false
+			}
+		}
+	}
 }

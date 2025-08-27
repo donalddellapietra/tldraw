@@ -11,16 +11,16 @@ import {
 	isRecordsDiffEmpty,
 	mockUniqueId,
 	uniqueId,
-} from '../../tldraw'
+} from '@tldraw/tldraw'
 import uuid from 'uuid-by-string'
 import readable from 'uuid-readable'
 import { vi } from 'vitest'
-import { prettyPrintDiff } from '../../../tldraw/src/test/testutils/pretty'
 import { TLSyncClient } from '../lib/TLSyncClient'
 import { FuzzEditor, Op } from './FuzzEditor'
 import { RandomSource } from './RandomSource'
 import { TestServer } from './TestServer'
 import { TestSocketPair } from './TestSocketPair'
+import { prettyPrintDiff } from './testutils'
 
 const schema = createTLSchema()
 
