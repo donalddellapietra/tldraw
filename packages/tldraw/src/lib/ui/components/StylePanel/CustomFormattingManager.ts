@@ -12,6 +12,7 @@ import { FONT_SIZES } from '../../../shapes/shared/default-shape-constants'
 export class CustomFormattingManager {
 	private editor: any
 	private onStateChange?: () => void
+	private fillColorObservers: Map<TLShapeId, MutationObserver> = new Map()
 
 	constructor(editor: any) {
 		this.editor = editor
@@ -665,6 +666,9 @@ export class CustomFormattingManager {
 			this.editor.run(() => {
 				shapesToUpdate.forEach((shape: TLShape) => {
 					if (isHexColor) {
+						// Clean up any existing observer for this shape
+						this.cleanupFillColorObserver(shape.id)
+
 						// For hex colors, store in meta and apply via CSS
 						this.editor.updateShapes([
 							{
@@ -673,6 +677,11 @@ export class CustomFormattingManager {
 								meta: {
 									...shape.meta,
 									customFillColor: color,
+								},
+								props: {
+									...shape.props,
+									// Ensure the shape has a fill style so that ShapeFill renders
+									fill: 'solid',
 								},
 							},
 						])
@@ -685,6 +694,40 @@ export class CustomFormattingManager {
 						// For tldraw colors, use the standard method
 						this.editor.setStyleForSelectedShapes(DefaultColorStyle, color)
 					}
+				})
+			})
+
+			// Notify state change after updating
+			this.notifyStateChange()
+		},
+
+		// Method to remove custom fill color
+		removeCustomFillColor: () => {
+			const shapesToUpdate = this.editor.getSelectedShapes().filter((shape: TLShape) => {
+				return shape.type !== 'text'
+			})
+
+			console.log(
+				'🔧 removeCustomFillColor: Removing custom fill colors from shapes:',
+				shapesToUpdate
+			)
+
+			this.editor.run(() => {
+				shapesToUpdate.forEach((shape: TLShape) => {
+					// Clean up the observer
+					this.cleanupFillColorObserver(shape.id)
+
+					// Remove the custom fill color from meta
+					this.editor.updateShapes([
+						{
+							id: shape.id,
+							type: shape.type,
+							meta: {
+								...shape.meta,
+								customFillColor: undefined,
+							},
+						},
+					])
 				})
 			})
 
@@ -1614,10 +1657,98 @@ export class CustomFormattingManager {
 
 		console.log(`🔧 Applying custom fill color ${color} to shape ${shapeId}`)
 
-		// Apply the fill color to the shape element
-		const element = shapeElement as HTMLElement
-		element.style.backgroundColor = color
-		element.style.fill = color
+		// Find the SVG path elements that actually render the fill
+		// Target paths that have a fill attribute and are not explicitly set to 'none'
+		const fillPaths = shapeElement.querySelectorAll('path[fill]:not([fill="none"])')
+
+		fillPaths.forEach((pathElement) => {
+			const element = pathElement as SVGPathElement
+			// Set the fill attribute directly on the SVG path
+			element.setAttribute('fill', color)
+			// Also set it via CSS as a fallback
+			element.style.fill = color
+		})
+
+		// Also look for paths without explicit fill attributes that might be the fill paths
+		// These are typically the ones rendered by ShapeFill component
+		const allPaths = shapeElement.querySelectorAll('path')
+		allPaths.forEach((pathElement) => {
+			const element = pathElement as SVGPathElement
+			const currentFill = element.getAttribute('fill')
+
+			// If the path has no fill attribute or has a fill that's not 'none',
+			// and it's not a stroke path, apply our custom color
+			if (
+				(!currentFill || currentFill !== 'none') &&
+				!element.getAttribute('stroke') &&
+				!element.classList.contains('tl-stroke')
+			) {
+				element.setAttribute('fill', color)
+				element.style.fill = color
+			}
+		})
+
+		// Also try to find any other SVG elements that might need fill updates
+		const svgElements = shapeElement.querySelectorAll('svg, rect, circle, ellipse, polygon')
+		svgElements.forEach((svgElement) => {
+			const element = svgElement as SVGElement
+			if (element.getAttribute('fill') && element.getAttribute('fill') !== 'none') {
+				element.setAttribute('fill', color)
+				;(element as any).style.fill = color
+			}
+		})
+
+		// Set up a mutation observer to handle re-renders
+		this.setupFillColorObserver(shapeId, color)
+	}
+
+	// Set up a mutation observer to maintain the custom fill color when the shape is re-rendered
+	private setupFillColorObserver(shapeId: TLShapeId, color: string) {
+		const shapeElement = document.querySelector(`[data-shape-id="${shapeId}"]`)
+		if (!shapeElement) return
+
+		// Disconnect any existing observer for this shape
+		const existingObserver = this.fillColorObservers.get(shapeId)
+		if (existingObserver) {
+			existingObserver.disconnect()
+		}
+
+		// Create a mutation observer to watch for changes in the shape's DOM
+		const observer = new MutationObserver((mutations) => {
+			mutations.forEach((mutation) => {
+				if (mutation.type === 'childList') {
+					// When new nodes are added (like when the shape is re-rendered),
+					// re-apply our custom fill color
+					setTimeout(() => {
+						this.applyCustomFillColorToShape(shapeId, color)
+					}, 10)
+				}
+			})
+		})
+
+		// Start observing the shape element for changes
+		observer.observe(shapeElement, {
+			childList: true,
+			subtree: true,
+		})
+
+		// Store the observer so we can disconnect it later if needed
+		this.fillColorObservers.set(shapeId, observer)
+	}
+
+	// Clean up observers when they're no longer needed
+	private cleanupFillColorObserver(shapeId: TLShapeId) {
+		const observer = this.fillColorObservers.get(shapeId)
+		if (observer) {
+			observer.disconnect()
+			this.fillColorObservers.delete(shapeId)
+		}
+	}
+
+	// Clean up all observers (call this when the manager is destroyed)
+	cleanup() {
+		this.fillColorObservers.forEach((observer) => observer.disconnect())
+		this.fillColorObservers.clear()
 	}
 
 	// Apply custom stroke color to a shape
