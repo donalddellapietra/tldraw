@@ -1,10 +1,5 @@
 import { TLShape, TLShapeId, toRichText, useEditor } from '@tldraw/editor'
-import {
-	DefaultColorStyle,
-	DefaultFillStyle,
-	DefaultSizeStyle,
-	DefaultStrokeColorStyle,
-} from '@tldraw/tlschema'
+import { DefaultColorStyle, DefaultFillStyle, DefaultSizeStyle } from '@tldraw/tlschema'
 import React from 'react'
 import { FONT_SIZES } from '../../../shapes/shared/default-shape-constants'
 
@@ -707,13 +702,13 @@ export class CustomFormattingManager {
 
 				if (selectedShapes.length > 0) {
 					console.log('🔧 Setting stroke color for selected shapes...')
-					this.editor.setStyleForSelectedShapes(DefaultStrokeColorStyle, tldrawColor)
+					this.editor.setStyleForSelectedShapes(DefaultColorStyle, tldrawColor)
 					console.log('✅ Stroke color set for selected shapes')
 				}
 
 				// Also set as default for next shapes
 				console.log('🔧 Setting stroke color for next shapes...')
-				this.editor.setStyleForNextShapes(DefaultStrokeColorStyle, tldrawColor)
+				this.editor.setStyleForNextShapes(DefaultColorStyle, tldrawColor)
 				this.editor.updateInstanceState({ isChangingStyle: true })
 				console.log('✅ Stroke color set for next shapes')
 			})
@@ -761,7 +756,7 @@ export class CustomFormattingManager {
 						}, 50)
 					} else {
 						// For tldraw colors, use the standard method
-						this.editor.setStyleForSelectedShapes(DefaultStrokeColorStyle, color)
+						this.editor.setStyleForSelectedShapes(DefaultColorStyle, color)
 					}
 				})
 			})
@@ -879,7 +874,7 @@ export class CustomFormattingManager {
 
 		// Use the proper tldraw style system to get current styles
 		const sharedStyles = this.editor.getSharedStyles()
-		const currentStrokeColor = sharedStyles.get(DefaultStrokeColorStyle)
+		const currentStrokeColor = sharedStyles.get(DefaultColorStyle)
 
 		if (currentStrokeColor && currentStrokeColor.type === 'shared') {
 			// Convert tldraw color back to hex

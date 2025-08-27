@@ -85,7 +85,6 @@ import { TLDefaultFontSizeStyle } from '@tldraw/editor';
 import { TLDefaultFontStyle } from '@tldraw/editor';
 import { TLDefaultHorizontalAlignStyle } from '@tldraw/editor';
 import { TLDefaultSizeStyle } from '@tldraw/editor';
-import { TLDefaultStrokeColorStyle } from '@tldraw/editor';
 import { TLDefaultTextAlignStyle } from '@tldraw/editor';
 import { TLDefaultVerticalAlignStyle } from '@tldraw/editor';
 import { TLDragShapesOutInfo } from '@tldraw/editor';
@@ -1643,7 +1642,6 @@ export class GeoShapeUtil extends BaseBoxShapeUtil<TLGeoShape> {
             richText: TLRichText;
             scale: number;
             size: TLDefaultSizeStyle;
-            strokeColor: TLDefaultStrokeColorStyle;
             url: string;
             verticalAlign: TLDefaultVerticalAlignStyle;
             w: number;
@@ -1676,7 +1674,6 @@ export class GeoShapeUtil extends BaseBoxShapeUtil<TLGeoShape> {
             richText: TLRichText;
             scale: number;
             size: TLDefaultSizeStyle;
-            strokeColor: TLDefaultStrokeColorStyle;
             url: string;
             verticalAlign: TLDefaultVerticalAlignStyle;
             w: number;
@@ -2020,7 +2017,6 @@ export class LineShapeUtil extends ShapeUtil<TLLineShape> {
             scale: number;
             size: TLDefaultSizeStyle;
             spline: TLLineShapeSplineStyle;
-            strokeColor: TLDefaultStrokeColorStyle;
         };
         rotation: number;
         type: "line";
@@ -2050,7 +2046,6 @@ export class LineShapeUtil extends ShapeUtil<TLLineShape> {
             scale: number;
             size: TLDefaultSizeStyle;
             spline: TLLineShapeSplineStyle;
-            strokeColor: TLDefaultStrokeColorStyle;
         };
         rotation: number;
         type: "line";

@@ -6,9 +6,7 @@ import { StyleProp } from '../styles/StyleProp'
 import {
 	DefaultColorStyle,
 	DefaultLabelColorStyle,
-	DefaultStrokeColorStyle,
 	TLDefaultColorStyle,
-	TLDefaultStrokeColorStyle,
 } from '../styles/TLColorStyle'
 import { DefaultDashStyle, TLDefaultDashStyle } from '../styles/TLDashStyle'
 import { DefaultFillStyle, TLDefaultFillStyle } from '../styles/TLFillStyle'
@@ -68,7 +66,6 @@ export interface TLGeoShapeProps {
 	// Text properties
 	labelColor: TLDefaultColorStyle
 	color: TLDefaultColorStyle
-	strokeColor: TLDefaultStrokeColorStyle
 	fill: TLDefaultFillStyle
 	size: TLDefaultSizeStyle
 	font: TLDefaultFontStyle
@@ -94,7 +91,6 @@ export const geoShapeProps: RecordProps<TLGeoShape> = {
 	// Text properties
 	labelColor: DefaultLabelColorStyle,
 	color: DefaultColorStyle,
-	strokeColor: DefaultStrokeColorStyle,
 	fill: DefaultFillStyle,
 	size: DefaultSizeStyle,
 	font: DefaultFontStyle,

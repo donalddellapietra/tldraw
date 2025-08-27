@@ -66,7 +66,6 @@ export class DrawShapeUtil extends ShapeUtil<TLDrawShape> {
 		return {
 			segments: [],
 			color: 'black',
-			strokeColor: 'black',
 			fill: 'none',
 			dash: 'draw',
 			size: 'm',
@@ -273,8 +272,8 @@ function DrawShapeSvg({ shape, zoomOverride }: { shape: TLDrawShape; zoomOverrid
 
 	const options = getFreehandOptions(shape.props, sw, showAsComplete, forceSolid)
 
-	// Use strokeColor if available, otherwise fall back to color for backward compatibility
-	const strokeColorToUse = shape.props.strokeColor || shape.props.color
+	// Use color for stroke
+	const strokeColorToUse = shape.props.color
 
 	if (!forceSolid && shape.props.dash === 'draw') {
 		return (

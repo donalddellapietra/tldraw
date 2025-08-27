@@ -72,7 +72,6 @@ export class GeoShapeUtil extends BaseBoxShapeUtil<TLGeoShape> {
 			// Text properties
 			color: 'black',
 			labelColor: 'black',
-			strokeColor: 'black',
 			fill: 'none',
 			size: 'm',
 			font: 'draw',

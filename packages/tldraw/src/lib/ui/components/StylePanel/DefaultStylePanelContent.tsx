@@ -21,7 +21,7 @@ import {
 	useEditor,
 	useValue,
 } from '@tldraw/editor'
-import { DefaultFontSizeStyle, DefaultStrokeColorStyle } from '@tldraw/tlschema'
+import { DefaultFontSizeStyle } from '@tldraw/tlschema'
 import React, { useCallback, useState } from 'react'
 import { EXTENDED_FONT_SIZES, STROKE_SIZES } from '../../../shapes/shared/default-shape-constants'
 import { STYLES } from '../../../styles'
@@ -111,7 +111,7 @@ export function StylePanelColorPicker() {
 	const [isTextSectionExpanded, setIsTextSectionExpanded] = useState(true)
 
 	const color = styles.get(DefaultColorStyle)
-	const strokeColor = styles.get(DefaultStrokeColorStyle)
+	const strokeColor = styles.get(DefaultColorStyle)
 	const fill = styles.get(DefaultFillStyle)
 	const dash = styles.get(DefaultDashStyle)
 	const size = styles.get(DefaultSizeStyle)
@@ -299,7 +299,7 @@ export function StylePanelColorPicker() {
 							{strokeColor?.type !== 'mixed' && strokeColor && (
 								<TldrawUiFigmaColorPicker
 									value={getColorValue(theme, strokeColor.value, 'solid')}
-									onValueChange={(newColor) => handleValueChange(DefaultStrokeColorStyle, newColor)}
+									onValueChange={(newColor) => handleValueChange(DefaultColorStyle, newColor)}
 									title="Stroke Color"
 								/>
 							)}
