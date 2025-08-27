@@ -51,12 +51,12 @@
 		"uuid-readable": "^0.0.2"
 	},
 	"dependencies": {
-		"@tldraw/state": "workspace:*",
-		"@tldraw/state-react": "workspace:*",
-		"@tldraw/sync-core": "workspace:*",
-		"@tldraw/utils": "workspace:*",
+		"@tldraw/state": "3.15.3",
+		"@tldraw/state-react": "3.15.3",
+		"@tldraw/sync-core": "3.15.3",
+		"@tldraw/utils": "3.15.3",
 		"nanoevents": "^7.0.1",
-		"tldraw": "workspace:*",
+		"tldraw": "3.15.3",
 		"ws": "^8.18.0"
 	},
 	"peerDependencies": {
