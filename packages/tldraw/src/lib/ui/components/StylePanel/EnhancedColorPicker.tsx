@@ -4,7 +4,7 @@ import { TldrawUiButton } from '../primitives/Button/TldrawUiButton'
 import { TldrawUiButtonIcon } from '../primitives/Button/TldrawUiButtonIcon'
 import { useTranslation } from '../../hooks/useTranslation/useTranslation'
 import { DefaultColorStyle } from '@tldraw/editor'
-import { STYLES } from '../../styles'
+import { STYLES } from '../../../styles'
 
 interface EnhancedColorPickerProps {
   value: string
@@ -52,8 +52,8 @@ export const EnhancedColorPicker = React.memo(function EnhancedColorPicker({
   }, [isHexMode])
 
   return (
-    <TldrawUiPopover open={isOpen} onOpenChange={setIsOpen}>
-      <TldrawUiPopoverTrigger asChild>
+    <TldrawUiPopover id="enhanced-color-picker" open={isOpen} onOpenChange={setIsOpen}>
+      <TldrawUiPopoverTrigger>
         <TldrawUiButton
           type="icon"
           title={title}

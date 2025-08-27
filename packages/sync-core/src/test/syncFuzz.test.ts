@@ -11,7 +11,7 @@ import {
 	isRecordsDiffEmpty,
 	mockUniqueId,
 	uniqueId,
-} from 'tldraw'
+} from '../../tldraw'
 import uuid from 'uuid-by-string'
 import readable from 'uuid-readable'
 import { vi } from 'vitest'

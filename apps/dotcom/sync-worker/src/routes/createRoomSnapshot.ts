@@ -26,8 +26,8 @@ export async function createRoomSnapshot(request: IRequest, env: Environment): P
 		drawing: {
 			schema: data.schema,
 			clock: 0,
-			documents: Object.values(data.snapshot).map((r) => ({
-				state: r,
+			documents: Object.values(data.snapshot as Record<string, unknown>).map((r) => ({
+				state: r as any,
 				lastChangedClock: 0,
 			})),
 			tombstones: {},
