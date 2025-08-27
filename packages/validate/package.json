@@ -43,7 +43,7 @@
 		"context": "yarn run -T tsx ../../internal/scripts/context.ts"
 	},
 	"dependencies": {
-		"@tldraw/utils": "workspace:*"
+		"@tldraw/utils": "3.15.3"
 	},
 	"devDependencies": {
 		"lazyrepo": "0.0.0-alpha.27"

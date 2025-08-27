@@ -9116,11 +9116,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@tldraw/assets@workspace:*, @tldraw/assets@workspace:packages/assets":
+"@tldraw/assets@npm:3.15.3, @tldraw/assets@workspace:packages/assets":
   version: 0.0.0-use.local
   resolution: "@tldraw/assets@workspace:packages/assets"
   dependencies:
-    "@tldraw/utils": "workspace:*"
+    "@tldraw/utils": "npm:3.15.3"
     lazyrepo: "npm:0.0.0-alpha.27"
     ts-node-dev: "npm:^1.1.8"
     typescript: "npm:^5.8.3"
@@ -9133,11 +9133,11 @@ __metadata:
   dependencies:
     "@cloudflare/workers-types": "npm:^4.20250913.0"
     "@tldraw/dotcom-shared": "workspace:*"
-    "@tldraw/store": "workspace:*"
-    "@tldraw/sync-core": "workspace:*"
-    "@tldraw/tlschema": "workspace:*"
-    "@tldraw/utils": "workspace:*"
-    "@tldraw/validate": "workspace:*"
+    "@tldraw/store": "npm:3.15.3"
+    "@tldraw/sync-core": "npm:3.15.3"
+    "@tldraw/tlschema": "npm:3.15.3"
+    "@tldraw/utils": "npm:3.15.3"
+    "@tldraw/validate": "npm:3.15.3"
     "@tldraw/worker-shared": "workspace:*"
     "@types/react": "npm:^18.3.18"
     "@types/react-dom": "npm:^18.3.5"
@@ -9163,8 +9163,8 @@ __metadata:
     "@shikijs/engine-javascript": "npm:^1.29.1"
     "@shikijs/rehype": "npm:^1.29.1"
     "@tailwindcss/typography": "npm:^0.5.16"
-    "@tldraw/assets": "workspace:*"
-    "@tldraw/utils": "workspace:*"
+    "@tldraw/assets": "npm:3.15.3"
+    "@tldraw/utils": "npm:3.15.3"
     "@types/broken-link-checker": "npm:^0.7.3"
     "@types/js-cookie": "npm:^3.0.6"
     "@types/mdast": "npm:^4.0.4"
@@ -9214,7 +9214,7 @@ __metadata:
     sqlite3: "npm:^5.1.7"
     tailwind-merge: "npm:^2.6.0"
     tailwindcss: "npm:^3.4.17"
-    tldraw: "workspace:*"
+    tldraw: "npm:3.15.3"
     tsx: "npm:^4.19.2"
     typescript: "npm:^5.8.3"
     vectra: "npm:^0.4.4"
@@ -9252,12 +9252,12 @@ __metadata:
     "@supabase/auth-helpers-remix": "npm:^0.2.6"
     "@supabase/supabase-js": "npm:^2.48.1"
     "@tldraw/dotcom-shared": "workspace:*"
-    "@tldraw/state": "workspace:*"
-    "@tldraw/store": "workspace:*"
-    "@tldraw/sync-core": "workspace:*"
-    "@tldraw/tlschema": "workspace:*"
-    "@tldraw/utils": "workspace:*"
-    "@tldraw/validate": "workspace:*"
+    "@tldraw/state": "npm:3.15.3"
+    "@tldraw/store": "npm:3.15.3"
+    "@tldraw/sync-core": "npm:3.15.3"
+    "@tldraw/tlschema": "npm:3.15.3"
+    "@tldraw/utils": "npm:3.15.3"
+    "@tldraw/validate": "npm:3.15.3"
     "@tldraw/worker-shared": "workspace:*"
     "@types/pg": "npm:^8.11.11"
     "@types/react": "npm:^18.3.18"
@@ -9277,7 +9277,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@tldraw/editor@workspace:*, @tldraw/editor@workspace:packages/editor":
+"@tldraw/editor@npm:3.15.3, @tldraw/editor@workspace:packages/editor":
   version: 0.0.0-use.local
   resolution: "@tldraw/editor@workspace:packages/editor"
   dependencies:
@@ -9286,12 +9286,12 @@ __metadata:
     "@tiptap/core": "npm:^2.9.1"
     "@tiptap/pm": "npm:^2.9.1"
     "@tiptap/react": "npm:^2.9.1"
-    "@tldraw/state": "workspace:*"
-    "@tldraw/state-react": "workspace:*"
-    "@tldraw/store": "workspace:*"
-    "@tldraw/tlschema": "workspace:*"
-    "@tldraw/utils": "workspace:*"
-    "@tldraw/validate": "workspace:*"
+    "@tldraw/state": "npm:3.15.3"
+    "@tldraw/state-react": "npm:3.15.3"
+    "@tldraw/store": "npm:3.15.3"
+    "@tldraw/tlschema": "npm:3.15.3"
+    "@tldraw/utils": "npm:3.15.3"
+    "@tldraw/validate": "npm:3.15.3"
     "@types/benchmark": "npm:^2.1.5"
     "@types/core-js": "npm:^2.5.8"
     "@types/react": "npm:^18.3.18"
@@ -9421,8 +9421,8 @@ __metadata:
   dependencies:
     "@fastify/cors": "npm:^9.0.1"
     "@fastify/websocket": "npm:^10.0.1"
-    "@tldraw/sync": "workspace:*"
-    "@tldraw/sync-core": "workspace:*"
+    "@tldraw/sync": "npm:3.15.3"
+    "@tldraw/sync-core": "npm:3.15.3"
     "@types/bun": "npm:^1.1.6"
     "@types/express": "npm:^4.17.21"
     "@types/react": "npm:^18.3.18"
@@ -9436,7 +9436,7 @@ __metadata:
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
     react-router-dom: "npm:^6.28.2"
-    tldraw: "workspace:*"
+    tldraw: "npm:3.15.3"
     tsx: "npm:^4.19.2"
     typescript: "npm:^5.8.3"
     unfurl.js: "npm:^6.4.0"
@@ -9445,13 +9445,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@tldraw/state-react@workspace:*, @tldraw/state-react@workspace:packages/state-react":
+"@tldraw/state-react@npm:3.15.3, @tldraw/state-react@workspace:packages/state-react":
   version: 0.0.0-use.local
   resolution: "@tldraw/state-react@workspace:packages/state-react"
   dependencies:
     "@testing-library/react": "npm:^15.0.7"
-    "@tldraw/state": "workspace:*"
-    "@tldraw/utils": "workspace:*"
+    "@tldraw/state": "npm:3.15.3"
+    "@tldraw/utils": "npm:3.15.3"
     "@types/lodash": "npm:^4.17.14"
     "@types/react": "npm:^18.3.18"
     lodash: "npm:^4.17.21"
@@ -9464,24 +9464,24 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@tldraw/state@workspace:*, @tldraw/state@workspace:packages/state":
+"@tldraw/state@npm:3.15.3, @tldraw/state@workspace:*, @tldraw/state@workspace:packages/state":
   version: 0.0.0-use.local
   resolution: "@tldraw/state@workspace:packages/state"
   dependencies:
-    "@tldraw/utils": "workspace:*"
+    "@tldraw/utils": "npm:3.15.3"
     "@types/lodash": "npm:^4.17.14"
     lodash: "npm:^4.17.21"
     vitest: "npm:^3.2.4"
   languageName: unknown
   linkType: soft
 
-"@tldraw/store@workspace:*, @tldraw/store@workspace:packages/store":
+"@tldraw/store@npm:3.15.3, @tldraw/store@workspace:*, @tldraw/store@workspace:packages/store":
   version: 0.0.0-use.local
   resolution: "@tldraw/store@workspace:packages/store"
   dependencies:
     "@peculiar/webcrypto": "npm:^1.5.0"
-    "@tldraw/state": "workspace:*"
-    "@tldraw/utils": "workspace:*"
+    "@tldraw/state": "npm:3.15.3"
+    "@tldraw/utils": "npm:3.15.3"
     lazyrepo: "npm:0.0.0-alpha.27"
     raf: "npm:^3.4.1"
     vitest: "npm:^3.2.4"
@@ -9490,20 +9490,20 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@tldraw/sync-core@workspace:*, @tldraw/sync-core@workspace:packages/sync-core":
+"@tldraw/sync-core@npm:3.15.3, @tldraw/sync-core@workspace:packages/sync-core":
   version: 0.0.0-use.local
   resolution: "@tldraw/sync-core@workspace:packages/sync-core"
   dependencies:
-    "@tldraw/state": "workspace:*"
-    "@tldraw/store": "workspace:*"
-    "@tldraw/tlschema": "workspace:*"
-    "@tldraw/utils": "workspace:*"
+    "@tldraw/state": "npm:3.15.3"
+    "@tldraw/store": "npm:3.15.3"
+    "@tldraw/tlschema": "npm:3.15.3"
+    "@tldraw/utils": "npm:3.15.3"
     "@types/react": "npm:^18.3.18"
     "@types/uuid-readable": "npm:^0.0.3"
     nanoevents: "npm:^7.0.1"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
-    tldraw: "workspace:*"
+    tldraw: "npm:3.15.3"
     typescript: "npm:^5.8.3"
     uuid-by-string: "npm:^4.0.0"
     uuid-readable: "npm:^0.0.2"
@@ -9515,19 +9515,19 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@tldraw/sync@workspace:*, @tldraw/sync@workspace:packages/sync":
+"@tldraw/sync@npm:3.15.3, @tldraw/sync@workspace:packages/sync":
   version: 0.0.0-use.local
   resolution: "@tldraw/sync@workspace:packages/sync"
   dependencies:
-    "@tldraw/state": "workspace:*"
-    "@tldraw/state-react": "workspace:*"
-    "@tldraw/sync-core": "workspace:*"
-    "@tldraw/utils": "workspace:*"
+    "@tldraw/state": "npm:3.15.3"
+    "@tldraw/state-react": "npm:3.15.3"
+    "@tldraw/sync-core": "npm:3.15.3"
+    "@tldraw/utils": "npm:3.15.3"
     "@types/react": "npm:^18.3.18"
     nanoevents: "npm:^7.0.1"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
-    tldraw: "workspace:*"
+    tldraw: "npm:3.15.3"
     typescript: "npm:^5.8.3"
     uuid-by-string: "npm:^4.0.0"
     uuid-readable: "npm:^0.0.2"
@@ -9547,21 +9547,21 @@ __metadata:
     lazyrepo: "npm:0.0.0-alpha.27"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
-    tldraw: "workspace:*"
+    tldraw: "npm:3.15.3"
   peerDependencies:
     react: ^18.2.0 || ^19.0.0
     react-dom: ^18.2.0 || ^19.0.0
   languageName: unknown
   linkType: soft
 
-"@tldraw/tlschema@workspace:*, @tldraw/tlschema@workspace:packages/tlschema":
+"@tldraw/tlschema@npm:3.15.3, @tldraw/tlschema@workspace:*, @tldraw/tlschema@workspace:packages/tlschema":
   version: 0.0.0-use.local
   resolution: "@tldraw/tlschema@workspace:packages/tlschema"
   dependencies:
-    "@tldraw/state": "workspace:*"
-    "@tldraw/store": "workspace:*"
-    "@tldraw/utils": "workspace:*"
-    "@tldraw/validate": "workspace:*"
+    "@tldraw/state": "npm:3.15.3"
+    "@tldraw/store": "npm:3.15.3"
+    "@tldraw/utils": "npm:3.15.3"
+    "@tldraw/validate": "npm:3.15.3"
     kleur: "npm:^4.1.5"
     lazyrepo: "npm:0.0.0-alpha.27"
     react: "npm:^18.3.1"
@@ -9572,7 +9572,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@tldraw/utils@workspace:*, @tldraw/utils@workspace:packages/utils":
+"@tldraw/utils@npm:3.15.3, @tldraw/utils@workspace:*, @tldraw/utils@workspace:packages/utils":
   version: 0.0.0-use.local
   resolution: "@tldraw/utils@workspace:packages/utils"
   dependencies:
@@ -9590,11 +9590,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@tldraw/validate@workspace:*, @tldraw/validate@workspace:packages/validate":
+"@tldraw/validate@npm:3.15.3, @tldraw/validate@workspace:*, @tldraw/validate@workspace:packages/validate":
   version: 0.0.0-use.local
   resolution: "@tldraw/validate@workspace:packages/validate"
   dependencies:
-    "@tldraw/utils": "workspace:*"
+    "@tldraw/utils": "npm:3.15.3"
     lazyrepo: "npm:0.0.0-alpha.27"
   languageName: unknown
   linkType: soft
@@ -9603,7 +9603,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@tldraw/vscode-editor@workspace:apps/vscode/editor"
   dependencies:
-    "@tldraw/assets": "workspace:*"
+    "@tldraw/assets": "npm:3.15.3"
     "@types/fs-extra": "npm:^11.0.4"
     "@types/node": "npm:^22.15.31"
     "@types/react": "npm:^18.3.18"
@@ -9617,7 +9617,7 @@ __metadata:
     lazyrepo: "npm:0.0.0-alpha.27"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
-    tldraw: "workspace:*"
+    tldraw: "npm:3.15.3"
     tslib: "npm:^2.8.1"
   languageName: unknown
   linkType: soft
@@ -13956,7 +13956,7 @@ __metadata:
     "@bomb.sh/args": "npm:^0.3.1"
     "@clack/core": "npm:^1.0.0-alpha.1"
     "@clack/prompts": "npm:^1.0.0-alpha.1"
-    "@tldraw/utils": "workspace:*"
+    "@tldraw/utils": "npm:3.15.3"
     ansi-regex: "npm:^6.1.0"
     ansi-styles: "npm:^6.2.1"
     esbuild: "npm:^0.25.6"
@@ -14648,12 +14648,12 @@ __metadata:
     "@sentry/integrations": "npm:^7.120.3"
     "@sentry/react": "npm:^7.120.3"
     "@swc/plugin-formatjs": "npm:^5.1.1"
-    "@tldraw/assets": "workspace:*"
+    "@tldraw/assets": "npm:3.15.3"
     "@tldraw/dotcom-shared": "workspace:*"
-    "@tldraw/sync": "workspace:*"
-    "@tldraw/sync-core": "workspace:*"
-    "@tldraw/utils": "workspace:*"
-    "@tldraw/validate": "workspace:*"
+    "@tldraw/sync": "npm:3.15.3"
+    "@tldraw/sync-core": "npm:3.15.3"
+    "@tldraw/utils": "npm:3.15.3"
+    "@tldraw/validate": "npm:3.15.3"
     "@types/lodash.pick": "npm:^4.4.9"
     "@types/md5": "npm:^2.3.5"
     "@types/node": "npm:^22.15.31"
@@ -14684,7 +14684,7 @@ __metadata:
     react-intl: "npm:^6.8.9"
     react-router-dom: "npm:^6.28.2"
     regexgen: "npm:^1.3.0"
-    tldraw: "workspace:*"
+    tldraw: "npm:3.15.3"
     vite: "npm:^7.0.1"
     vitest: "npm:^3.2.4"
     ws: "npm:^8.18.0"
@@ -16123,10 +16123,10 @@ __metadata:
     "@tiptap/extension-text-style": "npm:^2.9.1"
     "@tiptap/pm": "npm:^2.9.1"
     "@tiptap/starter-kit": "npm:^2.9.1"
-    "@tldraw/assets": "workspace:*"
+    "@tldraw/assets": "npm:3.15.3"
     "@tldraw/dotcom-shared": "workspace:*"
-    "@tldraw/state": "workspace:*"
-    "@tldraw/sync": "workspace:*"
+    "@tldraw/state": "npm:3.15.3"
+    "@tldraw/sync": "npm:3.15.3"
     "@types/lodash": "npm:^4.17.14"
     "@types/react": "npm:^18.3.18"
     "@vitejs/plugin-react-swc": "npm:^3.10.2"
@@ -16148,7 +16148,7 @@ __metadata:
     remark: "npm:^15.0.1"
     remark-frontmatter: "npm:^5.0.0"
     remark-html: "npm:^16.0.1"
-    tldraw: "workspace:*"
+    tldraw: "npm:3.15.3"
     vfile-matter: "npm:^5.0.0"
     vite: "npm:^7.0.1"
   languageName: unknown
@@ -18405,7 +18405,7 @@ __metadata:
   dependencies:
     "@cloudflare/workers-types": "npm:^4.20250913.0"
     "@tldraw/dotcom-shared": "workspace:*"
-    "@tldraw/validate": "workspace:*"
+    "@tldraw/validate": "npm:3.15.3"
     "@tldraw/worker-shared": "workspace:*"
     itty-router: "npm:^5.0.18"
     lazyrepo: "npm:0.0.0-alpha.27"
@@ -27834,7 +27834,7 @@ __metadata:
     next: "npm:^15.4.6"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
-    tldraw: "workspace:*"
+    tldraw: "npm:3.15.3"
     typescript: "npm:^5.8.3"
   languageName: unknown
   linkType: soft
@@ -27874,7 +27874,7 @@ __metadata:
     "@vitejs/plugin-react-swc": "npm:^3.10.2"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
-    tldraw: "workspace:*"
+    tldraw: "npm:3.15.3"
     typescript: "npm:^5.8.3"
     vite: "npm:^7.0.1"
   languageName: unknown
@@ -27884,7 +27884,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "tldraw-vscode@workspace:apps/vscode/extension"
   dependencies:
-    "@tldraw/editor": "workspace:*"
+    "@tldraw/editor": "npm:3.15.3"
     "@types/fs-extra": "npm:^11.0.4"
     "@types/node-fetch": "npm:^2.6.12"
     "@types/react": "npm:^18.3.18"
@@ -27900,7 +27900,7 @@ __metadata:
     process: "npm:^0.11.10"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
-    tldraw: "workspace:*"
+    tldraw: "npm:3.15.3"
     ts-loader: "npm:^9.5.2"
     tslib: "npm:^2.8.1"
     tsx: "npm:^4.19.2"
@@ -27923,7 +27923,7 @@ __metadata:
     "@vitejs/plugin-vue": "npm:^6.0.0"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
-    tldraw: "workspace:*"
+    tldraw: "npm:3.15.3"
     typescript: "npm:^5.8.3"
     vite: "npm:^7.0.1"
     vite-plugin-vue-devtools: "npm:^7.7.7"
@@ -27943,13 +27943,13 @@ __metadata:
     radix-ui: "npm:^1.4.2"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
-    tldraw: "workspace:*"
+    tldraw: "npm:3.15.3"
     typescript: "npm:^5.8.3"
     vite: "npm:^7.0.1"
   languageName: unknown
   linkType: soft
 
-"tldraw@workspace:*, tldraw@workspace:packages/tldraw":
+"tldraw@npm:3.15.3, tldraw@workspace:*, tldraw@workspace:packages/tldraw":
   version: 0.0.0-use.local
   resolution: "tldraw@workspace:packages/tldraw"
   dependencies:
@@ -27962,8 +27962,9 @@ __metadata:
     "@tiptap/pm": "npm:^2.9.1"
     "@tiptap/react": "npm:^2.9.1"
     "@tiptap/starter-kit": "npm:^2.9.1"
-    "@tldraw/editor": "workspace:*"
-    "@tldraw/store": "workspace:*"
+    "@tldraw/editor": "npm:3.15.3"
+    "@tldraw/store": "npm:3.15.3"
+    "@tldraw/tlschema": "npm:3.15.3"
     "@types/classnames": "npm:^2.3.4"
     "@types/lz-string": "npm:^1.5.0"
     "@types/react": "npm:^18.3.18"
