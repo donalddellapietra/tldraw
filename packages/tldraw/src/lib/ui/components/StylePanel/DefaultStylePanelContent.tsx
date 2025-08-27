@@ -39,7 +39,6 @@ import { TldrawUiSlider } from '../primitives/TldrawUiSlider'
 import { TldrawUiToolbar, TldrawUiToolbarButton } from '../primitives/TldrawUiToolbar'
 import { DoubleDropdownPicker } from './DoubleDropdownPicker'
 import { DropdownPicker } from './DropdownPicker'
-import { FigmaTypographyPanel } from './FigmaTypographyPanel'
 
 // Local component for style panel subheadings
 function StylePanelSubheading({ children }: { children: React.ReactNode }) {
@@ -703,13 +702,6 @@ export function CommonStylePickerSet({ styles, theme }: ThemeStylePickerSetProps
 								</svg>
 							</div>
 						</div>
-
-						{/* Session Content - Expandable */}
-						{isTextSectionExpanded && (
-							<div style={{ padding: '12px' }}>
-								<FigmaTypographyPanel styles={styles} />
-							</div>
-						)}
 					</div>
 				)}
 			</div>
