@@ -21,7 +21,7 @@ export function FormTextEditor({}: FormTextEditorProps) {
       const geoShapeId = geoShape.getAttribute('data-shape-id');
       if (geoShapeId) {
         try {
-          const shape = editor.getShape(geoShapeId);
+          const shape = editor.getShape(geoShapeId as any);
           if (shape && shape.type === 'geo' && (shape.props as any).richText) {
             console.log(`🔧 Geo shape ${index} has richText, making it editable`);
             
@@ -36,16 +36,16 @@ export function FormTextEditor({}: FormTextEditorProps) {
             // Mark as having text and make it look editable
             geoShape.setAttribute('data-has-text', 'true');
             geoShape.classList.add('tl-form-with-text');
-            geoShape.style.cursor = 'text';
+            (geoShape as HTMLElement).style.cursor = 'text';
             
             // Apply font size from meta data if it exists
             if (shape.meta && shape.meta.textFontSize) {
-              applyFontSizeToGeoShape(geoShape, shape.meta.textFontSize);
+              applyFontSizeToGeoShape(geoShape, shape.meta.textFontSize as number);
             }
             
             // Apply text alignment from meta data if it exists (for geo shapes)
             if (shape.meta && shape.meta.textAlign) {
-              applyTextAlignToGeoShape(geoShape, shape.meta.textAlign);
+              applyTextAlignToGeoShape(geoShape, shape.meta.textAlign as string);
             }
             
             // Apply text style highlighting classes if styles are applied
@@ -55,7 +55,7 @@ export function FormTextEditor({}: FormTextEditorProps) {
             
             // Apply text color from meta data if it exists
             if (shape.meta && shape.meta.textColor) {
-              applyTextColorToGeoShape(geoShape, shape.meta.textColor);
+              applyTextColorToGeoShape(geoShape, shape.meta.textColor as string);
             }
             
             // Refresh text style highlighting to ensure current state is visible
