@@ -6,7 +6,9 @@ import { StyleProp } from '../styles/StyleProp'
 import {
 	DefaultColorStyle,
 	DefaultLabelColorStyle,
+	DefaultStrokeColorStyle,
 	TLDefaultColorStyle,
+	TLDefaultStrokeColorStyle,
 } from '../styles/TLColorStyle'
 import { DefaultDashStyle, TLDefaultDashStyle } from '../styles/TLDashStyle'
 import { DefaultFillStyle, TLDefaultFillStyle } from '../styles/TLFillStyle'
@@ -61,10 +63,12 @@ export interface TLGeoShapeProps {
 	h: number
 	growY: number
 	scale: number
+	cornerRadius: number
 
 	// Text properties
 	labelColor: TLDefaultColorStyle
 	color: TLDefaultColorStyle
+	strokeColor: TLDefaultStrokeColorStyle
 	fill: TLDefaultFillStyle
 	size: TLDefaultSizeStyle
 	font: TLDefaultFontStyle
@@ -85,10 +89,12 @@ export const geoShapeProps: RecordProps<TLGeoShape> = {
 	h: T.nonZeroNumber,
 	growY: T.positiveNumber,
 	scale: T.nonZeroNumber,
+	cornerRadius: T.number,
 
 	// Text properties
 	labelColor: DefaultLabelColorStyle,
 	color: DefaultColorStyle,
+	strokeColor: DefaultStrokeColorStyle,
 	fill: DefaultFillStyle,
 	size: DefaultSizeStyle,
 	font: DefaultFontStyle,
@@ -108,6 +114,8 @@ const geoShapeVersions = createShapePropsMigrationIds('geo', {
 	MakeUrlsValid: 8,
 	AddScale: 9,
 	AddRichText: 10,
+	AddStrokeColor: 11,
+	AddCornerRadius: 12,
 })
 
 export { geoShapeVersions as geoShapeVersions }
@@ -208,6 +216,25 @@ export const geoShapeMigrations = createShapePropsMigrationSequence({
 			// down: (props) => {
 			// 	delete props.richText
 			// },
+		},
+		{
+			id: geoShapeVersions.AddStrokeColor,
+			up: (props) => {
+				// Initialize strokeColor to the same value as color for backward compatibility
+				props.strokeColor = props.color
+			},
+			down: (props) => {
+				delete props.strokeColor
+			},
+		},
+		{
+			id: geoShapeVersions.AddCornerRadius,
+			up: (props) => {
+				props.cornerRadius = 0
+			},
+			down: (props) => {
+				delete props.cornerRadius
+			},
 		},
 	],
 })

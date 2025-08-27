@@ -26,6 +26,14 @@ export const FONT_SIZES: Record<TLDefaultSizeStyle, number> = {
 }
 
 /** @public */
+export const EXTENDED_FONT_SIZES: Record<string, number> = {
+	s: 18,
+	m: 24,
+	l: 36,
+	xl: 44,
+}
+
+/** @public */
 export const LABEL_FONT_SIZES: Record<TLDefaultSizeStyle, number> = {
 	s: 18,
 	m: 22,

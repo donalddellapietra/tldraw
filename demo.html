@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vertical Formatting Bar Demo</title>
+    <link rel="stylesheet" href="VerticalFormattingBar.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+        .demo-content {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .demo-text {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .demo-text.bold { font-weight: bold; }
+        .demo-text.italic { font-style: italic; }
+        .demo-text.underline { text-decoration: underline; }
+        .color-preview {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        .controls {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .control-group {
+            margin: 10px 0;
+        }
+        .control-group label {
+            display: inline-block;
+            width: 120px;
+            font-weight: bold;
+        }
+        .control-group input, .control-group select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-content">
+        <h1>Vertical Formatting Bar Demo</h1>
+        <p>This demo shows the vertical formatting bar in action. The bar appears on the right side of the screen.</p>
+        
+        <div class="controls">
+            <h3>Current Settings:</h3>
+            <div class="control-group">
+                <label>Text Color:</label>
+                <span id="currentTextColor">#000000</span>
+                <div class="color-preview" id="textColorPreview"></div>
+            </div>
+            <div class="control-group">
+                <label>Background Color:</label>
+                <span id="currentBackgroundColor">#ffffff</span>
+                <div class="color-preview" id="backgroundColorPreview"></div>
+            </div>
+            <div class="control-group">
+                <label>Font Size:</label>
+                <span id="currentFontSize">16px</span>
+            </div>
+            <div class="control-group">
+                <label>Font Family:</label>
+                <span id="currentFontFamily">Arial</span>
+            </div>
+            <div class="control-group">
+                <label>Text Style:</label>
+                <span id="currentTextStyle">Normal</span>
+            </div>
+        </div>
+
+        <div class="demo-text" id="demoText">
+            This is sample text that you can format using the vertical formatting bar on the right side of the screen. 
+            Try changing the font size, color, and style!
+        </div>
+
+        <h3>Features:</h3>
+        <ul>
+            <li><strong>Element Creation:</strong> Add text and shapes</li>
+            <li><strong>Font Controls:</strong> Size, family, and style (bold, italic, underline)</li>
+            <li><strong>Color Controls:</strong> Text and background colors</li>
+            <li><strong>Text Alignment:</strong> Left, center, right alignment</li>
+            <li><strong>Compact Design:</strong> Only 64px wide, saves horizontal space</li>
+        </ul>
+    </div>
+
+    <script type="module">
+        import { VerticalFormattingBar } from './VerticalFormattingBar.tsx';
+        import React from 'https://esm.sh/react@18';
+        import { createRoot } from 'https://esm.sh/react-dom@18/client';
+
+        // State for the demo
+        let currentState = {
+            textColor: '#000000',
+            backgroundColor: '#ffffff',
+            fontSize: 16,
+            fontFamily: 'Arial',
+            isBold: false,
+            isItalic: false,
+            isUnderlined: false
+        };
+
+        // Update the demo text
+        function updateDemoText() {
+            const demoText = document.getElementById('demoText');
+            demoText.style.color = currentState.textColor;
+            demoText.style.backgroundColor = currentState.backgroundColor;
+            demoText.style.fontSize = currentState.fontSize + 'px';
+            demoText.style.fontFamily = currentState.fontFamily;
+            demoText.className = 'demo-text' + 
+                (currentState.isBold ? ' bold' : '') +
+                (currentState.isItalic ? ' italic' : '') +
+                (currentState.isUnderlined ? ' underline' : '');
+        }
+
+        // Update the controls display
+        function updateControls() {
+            document.getElementById('currentTextColor').textContent = currentState.textColor;
+            document.getElementById('currentBackgroundColor').textContent = currentState.backgroundColor;
+            document.getElementById('currentFontSize').textContent = currentState.fontSize + 'px';
+            document.getElementById('currentFontFamily').textContent = currentState.fontFamily;
+            
+            const textStyle = [];
+            if (currentState.isBold) textStyle.push('Bold');
+            if (currentState.isItalic) textStyle.push('Italic');
+            if (currentState.isUnderlined) textStyle.push('Underlined');
+            document.getElementById('currentTextStyle').textContent = textStyle.length > 0 ? textStyle.join(', ') : 'Normal';
+            
+            document.getElementById('textColorPreview').style.backgroundColor = currentState.textColor;
+            document.getElementById('backgroundColorPreview').style.backgroundColor = currentState.backgroundColor;
+        }
+
+        // Event handlers
+        const handlers = {
+            onAddText: () => {
+                alert('Add Text clicked! In a real app, this would create a new text element.');
+            },
+            onAddShape: () => {
+                alert('Add Shape clicked! In a real app, this would create a new shape element.');
+            },
+            onTextColorChange: (color) => {
+                currentState.textColor = color;
+                updateDemoText();
+                updateControls();
+            },
+            onBackgroundColorChange: (color) => {
+                currentState.backgroundColor = color;
+                updateDemoText();
+                updateControls();
+            },
+            onFontSizeChange: (size) => {
+                currentState.fontSize = size;
+                updateDemoText();
+                updateControls();
+            },
+            onFontFamilyChange: (font) => {
+                currentState.fontFamily = font;
+                updateDemoText();
+                updateControls();
+            },
+            onBoldToggle: () => {
+                currentState.isBold = !currentState.isBold;
+                updateDemoText();
+                updateControls();
+            },
+            onItalicToggle: () => {
+                currentState.isItalic = !currentState.isItalic;
+                updateDemoText();
+                updateControls();
+            },
+            onUnderlineToggle: () => {
+                currentState.isUnderlined = !currentState.isUnderlined;
+                updateDemoText();
+                updateControls();
+            }
+        };
+
+        // Create the vertical formatting bar
+        function App() {
+            return React.createElement(VerticalFormattingBar, {
+                ...handlers,
+                currentTextColor: currentState.textColor,
+                currentBackgroundColor: currentState.backgroundColor,
+                currentFontSize: currentState.fontSize,
+                currentFontFamily: currentState.fontFamily,
+                isBold: currentState.isBold,
+                isItalic: currentState.isItalic,
+                isUnderlined: currentState.isUnderlined
+            });
+        }
+
+        // Render the app
+        const root = createRoot(document.body);
+        root.render(React.createElement(App));
+
+        // Initialize
+        updateControls();
+    </script>
+</body>
+</html>

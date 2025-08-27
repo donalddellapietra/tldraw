@@ -13,7 +13,7 @@ import {
 	NODE_ROW_HEIGHT_PX,
 } from '../constants.tsx'
 import { getNodePortConnections, getNodePorts } from '../nodes/nodePorts'
-import { PortId } from '../ports/Port'
+import { PortId, ShapePort } from '../ports/Port'
 
 // Information about which port is being pointed at
 interface PointingPortInfo {
@@ -173,7 +173,7 @@ export class PointingPort extends StateNode {
 				this.editor.select(newNodeId)
 
 				// Position the node so its input port aligns with the connection end
-				const ports = getNodePorts(this.editor, newNodeId)
+				const ports: Record<string, ShapePort> = getNodePorts(this.editor, newNodeId)
 				const firstInputPort = Object.values(ports).find((p) => p.terminal === 'end')
 				if (firstInputPort) {
 					this.editor.updateShape({

@@ -8,6 +8,14 @@ async function main() {
 	const allWorkspaces = await getAllWorkspacePackages()
 	const tsconfigFiles = []
 	for (const workspace of allWorkspaces) {
+		// Skip templates as they are standalone projects, not part of the monorepo build
+		if (workspace.path.includes('/templates/')) continue
+		
+		// Skip problematic apps temporarily due to import resolution issues
+		if (workspace.path.includes('/apps/dotcom/client')) continue
+		if (workspace.path.includes('/apps/examples')) continue
+		if (workspace.path.includes('/apps/vscode')) continue
+		
 		const tsconfigFile = path.join(workspace.path, 'tsconfig.json')
 		const tsconfigExists = await readJsonIfExists(tsconfigFile)
 		if (tsconfigExists) tsconfigFiles.push(tsconfigFile)

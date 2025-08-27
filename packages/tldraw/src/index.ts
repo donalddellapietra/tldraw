@@ -51,6 +51,7 @@ export { DefaultToasts } from './lib/ui/components/Toasts'
 export { TldrawUiTranslationProvider } from './lib/ui/hooks/useTranslation/useTranslation'
 // eslint-disable-next-line local/no-export-star
 export * from '@tldraw/editor'
+export { DefaultFontSizeStyle } from '@tldraw/tlschema'
 export { ArrowBindingUtil } from './lib/bindings/arrow/ArrowBindingUtil'
 export { TldrawCropHandles, type TldrawCropHandlesProps } from './lib/canvas/TldrawCropHandles'
 export { TldrawHandles } from './lib/canvas/TldrawHandles'
@@ -447,6 +448,10 @@ export {
 	type TLUiStylePanelProps,
 } from './lib/ui/components/StylePanel/DefaultStylePanel'
 export {
+	CustomStylePanel,
+	type TLUiCustomStylePanelProps,
+} from './lib/ui/components/StylePanel/CustomStylePanel'
+export {
 	ArrowheadStylePickerSet,
 	CommonStylePickerSet,
 	DefaultStylePanelContent,
@@ -458,6 +463,14 @@ export {
 	type ThemeStylePickerSetProps,
 	type TLUiStylePanelContentProps,
 } from './lib/ui/components/StylePanel/DefaultStylePanelContent'
+export {
+	CustomStylePanelContent,
+	type TLUiCustomStylePanelContentProps,
+} from './lib/ui/components/StylePanel/CustomStylePanelContent'
+export {
+	VerticalFormattingBar,
+	useCustomFormattingManager,
+} from './lib/ui/components/StylePanel'
 export {
 	DefaultImageToolbar,
 	type TLUiImageToolbarProps,
