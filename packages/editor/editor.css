@@ -970,6 +970,51 @@ input,
 	display: block;
 }
 
+/* Ensure RichTextArea inherits styles from parent wrapper */
+.tl-text-content__wrapper .tl-rich-text {
+	/* Force inheritance of text styles from parent wrapper */
+	color: inherit !important;
+	font-size: inherit !important;
+	font-family: inherit !important;
+	text-align: inherit !important;
+	line-height: inherit !important;
+}
+
+/* Ensure TipTap editor inherits text styling when editing */
+.tl-text-wrapper[data-isediting='true'] .tl-rich-text .ProseMirror {
+	/* Force inheritance of text styles from parent */
+	color: inherit !important;
+	font-size: inherit !important;
+	font-family: inherit !important;
+	text-align: inherit !important;
+	line-height: inherit !important;
+	
+	/* Ensure proper text rendering */
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	white-space: pre-wrap;
+	
+	/* Remove any default margins/padding that might interfere */
+	margin: 0;
+	padding: 0;
+}
+
+/* Ensure TipTap editor content inherits styles */
+.tl-text-wrapper[data-isediting='true'] .tl-rich-text .ProseMirror p,
+.tl-text-wrapper[data-isediting='true'] .tl-rich-text .ProseMirror div,
+.tl-text-wrapper[data-isediting='true'] .tl-rich-text .ProseMirror span {
+	/* Inherit text styling */
+	color: inherit;
+	font-size: inherit;
+	font-family: inherit;
+	text-align: inherit;
+	line-height: inherit;
+	
+	/* Remove any default margins/padding */
+	margin: 0;
+	padding: 0;
+}
+
 /* --------------------- Loading -------------------- */
 
 .tl-loading {

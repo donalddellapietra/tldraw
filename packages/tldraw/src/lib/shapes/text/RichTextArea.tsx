@@ -9,12 +9,15 @@ import {
 	Editor,
 	TLRichText,
 	TLShapeId,
+	getColorValue,
+	getDefaultColorTheme,
 	preventDefault,
 	useEditor,
 	useEvent,
 	useUniqueSafeId,
 } from '@tldraw/editor'
 import React, { useLayoutEffect, useRef } from 'react'
+import { FONT_FAMILIES, LABEL_FONT_SIZES } from '../shared/default-shape-constants'
 
 /** @public */
 export interface TextAreaProps {
@@ -117,7 +120,14 @@ export const RichTextArea = React.forwardRef<HTMLDivElement, TextAreaProps>(func
 	const onDoubleClick = useEvent(handleDoubleClick)
 	const onPaste = useEvent(handlePaste)
 	useLayoutEffect(() => {
-		if (!isEditing || !tipTapConfig || !rTextEditorEl.current) return
+		// console.log('🔧 RichTextArea useLayoutEffect - isEditing:', isEditing)
+		// console.log('🔧 RichTextArea useLayoutEffect - tipTapConfig:', !!tipTapConfig)
+		// console.log('🔧 RichTextArea useLayoutEffect - rTextEditorEl.current:', !!rTextEditorEl.current)
+
+		if (!isEditing || !tipTapConfig || !rTextEditorEl.current) {
+			// console.log('🔧 RichTextArea useLayoutEffect - Early return, not creating TipTap editor')
+			return
+		}
 
 		const { editorProps, ...restOfTipTapConfig } = tipTapConfig
 
@@ -125,6 +135,7 @@ export const RichTextArea = React.forwardRef<HTMLDivElement, TextAreaProps>(func
 		// the text editor twice. This became more much more prevalent in React 19, but also it
 		// started manifesting in some cases in Next 14.2 (which maybe patches React 18.3 in weird
 		// ways). So we used to use EditorProvider but we into weird rendering issues.
+		// console.log('🔧 RichTextArea useLayoutEffect - Creating TipTap editor instance')
 		const textEditorInstance = new TextEditor({
 			element: rTextEditorEl.current,
 			autofocus: true,
@@ -146,6 +157,12 @@ export const RichTextArea = React.forwardRef<HTMLDivElement, TextAreaProps>(func
 
 				// Preserve text styling during editing
 				const shape = editor.getShape(shapeId)
+				const theme = getDefaultColorTheme({ isDarkMode: editor.user.getIsDarkMode() })
+				// console.log('🔧 RichTextArea onCreate - Shape:', shape)
+				// console.log('🔧 RichTextArea onCreate - Shape type:', shape?.type)
+				// console.log('🔧 RichTextArea onCreate - Shape props:', shape?.props)
+				// console.log('🔧 RichTextArea onCreate - Shape meta:', shape?.meta)
+
 				if (shape) {
 					// Preserve text color
 					let textColor: string | undefined
@@ -154,11 +171,18 @@ export const RichTextArea = React.forwardRef<HTMLDivElement, TextAreaProps>(func
 					if (shape.meta?.customTextColor && typeof shape.meta.customTextColor === 'string') {
 						textColor = shape.meta.customTextColor
 					} else if (shape.meta?.textColor && typeof shape.meta.textColor === 'string') {
-						textColor = shape.meta.textColor
+						// For TLDraw color names, convert to hex value
+						if (shape.meta.textColor.startsWith('#')) {
+							textColor = shape.meta.textColor
+						} else {
+							textColor = getColorValue(theme, shape.meta.textColor as any, 'solid')
+						}
 					} else if ('color' in shape.props && shape.props.color) {
 						// For text shapes, use the color property
 						textColor = shape.props.color as string
 					}
+
+					// console.log('🔧 RichTextArea onCreate - Calculated textColor:', textColor)
 
 					// Apply the text color to the editor if we have one
 					if (textColor) {
@@ -166,6 +190,7 @@ export const RichTextArea = React.forwardRef<HTMLDivElement, TextAreaProps>(func
 						const editorElement = textEditor.view.dom
 						if (editorElement) {
 							editorElement.style.color = textColor
+							// console.log('🔧 RichTextArea onCreate - Applied textColor to editor:', textColor)
 						}
 					}
 
@@ -193,13 +218,44 @@ export const RichTextArea = React.forwardRef<HTMLDivElement, TextAreaProps>(func
 					} else if (shape.meta?.textFontSize) {
 						// For geo shapes, use textFontSize from meta
 						fontSize = shape.meta.textFontSize as number
+					} else if (shape.type === 'geo' && 'size' in shape.props && shape.props.size) {
+						// For geo shapes without custom font size, use the default LABEL_FONT_SIZES
+						const sizeValue = shape.props.size as keyof typeof LABEL_FONT_SIZES
+						fontSize = LABEL_FONT_SIZES[sizeValue] || LABEL_FONT_SIZES.m
 					}
+
+					// console.log('🔧 RichTextArea onCreate - Calculated fontSize:', fontSize)
 
 					// Apply the font size to the editor if we have one
 					if (fontSize) {
 						const editorElement = textEditor.view.dom
 						if (editorElement) {
 							editorElement.style.fontSize = `${fontSize}px`
+							// console.log('🔧 RichTextArea onCreate - Applied fontSize to editor:', fontSize)
+						}
+					}
+
+					// Preserve font family
+					let fontFamily: string | undefined
+
+					if ('font' in shape.props && shape.props.font) {
+						// For text shapes and geo shapes, use font property from props
+						const fontValue = shape.props.font as keyof typeof FONT_FAMILIES
+						fontFamily = FONT_FAMILIES[fontValue] || FONT_FAMILIES.sans
+					} else if (shape.meta?.textFont) {
+						// Fallback: For geo shapes, use textFont from meta if available
+						const fontValue = shape.meta.textFont as keyof typeof FONT_FAMILIES
+						fontFamily = FONT_FAMILIES[fontValue] || FONT_FAMILIES.sans
+					}
+
+					// console.log('🔧 RichTextArea onCreate - Calculated fontFamily:', fontFamily)
+
+					// Apply the font family to the editor if we have one
+					if (fontFamily) {
+						const editorElement = textEditor.view.dom
+						if (editorElement) {
+							editorElement.style.fontFamily = fontFamily
+							// console.log('🔧 RichTextArea onCreate - Applied fontFamily to editor:', fontFamily)
 						}
 					}
 
