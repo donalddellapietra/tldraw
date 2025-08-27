@@ -139,6 +139,7 @@ export const RichTextLabel = React.memo(function RichTextLabel({
 				justifyContent: align === 'middle' || legacyAlign ? 'center' : align,
 				alignItems: verticalAlign === 'middle' ? 'center' : verticalAlign,
 				padding,
+				textAlign: align === 'middle' ? 'center' : align === 'start' ? 'left' : 'right',
 				...style,
 			}}
 		>

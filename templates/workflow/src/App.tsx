@@ -18,7 +18,6 @@ import { keepConnectionsAtBottom } from './connection/keepConnectionsAtBottom'
 import { disableTransparency } from './disableTransparency.tsx'
 import { NodeShapeUtil } from './nodes/NodeShapeUtil'
 import { PointingPort } from './ports/PointingPort'
-import './components/FigmaTypographyPanel.css'
 
 // Define custom shape utilities that extend tldraw's shape system
 const shapeUtils = [NodeShapeUtil, ConnectionShapeUtil]

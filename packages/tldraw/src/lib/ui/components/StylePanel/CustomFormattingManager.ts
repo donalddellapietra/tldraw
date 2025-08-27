@@ -1335,6 +1335,95 @@ export class CustomFormattingManager {
 		})
 	}
 
+	// Automatically resize the box to fit the text with the new font size
+	private resizeBoxToFitText(shapeId: TLShapeId, fontSize: number) {
+		const shape = this.editor.getShape(shapeId)
+		if (!shape || shape.type !== 'geo') return
+
+		// Get the current rich text content
+		const richText = (shape.props as any).richText
+		if (!richText) return
+
+		// Calculate the new text dimensions with the new font size
+		const newTextSize = this.calculateTextSize(richText, fontSize, shape.props.font)
+
+		// Calculate the new box dimensions (add padding)
+		const padding = 16 // LABEL_PADDING
+		const newWidth = Math.max(newTextSize.w + padding * 2, shape.props.w)
+		const newHeight = Math.max(newTextSize.h + padding * 2, shape.props.h)
+
+		console.log(
+			`🔧 Resizing box to fit text: ${newWidth}x${newHeight} (was ${shape.props.w}x${shape.props.h})`
+		)
+
+		// Update the shape with new dimensions
+		this.editor.run(() => {
+			this.editor.updateShapes([
+				{
+					id: shapeId,
+					type: 'geo',
+					props: {
+						...shape.props,
+						w: newWidth,
+						h: newHeight,
+					},
+				},
+			])
+		})
+	}
+
+	// Calculate text size with given font size and font family
+	private calculateTextSize(
+		richText: any,
+		fontSize: number,
+		fontFamily: string
+	): { w: number; h: number } {
+		// Create a temporary div to measure text
+		const tempDiv = document.createElement('div')
+		tempDiv.style.position = 'absolute'
+		tempDiv.style.visibility = 'hidden'
+		tempDiv.style.whiteSpace = 'pre-wrap'
+		tempDiv.style.wordWrap = 'break-word'
+		tempDiv.style.fontSize = `${fontSize}px`
+		tempDiv.style.fontFamily = fontFamily
+		tempDiv.style.lineHeight = '1.2'
+
+		// Convert rich text to plain text for measurement
+		const plainText = this.richTextToPlainText(richText)
+		tempDiv.textContent = plainText
+
+		document.body.appendChild(tempDiv)
+
+		// Measure the text
+		const rect = tempDiv.getBoundingClientRect()
+		const width = rect.width
+		const height = rect.height
+
+		// Clean up
+		document.body.removeChild(tempDiv)
+
+		return { w: width, h: height }
+	}
+
+	// Convert rich text to plain text for measurement
+	private richTextToPlainText(richText: any): string {
+		if (!richText || !richText.content) return ''
+
+		let plainText = ''
+		richText.content.forEach((block: any) => {
+			if (block.type === 'paragraph' && block.content) {
+				block.content.forEach((child: any) => {
+					if (child.type === 'text') {
+						plainText += child.text
+					}
+				})
+				plainText += '\n'
+			}
+		})
+
+		return plainText.trim()
+	}
+
 	// Apply text alignment to a geo shape using CSS text-align
 	private applyTextAlignToGeoShape(shapeId: TLShapeId, alignment: 'start' | 'middle' | 'end') {
 		// Find the DOM element for this shape

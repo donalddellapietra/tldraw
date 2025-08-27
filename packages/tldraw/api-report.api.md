@@ -185,7 +185,7 @@ export const allDefaultFontFaces: TLFontFace[];
 export function ArrangeMenuSubmenu(): JSX_2.Element | null;
 
 // @public (undocumented)
-export const ARROW_LABEL_FONT_SIZES: Record<TLDefaultSizeStyle, number>;
+export const ARROW_LABEL_FONT_SIZES: Record<string, number>;
 
 // @public (undocumented)
 export class ArrowBindingUtil extends BindingUtil<TLArrowBinding> {
@@ -1457,7 +1457,7 @@ export function FitFrameToContentMenuItem(): JSX_2.Element | null;
 export const FONT_FAMILIES: Record<TLDefaultFontStyle, string>;
 
 // @public (undocumented)
-export const FONT_SIZES: Record<TLDefaultSizeStyle, number>;
+export const FONT_SIZES: Record<string, number>;
 
 // @public (undocumented)
 export interface FrameShapeOptions {
@@ -1889,7 +1889,7 @@ export const KeyboardShiftEnterTweakExtension: Extension<any, any>;
 export function KeyboardShortcutsMenuItem(): JSX_2.Element | null;
 
 // @public (undocumented)
-export const LABEL_FONT_SIZES: Record<TLDefaultSizeStyle, number>;
+export const LABEL_FONT_SIZES: Record<string, number>;
 
 // @public (undocumented)
 export function LanguageMenu(): JSX_2.Element | null;
