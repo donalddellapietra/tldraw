@@ -267,9 +267,6 @@ export const defaultShapeSchemas: {
 export const DefaultSizeStyle: EnumStyleProp<"l" | "m" | "s" | "xl">;
 
 // @public (undocumented)
-export const DefaultStrokeColorStyle: EnumStyleProp<"black" | "blue" | "brown" | "cyan" | "green" | "grey" | "light-blue" | "light-green" | "light-red" | "light-violet" | "orange" | "pink" | "red" | "violet" | "white" | "yellow">;
-
-// @public (undocumented)
 export const DefaultTextAlignStyle: EnumStyleProp<"end" | "middle" | "start">;
 
 // @public (undocumented)
@@ -983,9 +980,6 @@ export type TLDefaultShape = TLArrowShape | TLBookmarkShape | TLDrawShape | TLEm
 export type TLDefaultSizeStyle = T.TypeOf<typeof DefaultSizeStyle>;
 
 // @public (undocumented)
-export type TLDefaultStrokeColorStyle = T.TypeOf<typeof DefaultStrokeColorStyle>;
-
-// @public (undocumented)
 export type TLDefaultTextAlignStyle = T.TypeOf<typeof DefaultTextAlignStyle>;
 
 // @public (undocumented)
@@ -1027,8 +1021,6 @@ export interface TLDrawShapeProps {
     segments: TLDrawShapeSegment[];
     // (undocumented)
     size: TLDefaultSizeStyle;
-    // (undocumented)
-    strokeColor: TLDefaultStrokeColorStyle;
 }
 
 // @public (undocumented)
@@ -1101,8 +1093,6 @@ export interface TLGeoShapeProps {
     scale: number;
     // (undocumented)
     size: TLDefaultSizeStyle;
-    // (undocumented)
-    strokeColor: TLDefaultStrokeColorStyle;
     // (undocumented)
     url: string;
     // (undocumented)
@@ -1364,8 +1354,6 @@ export interface TLLineShapeProps {
     size: TLDefaultSizeStyle;
     // (undocumented)
     spline: TLLineShapeSplineStyle;
-    // (undocumented)
-    strokeColor: TLDefaultStrokeColorStyle;
 }
 
 // @public (undocumented)

@@ -424,11 +424,10 @@ describe('When interacting with a shape...', () => {
 				dash: 'draw',
 				size: 'm',
 				color: 'black',
-				strokeColor: 'black',
 				spline: 'line',
 				scale: 1,
 				points: {
-					a1: { id: 'a1', index: 'a1' as any, x: 0, y: 0 },
+					a1: { id: 'a1', index: 'a1' as any, x: 0, y: 100 },
 					a2: { id: 'a2', index: 'a2' as any, x: 100, y: 100 },
 				},
 			},
@@ -508,7 +507,6 @@ describe('When interacting with a shape...', () => {
 				dash: 'draw',
 				size: 'm',
 				color: 'black',
-				strokeColor: 'black',
 				spline: 'line',
 				scale: 1,
 				points: {

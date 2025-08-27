@@ -2,7 +2,7 @@ import { T } from '@tldraw/validate'
 import { VecModel, vecModelValidator } from '../misc/geometry-types'
 import { createShapePropsMigrationIds, createShapePropsMigrationSequence } from '../records/TLShape'
 import { RecordProps } from '../recordsWithProps'
-import { DefaultColorStyle, DefaultStrokeColorStyle, TLDefaultColorStyle, TLDefaultStrokeColorStyle } from '../styles/TLColorStyle'
+import { DefaultColorStyle, TLDefaultColorStyle } from '../styles/TLColorStyle'
 import { DefaultDashStyle, TLDefaultDashStyle } from '../styles/TLDashStyle'
 import { DefaultFillStyle, TLDefaultFillStyle } from '../styles/TLFillStyle'
 import { DefaultSizeStyle, TLDefaultSizeStyle } from '../styles/TLSizeStyle'
@@ -23,7 +23,6 @@ export const DrawShapeSegment: T.ObjectValidator<TLDrawShapeSegment> = T.object(
 /** @public */
 export interface TLDrawShapeProps {
 	color: TLDefaultColorStyle
-	strokeColor: TLDefaultStrokeColorStyle
 	fill: TLDefaultFillStyle
 	dash: TLDefaultDashStyle
 	size: TLDefaultSizeStyle
@@ -40,7 +39,6 @@ export type TLDrawShape = TLBaseShape<'draw', TLDrawShapeProps>
 /** @public */
 export const drawShapeProps: RecordProps<TLDrawShape> = {
 	color: DefaultColorStyle,
-	strokeColor: DefaultStrokeColorStyle,
 	fill: DefaultFillStyle,
 	dash: DefaultDashStyle,
 	size: DefaultSizeStyle,

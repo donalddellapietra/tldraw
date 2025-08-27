@@ -55,7 +55,6 @@ export class LineShapeUtil extends ShapeUtil<TLLineShape> {
 			dash: 'draw',
 			size: 'm',
 			color: 'black',
-			strokeColor: 'black',
 			spline: 'line',
 			points: {
 				[start]: { id: start, index: start, x: 0, y: 0 },
@@ -335,7 +334,7 @@ function LineShapeSvg({
 	const theme = useDefaultColorTheme()
 
 	const path = getPathForLineShape(shape)
-	const { dash, color, strokeColor, size } = shape.props
+	const { dash, color, size } = shape.props
 
 	const scaleFactor = 1 / shape.props.scale
 
@@ -343,8 +342,8 @@ function LineShapeSvg({
 
 	const strokeWidth = STROKE_SIZES[size] * shape.props.scale
 
-	// Use strokeColor if available, otherwise fall back to color for backward compatibility
-	const strokeColorToUse = strokeColor || color
+	// Use color for stroke
+	const strokeColorToUse = color
 
 	return path.toSvg({
 		style: dash,

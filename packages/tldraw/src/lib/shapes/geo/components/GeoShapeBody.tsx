@@ -16,7 +16,7 @@ export function GeoShapeBody({
 	const scaleToUse = shouldScale ? shape.props.scale : 1
 	const theme = useDefaultColorTheme()
 	const { props } = shape
-	const { color, strokeColor, fill, dash, size } = props
+	const { color, fill, dash, size } = props
 	const strokeWidth = STROKE_SIZES[size] * scaleToUse
 
 	const path = getGeoShapePath(shape)
@@ -25,8 +25,8 @@ export function GeoShapeBody({
 			? path.toDrawD({ strokeWidth, randomSeed: shape.id, passes: 1, offset: 0, onlyFilled: true })
 			: path.toD({ onlyFilled: true })
 
-	// Use strokeColor if available, otherwise fall back to color for backward compatibility
-	const strokeColorToUse = strokeColor || color
+	// Use color for stroke
+	const strokeColorToUse = color
 
 	return (
 		<>
