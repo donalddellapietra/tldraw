@@ -1,11 +1,14 @@
-import { useContainer, useEditor, DefaultColorStyle, DefaultFillStyle } from '@tldraw/editor'
-import type { TLDefaultColorStyle } from '@tldraw/tlschema'
-import React, { useCallback, useRef, useState, useEffect } from 'react'
-import { TldrawUiPopover, TldrawUiPopoverContent, TldrawUiPopoverTrigger } from './TldrawUiPopover'
+import {
+	DefaultColorStyle,
+	DefaultFillStyle,
+	useContainer,
+	useEditor,
+	type TLDefaultColorStyle,
+} from '@tldraw/editor'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useUiEvents } from '../../context/events'
 import { useTranslation } from '../../hooks/useTranslation/useTranslation'
-import { TldrawUiButton } from './Button/TldrawUiButton'
-import { TldrawUiButtonIcon } from './Button/TldrawUiButtonIcon'
+import { TldrawUiPopover, TldrawUiPopoverContent, TldrawUiPopoverTrigger } from './TldrawUiPopover'
 
 interface FigmaColorPickerProps {
 	value: string
@@ -80,7 +83,7 @@ export const TldrawUiFigmaColorPicker = React.memo(function TldrawUiFigmaColorPi
 		l /= 100
 
 		const c = (1 - Math.abs(2 * l - 1)) * s
-		const x = c * (1 - Math.abs((h * 6) % 2 - 1))
+		const x = c * (1 - Math.abs(((h * 6) % 2) - 1))
 		const m = l - c / 2
 		let r = 0
 		let g = 0
@@ -112,62 +115,91 @@ export const TldrawUiFigmaColorPicker = React.memo(function TldrawUiFigmaColorPi
 			b = x
 		}
 
-		const rHex = Math.round((r + m) * 255).toString(16).padStart(2, '0')
-		const gHex = Math.round((g + m) * 255).toString(16).padStart(2, '0')
-		const bHex = Math.round((b + m) * 255).toString(16).padStart(2, '0')
+		const rHex = Math.round((r + m) * 255)
+			.toString(16)
+			.padStart(2, '0')
+		const gHex = Math.round((g + m) * 255)
+			.toString(16)
+			.padStart(2, '0')
+		const bHex = Math.round((b + m) * 255)
+			.toString(16)
+			.padStart(2, '0')
 
 		return `#${rHex}${gHex}${bHex}`
 	}, [])
 
 	// Map hex color to closest tldraw color
-	const hexToTldrawColor = useCallback((hex: string): TLDefaultColorStyle => {
-		// Available tldraw colors
-		const tldrawColors: TLDefaultColorStyle[] = [
-			'black', 'grey', 'light-violet', 'violet', 'blue', 'light-blue', 
-			'yellow', 'orange', 'green', 'light-green', 'light-red', 'red', 
-			'white', 'brown', 'pink', 'cyan'
-		]
-		
-		const hsl = hexToHSL(hex)
-		
-		// Handle special cases first
-		if (hsl.l < 15) return 'black'
-		if (hsl.l > 85 && hsl.s < 20) return 'white'
-		if (hsl.s < 15) return 'grey'
-		
-		// Map based on hue ranges with better precision
-		if (hsl.h >= 0 && hsl.h < 30) {
-			return hsl.l > 60 ? 'light-red' : 'red'
-		}
-		if (hsl.h >= 30 && hsl.h < 60) {
-			return hsl.l > 60 ? 'orange' : 'brown'
-		}
-		if (hsl.h >= 60 && hsl.h < 90) {
-			return hsl.l > 60 ? 'yellow' : 'brown'
-		}
-		if (hsl.h >= 90 && hsl.h < 150) {
-			return hsl.l > 60 ? 'light-green' : 'green'
-		}
-		if (hsl.h >= 150 && hsl.h < 210) {
-			return 'cyan'
-		}
-		if (hsl.h >= 210 && hsl.h < 270) {
-			return hsl.l > 60 ? 'light-blue' : 'blue'
-		}
-		if (hsl.h >= 270 && hsl.h < 330) {
-			return hsl.l > 60 ? 'light-violet' : 'violet'
-		}
-		if (hsl.h >= 330 && hsl.h < 360) {
-			return hsl.l > 60 ? 'pink' : 'red'
-		}
-		
-		return 'red' // fallback
-	}, [hexToHSL])
+	const hexToTldrawColor = useCallback(
+		(hex: string): TLDefaultColorStyle => {
+			// Available tldraw colors
+			const tldrawColors: TLDefaultColorStyle[] = [
+				'black',
+				'grey',
+				'light-violet',
+				'violet',
+				'blue',
+				'light-blue',
+				'yellow',
+				'orange',
+				'green',
+				'light-green',
+				'light-red',
+				'red',
+				'white',
+				'brown',
+				'pink',
+				'cyan',
+			]
+
+			const hsl = hexToHSL(hex)
+
+			// Handle special cases first
+			if (hsl.l < 15) return 'black'
+			if (hsl.l > 85 && hsl.s < 20) return 'white'
+			if (hsl.s < 15) return 'grey'
+
+			// Map based on hue ranges with better precision
+			if (hsl.h >= 0 && hsl.h < 30) {
+				return hsl.l > 60 ? 'light-red' : 'red'
+			}
+			if (hsl.h >= 30 && hsl.h < 60) {
+				return hsl.l > 60 ? 'orange' : 'brown'
+			}
+			if (hsl.h >= 60 && hsl.h < 90) {
+				return hsl.l > 60 ? 'yellow' : 'brown'
+			}
+			if (hsl.h >= 90 && hsl.h < 150) {
+				return hsl.l > 60 ? 'light-green' : 'green'
+			}
+			if (hsl.h >= 150 && hsl.h < 210) {
+				return 'cyan'
+			}
+			if (hsl.h >= 210 && hsl.h < 270) {
+				return hsl.l > 60 ? 'light-blue' : 'blue'
+			}
+			if (hsl.h >= 270 && hsl.h < 330) {
+				return hsl.l > 60 ? 'light-violet' : 'violet'
+			}
+			if (hsl.h >= 330 && hsl.h < 360) {
+				return hsl.l > 60 ? 'pink' : 'red'
+			}
+
+			return 'red' // fallback
+		},
+		[hexToHSL]
+	)
 
 	const handleOpenChange = useCallback(
 		(open: boolean) => {
-			console.log('Figma color picker open change:', open, 'value:', value, 'current isOpen:', isOpen)
-			
+			console.log(
+				'Figma color picker open change:',
+				open,
+				'value:',
+				value,
+				'current isOpen:',
+				isOpen
+			)
+
 			// Only allow opening, prevent automatic closing
 			if (open) {
 				setIsOpen(true)
@@ -189,17 +221,22 @@ export const TldrawUiFigmaColorPicker = React.memo(function TldrawUiFigmaColorPi
 			const tldrawColor = hexToTldrawColor(newColor)
 			onValueChange(tldrawColor)
 			setHexValue(newColor)
-			
+
 			// Also update the selected shapes in real-time
 			if (editor.isIn('select')) {
 				const selectedShapes = editor.getSelectedShapes()
-				selectedShapes.forEach(shape => {
-					if (shape.type === 'geo' || shape.type === 'arrow' || shape.type === 'line' || shape.type === 'draw') {
+				selectedShapes.forEach((shape) => {
+					if (
+						shape.type === 'geo' ||
+						shape.type === 'arrow' ||
+						shape.type === 'line' ||
+						shape.type === 'draw'
+					) {
 						// First set the fill style to "solid" if it's not already filled
 						if ('fill' in shape.props && shape.props.fill === 'none') {
 							editor.setStyleForSelectedShapes(DefaultFillStyle, 'solid')
 						}
-						
+
 						// Then set the color using the mapped tldraw color
 						editor.setStyleForSelectedShapes(DefaultColorStyle, tldrawColor)
 					}
@@ -293,19 +330,16 @@ export const TldrawUiFigmaColorPicker = React.memo(function TldrawUiFigmaColorPi
 		[saturation, lightness, hslToHex, handleColorChange]
 	)
 
-	const updateAlpha = useCallback(
-		(clientX: number) => {
-			if (!alphaSliderRef.current) return
+	const updateAlpha = useCallback((clientX: number) => {
+		if (!alphaSliderRef.current) return
 
-			const rect = alphaSliderRef.current.getBoundingClientRect()
-			const x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width))
-			const newAlpha = x * 100
+		const rect = alphaSliderRef.current.getBoundingClientRect()
+		const x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width))
+		const newAlpha = x * 100
 
-			setAlpha(newAlpha)
-			// Note: Alpha changes don't affect hex, so we don't call handleColorChange here
-		},
-		[]
-	)
+		setAlpha(newAlpha)
+		// Note: Alpha changes don't affect hex, so we don't call handleColorChange here
+	}, [])
 
 	const handleMouseDown = useCallback(
 		(e: React.MouseEvent, type: 'wheel' | 'saturation' | 'hue' | 'alpha') => {
@@ -372,12 +406,8 @@ export const TldrawUiFigmaColorPicker = React.memo(function TldrawUiFigmaColorPi
 	const currentColor = `hsl(${hue}, ${saturation}%, ${lightness}%)`
 	const currentColorWithAlpha = `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha / 100})`
 
-		return (
-		<TldrawUiPopover 
-			id="figma-color-picker" 
-			open={isOpen} 
-			onOpenChange={handleOpenChange}
-		>
+	return (
+		<TldrawUiPopover id="figma-color-picker" open={isOpen} onOpenChange={handleOpenChange}>
 			<TldrawUiPopoverTrigger>
 				<div
 					title={title}
@@ -413,28 +443,26 @@ export const TldrawUiFigmaColorPicker = React.memo(function TldrawUiFigmaColorPi
 							boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.1)',
 						}}
 					/>
-					
+
 					{/* Color info */}
-					<div style={{ 
-						display: 'flex', 
-						flexDirection: 'column', 
-						alignItems: 'flex-start', 
-						gap: '2px',
-						color: '#fff',
-						textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)'
-					}}>
-						<div style={{ fontSize: '12px', fontWeight: '600' }}>
-							{hexValue}
-						</div>
-						<div style={{ fontSize: '10px', opacity: 0.9 }}>
-							{Math.round(alpha)}%
-						</div>
+					<div
+						style={{
+							display: 'flex',
+							flexDirection: 'column',
+							alignItems: 'flex-start',
+							gap: '2px',
+							color: '#fff',
+							textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)',
+						}}
+					>
+						<div style={{ fontSize: '12px', fontWeight: '600' }}>{hexValue}</div>
+						<div style={{ fontSize: '10px', opacity: 0.9 }}>{Math.round(alpha)}%</div>
 					</div>
 				</div>
 			</TldrawUiPopoverTrigger>
 
 			<TldrawUiPopoverContent side="left" align="start" sideOffset={8}>
-				<div 
+				<div
 					onClick={(e) => {
 						e.stopPropagation()
 						console.log('Popover content clicked, preventing close')
@@ -555,22 +583,26 @@ export const TldrawUiFigmaColorPicker = React.memo(function TldrawUiFigmaColorPi
 					</div>
 
 					{/* Color Input Fields */}
-					<div style={{ 
-						display: 'flex', 
-						gap: '12px', 
-						marginBottom: '16px',
-						alignItems: 'flex-end'
-					}}>
+					<div
+						style={{
+							display: 'flex',
+							gap: '12px',
+							marginBottom: '16px',
+							alignItems: 'flex-end',
+						}}
+					>
 						<div style={{ flex: 1 }}>
-							<label style={{
-								display: 'block',
-								fontSize: '11px',
-								fontWeight: '600',
-								color: '#333',
-								marginBottom: '4px',
-								textTransform: 'uppercase',
-								letterSpacing: '0.5px'
-							}}>
+							<label
+								style={{
+									display: 'block',
+									fontSize: '11px',
+									fontWeight: '600',
+									color: '#333',
+									marginBottom: '4px',
+									textTransform: 'uppercase',
+									letterSpacing: '0.5px',
+								}}
+							>
 								Hex
 							</label>
 							<input
@@ -585,20 +617,22 @@ export const TldrawUiFigmaColorPicker = React.memo(function TldrawUiFigmaColorPi
 									borderRadius: '4px',
 									fontSize: '12px',
 									fontFamily: 'monospace',
-									background: '#f8f9fa'
+									background: '#f8f9fa',
 								}}
 							/>
 						</div>
 						<div style={{ flex: 1 }}>
-							<label style={{
-								display: 'block',
-								fontSize: '11px',
-								fontWeight: '600',
-								color: '#333',
-								marginBottom: '4px',
-								textTransform: 'uppercase',
-								letterSpacing: '0.5px'
-							}}>
+							<label
+								style={{
+									display: 'block',
+									fontSize: '11px',
+									fontWeight: '600',
+									color: '#333',
+									marginBottom: '4px',
+									textTransform: 'uppercase',
+									letterSpacing: '0.5px',
+								}}
+							>
 								Alpha
 							</label>
 							<input
@@ -613,7 +647,7 @@ export const TldrawUiFigmaColorPicker = React.memo(function TldrawUiFigmaColorPi
 									fontSize: '12px',
 									fontFamily: 'monospace',
 									background: '#f8f9fa',
-									textAlign: 'center'
+									textAlign: 'center',
 								}}
 							/>
 						</div>
@@ -621,70 +655,85 @@ export const TldrawUiFigmaColorPicker = React.memo(function TldrawUiFigmaColorPi
 
 					{/* Recent Colors */}
 					<div style={{ marginBottom: '16px' }}>
-						<label style={{
-							display: 'block',
-							fontSize: '11px',
-							fontWeight: '600',
-							color: '#333',
-							marginBottom: '8px',
-							textTransform: 'uppercase',
-							letterSpacing: '0.5px'
-						}}>
+						<label
+							style={{
+								display: 'block',
+								fontSize: '11px',
+								fontWeight: '600',
+								color: '#333',
+								marginBottom: '8px',
+								textTransform: 'uppercase',
+								letterSpacing: '0.5px',
+							}}
+						>
 							On this page
 						</label>
-						<div style={{
-							display: 'flex',
-							gap: '6px',
-							flexWrap: 'wrap'
-						}}>
-							<div style={{
-								width: '24px',
-								height: '24px',
-								background: '#000',
-								borderRadius: '4px',
-								border: '1px solid #e1e5e9',
-								cursor: 'pointer',
-								boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
-							}} />
-							<div style={{
-								width: '24px',
-								height: '24px',
-								background: '#D9D9D9',
-								borderRadius: '4px',
-								border: '1px solid #e1e5e9',
-								cursor: 'pointer',
-								boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
-							}} />
-							<div style={{
-								width: '24px',
-								height: '24px',
-								background: '#fff',
-								borderRadius: '4px',
-								border: '1px solid #e1e5e9',
-								cursor: 'pointer',
-								boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
-							}} />
-							<div style={{
-								width: '24px',
-								height: '24px',
-								background: 'transparent',
-								backgroundImage: 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)',
-								backgroundSize: '4px 4px',
-								backgroundPosition: '0 0, 0 2px, 2px -2px, -2px 0px',
-								borderRadius: '4px',
-								border: '1px solid #e1e5e9',
-								cursor: 'pointer',
-								boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
-							}} />
-							<div style={{
-								width: '24px',
-								height: '24px',
-								background: '#D43333',
-								borderRadius: '4px',
-								border: '1px solid #e1e5e9',
-								cursor: 'pointer',
-								boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
-							}} />
+						<div
+							style={{
+								display: 'flex',
+								gap: '6px',
+								flexWrap: 'wrap',
+							}}
+						>
+							<div
+								style={{
+									width: '24px',
+									height: '24px',
+									background: '#000',
+									borderRadius: '4px',
+									border: '1px solid #e1e5e9',
+									cursor: 'pointer',
+									boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
+								}}
+							/>
+							<div
+								style={{
+									width: '24px',
+									height: '24px',
+									background: '#D9D9D9',
+									borderRadius: '4px',
+									border: '1px solid #e1e5e9',
+									cursor: 'pointer',
+									boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
+								}}
+							/>
+							<div
+								style={{
+									width: '24px',
+									height: '24px',
+									background: '#fff',
+									borderRadius: '4px',
+									border: '1px solid #e1e5e9',
+									cursor: 'pointer',
+									boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
+								}}
+							/>
+							<div
+								style={{
+									width: '24px',
+									height: '24px',
+									background: 'transparent',
+									backgroundImage:
+										'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)',
+									backgroundSize: '4px 4px',
+									backgroundPosition: '0 0, 0 2px, 2px -2px, -2px 0px',
+									borderRadius: '4px',
+									border: '1px solid #e1e5e9',
+									cursor: 'pointer',
+									boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
+								}}
+							/>
+							<div
+								style={{
+									width: '24px',
+									height: '24px',
+									background: '#D43333',
+									borderRadius: '4px',
+									border: '1px solid #e1e5e9',
+									cursor: 'pointer',
+									boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
+								}}
+							/>
 						</div>
 					</div>
 				</div>

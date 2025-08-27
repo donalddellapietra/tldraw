@@ -5,6 +5,7 @@ import {
 	DefaultColorStyle,
 	DefaultDashStyle,
 	DefaultFillStyle,
+	DefaultFontSizeStyle,
 	DefaultFontStyle,
 	DefaultHorizontalAlignStyle,
 	DefaultSizeStyle,
@@ -21,7 +22,6 @@ import {
 	useEditor,
 	useValue,
 } from '@tldraw/editor'
-import { DefaultFontSizeStyle } from '@tldraw/tlschema'
 import React, { useCallback, useState } from 'react'
 import { EXTENDED_FONT_SIZES, STROKE_SIZES } from '../../../shapes/shared/default-shape-constants'
 import { STYLES } from '../../../styles'
