@@ -1,13 +1,11 @@
-import React, { useCallback, useState } from 'react'
-import { useEditor } from 'tldraw'
 import {
-	DefaultFontStyle,
 	DefaultFontSizeStyle,
+	DefaultFontStyle,
 	DefaultTextAlignStyle,
-	DefaultHorizontalAlignStyle,
 	DefaultVerticalAlignStyle,
 } from '@tldraw/editor'
-import { useRelevantStyles } from 'tldraw'
+import React, { useCallback, useState } from 'react'
+import { useEditor, useRelevantStyles } from 'tldraw'
 
 // Font family options with display names
 const FONT_OPTIONS = [
@@ -38,74 +36,128 @@ const FONT_SIZE_PRESETS: Record<string, { value: string; label: string; size: nu
 
 // Text alignment options with proper SVG icons
 const TEXT_ALIGN_OPTIONS = [
-	{ 
-		value: 'start', 
+	{
+		value: 'start',
 		icon: (
 			<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-				<path d="M2 4h8M2 8h12M2 12h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+				<path
+					d="M2 4h8M2 8h12M2 12h10"
+					stroke="currentColor"
+					strokeWidth="1.5"
+					strokeLinecap="round"
+				/>
 			</svg>
-		), 
-		label: 'Left' 
+		),
+		label: 'Left',
 	},
-	{ 
-		value: 'middle', 
+	{
+		value: 'middle',
 		icon: (
 			<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-				<path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+				<path
+					d="M2 4h12M2 8h12M2 12h12"
+					stroke="currentColor"
+					strokeWidth="1.5"
+					strokeLinecap="round"
+				/>
 			</svg>
-		), 
-		label: 'Center' 
+		),
+		label: 'Center',
 	},
-	{ 
-		value: 'end', 
+	{
+		value: 'end',
 		icon: (
 			<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-				<path d="M6 4h8M4 8h12M6 12h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+				<path
+					d="M6 4h8M4 8h12M6 12h8"
+					stroke="currentColor"
+					strokeWidth="1.5"
+					strokeLinecap="round"
+				/>
 			</svg>
-		), 
-		label: 'Right' 
+		),
+		label: 'Right',
 	},
 ]
 
 // Vertical alignment options with proper SVG icons
 const VERTICAL_ALIGN_OPTIONS = [
-	{ 
-		value: 'start', 
+	{
+		value: 'start',
 		icon: (
 			<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-				<path d="M4 2h8M4 6h8M4 10h8M4 14h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-				<path d="M2 2l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+				<path
+					d="M4 2h8M4 6h8M4 10h8M4 14h8"
+					stroke="currentColor"
+					strokeWidth="1.5"
+					strokeLinecap="round"
+				/>
+				<path
+					d="M2 2l4 4-4 4"
+					stroke="currentColor"
+					strokeWidth="1.5"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
 			</svg>
-		), 
-		label: 'Top' 
+		),
+		label: 'Top',
 	},
-	{ 
-		value: 'middle', 
+	{
+		value: 'middle',
 		icon: (
 			<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-				<path d="M4 2h8M4 6h8M4 10h8M4 14h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-				<path d="M2 6l4 2-4 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-				<path d="M10 6l4 2-4 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+				<path
+					d="M4 2h8M4 6h8M4 10h8M4 14h8"
+					stroke="currentColor"
+					strokeWidth="1.5"
+					strokeLinecap="round"
+				/>
+				<path
+					d="M2 6l4 2-4 2"
+					stroke="currentColor"
+					strokeWidth="1.5"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
+				<path
+					d="M10 6l4 2-4 2"
+					stroke="currentColor"
+					strokeWidth="1.5"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
 			</svg>
-		), 
-		label: 'Middle' 
+		),
+		label: 'Middle',
 	},
-	{ 
-		value: 'end', 
+	{
+		value: 'end',
 		icon: (
 			<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-				<path d="M4 2h8M4 6h8M4 10h8M4 14h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-				<path d="M10 2l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+				<path
+					d="M4 2h8M4 6h8M4 10h8M4 14h8"
+					stroke="currentColor"
+					strokeWidth="1.5"
+					strokeLinecap="round"
+				/>
+				<path
+					d="M10 2l4 4-4 4"
+					stroke="currentColor"
+					strokeWidth="1.5"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
 			</svg>
-		), 
-		label: 'Bottom' 
+		),
+		label: 'Bottom',
 	},
 ]
 
 export function FigmaTypographyPanel() {
 	const editor = useEditor()
 	const styles = useRelevantStyles()
-	
+
 	const [customFontSize, setCustomFontSize] = useState<string>('')
 	const [lineHeight, setLineHeight] = useState<string>('Auto')
 	const [letterSpacing, setLetterSpacing] = useState<string>('0%')
@@ -114,94 +166,89 @@ export function FigmaTypographyPanel() {
 	const font = styles?.get(DefaultFontStyle)
 	const fontSize = styles?.get(DefaultFontSizeStyle)
 	const textAlign = styles?.get(DefaultTextAlignStyle)
-	const horizontalAlign = styles?.get(DefaultHorizontalAlignStyle)
 	const verticalAlign = styles?.get(DefaultVerticalAlignStyle)
 
-	const handleFontChange = useCallback((fontValue: string) => {
-		if (editor.isIn('select')) {
-			const selectedShapes = editor.getSelectedShapes()
-			selectedShapes.forEach(shape => {
-				if (shape.type === 'text') {
-					editor.updateShape({
-						id: shape.id,
-						type: 'text',
-						props: { font: fontValue }
-					})
-				}
-			})
-		}
-		editor.markHistoryStoppingPoint('font-change')
-	}, [editor])
-
-	const handleFontSizeChange = useCallback((sizeValue: string) => {
-		if (editor.isIn('select')) {
-			const selectedShapes = editor.getSelectedShapes()
-			selectedShapes.forEach(shape => {
-				if (shape.type === 'text') {
-					editor.updateShape({
-						id: shape.id,
-						type: 'text',
-						props: { fontSize: sizeValue }
-					})
-				}
-			})
-		}
-		editor.markHistoryStoppingPoint('font-size-change')
-	}, [editor])
-
-	const handleCustomFontSizeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-		const value = e.target.value
-		setCustomFontSize(value)
-		
-		const numValue = parseInt(value)
-		if (!isNaN(numValue) && numValue > 0 && numValue <= 200) {
+	const handleFontChange = useCallback(
+		(fontValue: string) => {
 			if (editor.isIn('select')) {
 				const selectedShapes = editor.getSelectedShapes()
-				selectedShapes.forEach(shape => {
+				selectedShapes.forEach((shape) => {
 					if (shape.type === 'text') {
 						editor.updateShape({
 							id: shape.id,
 							type: 'text',
-							props: { customFontSize: numValue }
+							props: { font: fontValue },
 						})
 					}
 				})
 			}
-			editor.markHistoryStoppingPoint('custom-font-size')
-		}
-	}, [editor])
+			editor.markHistoryStoppingPoint('font-change')
+		},
+		[editor]
+	)
 
-	const handleTextAlignChange = useCallback((alignValue: string) => {
-		if (editor.isIn('select')) {
-			const selectedShapes = editor.getSelectedShapes()
-			selectedShapes.forEach(shape => {
-				if (shape.type === 'text') {
-					editor.updateShape({
-						id: shape.id,
-						type: 'text',
-						props: { textAlign: alignValue }
+	const handleCustomFontSizeChange = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
+			const value = e.target.value
+			setCustomFontSize(value)
+
+			const numValue = parseInt(value)
+			if (!isNaN(numValue) && numValue > 0 && numValue <= 200) {
+				if (editor.isIn('select')) {
+					const selectedShapes = editor.getSelectedShapes()
+					selectedShapes.forEach((shape) => {
+						if (shape.type === 'text') {
+							editor.updateShape({
+								id: shape.id,
+								type: 'text',
+								props: { customFontSize: numValue },
+							})
+						}
 					})
 				}
-			})
-		}
-		editor.markHistoryStoppingPoint('text-align-change')
-	}, [editor])
+				editor.markHistoryStoppingPoint('custom-font-size')
+			}
+		},
+		[editor]
+	)
 
-	const handleVerticalAlignChange = useCallback((alignValue: string) => {
-		if (editor.isIn('select')) {
-			const selectedShapes = editor.getSelectedShapes()
-			selectedShapes.forEach(shape => {
-				if (shape.type === 'text') {
-					editor.updateShape({
-						id: shape.id,
-						type: 'text',
-						props: { verticalAlign: alignValue }
-					})
-				}
-			})
-		}
-		editor.markHistoryStoppingPoint('vertical-align-change')
-	}, [editor])
+	const handleTextAlignChange = useCallback(
+		(alignValue: string) => {
+			if (editor.isIn('select')) {
+				const selectedShapes = editor.getSelectedShapes()
+				selectedShapes.forEach((shape) => {
+					if (shape.type === 'text') {
+						editor.updateShape({
+							id: shape.id,
+							type: 'text',
+							props: { textAlign: alignValue },
+						})
+					}
+				})
+			}
+			editor.markHistoryStoppingPoint('text-align-change')
+		},
+		[editor]
+	)
+
+	const handleVerticalAlignChange = useCallback(
+		(alignValue: string) => {
+			if (editor.isIn('select')) {
+				const selectedShapes = editor.getSelectedShapes()
+				selectedShapes.forEach((shape) => {
+					if (shape.type === 'text') {
+						editor.updateShape({
+							id: shape.id,
+							type: 'text',
+							props: { verticalAlign: alignValue },
+						})
+					}
+				})
+			}
+			editor.markHistoryStoppingPoint('vertical-align-change')
+		},
+		[editor]
+	)
 
 	// Get current values
 	const currentFont = font?.type === 'shared' ? font.value : 'serif'
@@ -216,10 +263,10 @@ export function FigmaTypographyPanel() {
 				<span className="figma-typography-title">Typography</span>
 				<button className="figma-typography-menu-button">
 					<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-						<circle cx="4" cy="4" r="1.5" fill="currentColor"/>
-						<circle cx="12" cy="4" r="1.5" fill="currentColor"/>
-						<circle cx="4" cy="12" r="1.5" fill="currentColor"/>
-						<circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+						<circle cx="4" cy="4" r="1.5" fill="currentColor" />
+						<circle cx="12" cy="4" r="1.5" fill="currentColor" />
+						<circle cx="4" cy="12" r="1.5" fill="currentColor" />
+						<circle cx="12" cy="12" r="1.5" fill="currentColor" />
 					</svg>
 				</button>
 			</div>
@@ -232,7 +279,7 @@ export function FigmaTypographyPanel() {
 					value={currentFont}
 					onChange={(e) => handleFontChange(e.target.value)}
 				>
-					{FONT_OPTIONS.map(option => (
+					{FONT_OPTIONS.map((option) => (
 						<option key={option.value} value={option.value} style={{ fontFamily: option.family }}>
 							{option.label}
 						</option>
@@ -244,7 +291,7 @@ export function FigmaTypographyPanel() {
 			<div className="figma-typography-row">
 				<div className="figma-typography-section">
 					<select className="figma-typography-select figma-typography-weight">
-						{FONT_WEIGHTS.map(weight => (
+						{FONT_WEIGHTS.map((weight) => (
 							<option key={weight.value} value={weight.value}>
 								{weight.label}
 							</option>
@@ -267,24 +314,40 @@ export function FigmaTypographyPanel() {
 				<div className="figma-typography-styling-buttons">
 					<button className="figma-typography-style-button" title="Bold">
 						<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-							<path d="M4 2h4.5a3.5 3.5 0 0 1 0 7H4V2z" stroke="currentColor" strokeWidth="1.5"/>
-							<path d="M4 9h5.5a3.5 3.5 0 0 1 0 7H4V9z" stroke="currentColor" strokeWidth="1.5"/>
+							<path d="M4 2h4.5a3.5 3.5 0 0 1 0 7H4V2z" stroke="currentColor" strokeWidth="1.5" />
+							<path d="M4 9h5.5a3.5 3.5 0 0 1 0 7H4V9z" stroke="currentColor" strokeWidth="1.5" />
 						</svg>
 					</button>
 					<button className="figma-typography-style-button" title="Italic">
 						<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-							<path d="M6 2h4M8 2v12M6 14h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+							<path
+								d="M6 2h4M8 2v12M6 14h4"
+								stroke="currentColor"
+								strokeWidth="1.5"
+								strokeLinecap="round"
+							/>
 						</svg>
 					</button>
 					<button className="figma-typography-style-button" title="Code">
 						<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-							<path d="M6 4L2 8L6 12M10 4L14 8L10 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+							<path
+								d="M6 4L2 8L6 12M10 4L14 8L10 12"
+								stroke="currentColor"
+								strokeWidth="1.5"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+							/>
 						</svg>
 					</button>
 					<button className="figma-typography-style-button" title="Highlight">
 						<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-							<path d="M2 4h12v8H2z" stroke="currentColor" strokeWidth="1.5"/>
-							<path d="M4 8h8M4 10h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+							<path d="M2 4h12v8H2z" stroke="currentColor" strokeWidth="1.5" />
+							<path
+								d="M4 8h8M4 10h8"
+								stroke="currentColor"
+								strokeWidth="1.5"
+								strokeLinecap="round"
+							/>
 						</svg>
 					</button>
 				</div>
@@ -294,8 +357,19 @@ export function FigmaTypographyPanel() {
 			<div className="figma-typography-section">
 				<label className="figma-typography-label">Line height</label>
 				<div className="figma-typography-input-with-icon">
-					<svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="figma-typography-icon">
-						<path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+					<svg
+						width="16"
+						height="16"
+						viewBox="0 0 16 16"
+						fill="none"
+						className="figma-typography-icon"
+					>
+						<path
+							d="M2 4h12M2 8h12M2 12h12"
+							stroke="currentColor"
+							strokeWidth="1.5"
+							strokeLinecap="round"
+						/>
 					</svg>
 					<input
 						type="text"
@@ -310,9 +384,25 @@ export function FigmaTypographyPanel() {
 			<div className="figma-typography-section">
 				<label className="figma-typography-label">Letter spacing</label>
 				<div className="figma-typography-input-with-icon">
-					<svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="figma-typography-icon">
-						<path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-						<path d="M4 2v12M12 2v12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+					<svg
+						width="16"
+						height="16"
+						viewBox="0 0 16 16"
+						fill="none"
+						className="figma-typography-icon"
+					>
+						<path
+							d="M2 4h12M2 8h12M2 12h12"
+							stroke="currentColor"
+							strokeWidth="1.5"
+							strokeLinecap="round"
+						/>
+						<path
+							d="M4 2v12M12 2v12"
+							stroke="currentColor"
+							strokeWidth="1.5"
+							strokeLinecap="round"
+						/>
 					</svg>
 					<input
 						type="text"
@@ -329,7 +419,7 @@ export function FigmaTypographyPanel() {
 				<div className="figma-typography-alignment">
 					{/* Horizontal alignment */}
 					<div className="figma-typography-alignment-row">
-						{TEXT_ALIGN_OPTIONS.map(option => (
+						{TEXT_ALIGN_OPTIONS.map((option) => (
 							<button
 								key={option.value}
 								className={`figma-typography-align-button ${currentTextAlign === option.value ? 'active' : ''}`}
@@ -340,10 +430,10 @@ export function FigmaTypographyPanel() {
 							</button>
 						))}
 					</div>
-					
+
 					{/* Vertical alignment */}
 					<div className="figma-typography-alignment-row">
-						{VERTICAL_ALIGN_OPTIONS.map(option => (
+						{VERTICAL_ALIGN_OPTIONS.map((option) => (
 							<button
 								key={option.value}
 								className={`figma-typography-align-button ${currentVerticalAlign === option.value ? 'active' : ''}`}
@@ -354,17 +444,22 @@ export function FigmaTypographyPanel() {
 							</button>
 						))}
 					</div>
-					
+
 					{/* Distribution button */}
 					<button className="figma-typography-distribute-button" title="Distribute">
 						<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-							<path d="M2 2h12M2 8h12M2 14h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-							<circle cx="2" cy="2" r="1.5" fill="currentColor"/>
-							<circle cx="14" cy="2" r="1.5" fill="currentColor"/>
-							<circle cx="2" cy="8" r="1.5" fill="currentColor"/>
-							<circle cx="14" cy="8" r="1.5" fill="currentColor"/>
-							<circle cx="2" cy="14" r="1.5" fill="currentColor"/>
-							<circle cx="14" cy="14" r="1.5" fill="currentColor"/>
+							<path
+								d="M2 2h12M2 8h12M2 14h12"
+								stroke="currentColor"
+								strokeWidth="1.5"
+								strokeLinecap="round"
+							/>
+							<circle cx="2" cy="2" r="1.5" fill="currentColor" />
+							<circle cx="14" cy="2" r="1.5" fill="currentColor" />
+							<circle cx="2" cy="8" r="1.5" fill="currentColor" />
+							<circle cx="14" cy="8" r="1.5" fill="currentColor" />
+							<circle cx="2" cy="14" r="1.5" fill="currentColor" />
+							<circle cx="14" cy="14" r="1.5" fill="currentColor" />
 						</svg>
 					</button>
 				</div>

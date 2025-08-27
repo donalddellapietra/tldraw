@@ -199,6 +199,9 @@ export const DefaultFontFamilies: {
 };
 
 // @public (undocumented)
+export const DefaultFontSizeStyle: EnumStyleProp<"l" | "m" | "s" | "xl">;
+
+// @public (undocumented)
 export const DefaultFontStyle: EnumStyleProp<"draw" | "mono" | "sans" | "serif">;
 
 // @public (undocumented)
@@ -262,6 +265,9 @@ export const defaultShapeSchemas: {
 
 // @public (undocumented)
 export const DefaultSizeStyle: EnumStyleProp<"l" | "m" | "s" | "xl">;
+
+// @public (undocumented)
+export const DefaultStrokeColorStyle: EnumStyleProp<"black" | "blue" | "brown" | "cyan" | "green" | "grey" | "light-blue" | "light-green" | "light-red" | "light-violet" | "orange" | "pink" | "red" | "violet" | "white" | "yellow">;
 
 // @public (undocumented)
 export const DefaultTextAlignStyle: EnumStyleProp<"end" | "middle" | "start">;
@@ -962,6 +968,9 @@ export type TLDefaultDashStyle = T.TypeOf<typeof DefaultDashStyle>;
 export type TLDefaultFillStyle = T.TypeOf<typeof DefaultFillStyle>;
 
 // @public (undocumented)
+export type TLDefaultFontSizeStyle = T.TypeOf<typeof DefaultFontSizeStyle>;
+
+// @public (undocumented)
 export type TLDefaultFontStyle = T.TypeOf<typeof DefaultFontStyle>;
 
 // @public (undocumented)
@@ -972,6 +981,9 @@ export type TLDefaultShape = TLArrowShape | TLBookmarkShape | TLDrawShape | TLEm
 
 // @public (undocumented)
 export type TLDefaultSizeStyle = T.TypeOf<typeof DefaultSizeStyle>;
+
+// @public (undocumented)
+export type TLDefaultStrokeColorStyle = T.TypeOf<typeof DefaultStrokeColorStyle>;
 
 // @public (undocumented)
 export type TLDefaultTextAlignStyle = T.TypeOf<typeof DefaultTextAlignStyle>;
@@ -1015,6 +1027,8 @@ export interface TLDrawShapeProps {
     segments: TLDrawShapeSegment[];
     // (undocumented)
     size: TLDefaultSizeStyle;
+    // (undocumented)
+    strokeColor: TLDefaultStrokeColorStyle;
 }
 
 // @public (undocumented)
@@ -1066,6 +1080,8 @@ export interface TLGeoShapeProps {
     // (undocumented)
     color: TLDefaultColorStyle;
     // (undocumented)
+    cornerRadius: number;
+    // (undocumented)
     dash: TLDefaultDashStyle;
     // (undocumented)
     fill: TLDefaultFillStyle;
@@ -1085,6 +1101,8 @@ export interface TLGeoShapeProps {
     scale: number;
     // (undocumented)
     size: TLDefaultSizeStyle;
+    // (undocumented)
+    strokeColor: TLDefaultStrokeColorStyle;
     // (undocumented)
     url: string;
     // (undocumented)
@@ -1346,6 +1364,8 @@ export interface TLLineShapeProps {
     size: TLDefaultSizeStyle;
     // (undocumented)
     spline: TLLineShapeSplineStyle;
+    // (undocumented)
+    strokeColor: TLDefaultStrokeColorStyle;
 }
 
 // @public (undocumented)
@@ -1535,7 +1555,11 @@ export interface TLTextShapeProps {
     // (undocumented)
     color: TLDefaultColorStyle;
     // (undocumented)
+    customFontSize?: number;
+    // (undocumented)
     font: TLDefaultFontStyle;
+    // (undocumented)
+    fontSize: TLDefaultFontSizeStyle;
     // (undocumented)
     richText: TLRichText;
     // (undocumented)
