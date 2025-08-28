@@ -15,6 +15,7 @@ export interface TLTextShapeProps {
 	size: TLDefaultSizeStyle
 	fontSize: TLDefaultFontSizeStyle
 	customFontSize?: number
+	customTextColor?: string
 	font: TLDefaultFontStyle
 	textAlign: TLDefaultTextAlignStyle
 	w: number
@@ -32,6 +33,7 @@ export const textShapeProps: RecordProps<TLTextShape> = {
 	size: DefaultSizeStyle,
 	fontSize: DefaultFontSizeStyle,
 	customFontSize: T.optional(T.number),
+	customTextColor: T.optional(T.string),
 	font: DefaultFontStyle,
 	textAlign: DefaultTextAlignStyle,
 	w: T.nonZeroNumber,

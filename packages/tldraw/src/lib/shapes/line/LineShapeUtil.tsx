@@ -342,8 +342,15 @@ function LineShapeSvg({
 
 	const strokeWidth = STROKE_SIZES[size] * shape.props.scale
 
-	// Use color for stroke
-	const strokeColorToUse = color
+	// Resolve stroke color with custom/meta fallbacks
+	const strokeColorToUse = (function () {
+		const custom = (shape.props as any).customStrokeColor as string | undefined
+		if (custom && typeof custom === 'string') return custom as any
+		const meta = (shape as any).meta
+		const metaCustom = meta?.customStrokeColor
+		if (metaCustom && typeof metaCustom === 'string') return metaCustom as any
+		return color
+	})()
 
 	return path.toSvg({
 		style: dash,
@@ -352,7 +359,10 @@ function LineShapeSvg({
 		randomSeed: shape.id,
 		props: {
 			transform: `scale(${scale})`,
-			stroke: getColorValue(theme, strokeColorToUse, 'solid'),
+			stroke:
+				typeof strokeColorToUse === 'string' && (strokeColorToUse as any).startsWith('#')
+					? (strokeColorToUse as any)
+					: getColorValue(theme, strokeColorToUse as any, 'solid'),
 			fill: 'none',
 		},
 	})

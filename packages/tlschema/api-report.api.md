@@ -1006,6 +1006,8 @@ export interface TLDrawShapeProps {
     // (undocumented)
     color: TLDefaultColorStyle;
     // (undocumented)
+    customStrokeColor?: string;
+    // (undocumented)
     dash: TLDefaultDashStyle;
     // (undocumented)
     fill: TLDefaultFillStyle;
@@ -1073,6 +1075,10 @@ export interface TLGeoShapeProps {
     color: TLDefaultColorStyle;
     // (undocumented)
     cornerRadius: number;
+    // (undocumented)
+    customFillColor?: string;
+    // (undocumented)
+    customStrokeColor?: string;
     // (undocumented)
     dash: TLDefaultDashStyle;
     // (undocumented)
@@ -1345,6 +1351,8 @@ export interface TLLineShapeProps {
     // (undocumented)
     color: TLDefaultColorStyle;
     // (undocumented)
+    customStrokeColor?: string;
+    // (undocumented)
     dash: TLDefaultDashStyle;
     // (undocumented)
     points: Record<string, TLLineShapePoint>;
@@ -1544,6 +1552,8 @@ export interface TLTextShapeProps {
     color: TLDefaultColorStyle;
     // (undocumented)
     customFontSize?: number;
+    // (undocumented)
+    customTextColor?: string;
     // (undocumented)
     font: TLDefaultFontStyle;
     // (undocumented)

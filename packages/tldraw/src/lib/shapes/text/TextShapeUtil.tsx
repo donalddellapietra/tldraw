@@ -28,7 +28,12 @@ import {
 	renderPlaintextFromRichText,
 } from '../../utils/text/richText'
 import { RichTextLabel, RichTextSVG } from '../shared/RichTextLabel'
-import { EXTENDED_FONT_SIZES, FONT_FAMILIES, FONT_SIZES, TEXT_PROPS } from '../shared/default-shape-constants'
+import {
+	EXTENDED_FONT_SIZES,
+	FONT_FAMILIES,
+	FONT_SIZES,
+	TEXT_PROPS,
+} from '../shared/default-shape-constants'
 import { useDefaultColorTheme } from '../shared/useDefaultColorTheme'
 
 const sizeCache = createComputedCache(
@@ -141,7 +146,21 @@ export class TextShapeUtil extends ShapeUtil<TLTextShape> {
 				align={textAlign}
 				verticalAlign="middle"
 				richText={richText}
-				labelColor={getColorValue(theme, color, 'solid')}
+				labelColor={(function () {
+					// Prefer custom text color on the shape, then meta fallbacks, then palette
+					const customFromProps = (shape.props as any).customTextColor as string | undefined
+					if (customFromProps && typeof customFromProps === 'string') return customFromProps
+					const meta = (shape as any).meta
+					const metaCustom = meta?.customTextColor
+					if (metaCustom && typeof metaCustom === 'string') return metaCustom
+					const metaNamed = meta?.textColor
+					if (metaNamed && typeof metaNamed === 'string') {
+						return metaNamed.startsWith('#')
+							? metaNamed
+							: getColorValue(theme, metaNamed as any, 'solid')
+					}
+					return getColorValue(theme, color, 'solid')
+				})()}
 				isSelected={isSelected}
 				textWidth={width}
 				textHeight={height}
@@ -172,7 +191,11 @@ export class TextShapeUtil extends ShapeUtil<TLTextShape> {
 		const exportBounds = new Box(0, 0, width, height)
 		return (
 			<RichTextSVG
-				fontSize={shape.props.customFontSize || EXTENDED_FONT_SIZES[shape.props.fontSize] || FONT_SIZES[shape.props.size]}
+				fontSize={
+					shape.props.customFontSize ||
+					EXTENDED_FONT_SIZES[shape.props.fontSize] ||
+					FONT_SIZES[shape.props.size]
+				}
 				font={shape.props.font}
 				align={shape.props.textAlign}
 				verticalAlign="middle"

@@ -16,6 +16,7 @@ interface ShapeFillProps {
 	color: TLDefaultColorStyle
 	theme: TLDefaultColorTheme
 	scale: number
+	resolvedFillHex?: string
 }
 
 export const ShapeFill = React.memo(function ShapeFill({
@@ -24,19 +25,20 @@ export const ShapeFill = React.memo(function ShapeFill({
 	color,
 	fill,
 	scale,
+	resolvedFillHex,
 }: ShapeFillProps) {
 	switch (fill) {
 		case 'none': {
 			return null
 		}
 		case 'solid': {
-			return <path fill={getColorValue(theme, color, 'semi')} d={d} />
+			return <path fill={resolvedFillHex ?? getColorValue(theme, color, 'semi')} d={d} />
 		}
 		case 'semi': {
 			return <path fill={theme.solid} d={d} />
 		}
 		case 'fill': {
-			return <path fill={getColorValue(theme, color, 'fill')} d={d} />
+			return <path fill={resolvedFillHex ?? getColorValue(theme, color, 'fill')} d={d} />
 		}
 		case 'pattern': {
 			return <PatternFill theme={theme} color={color} fill={fill} d={d} scale={scale} />

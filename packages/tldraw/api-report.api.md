@@ -1588,6 +1588,8 @@ export class GeoShapeUtil extends BaseBoxShapeUtil<TLGeoShape> {
             align: TLDefaultHorizontalAlignStyle;
             color: TLDefaultColorStyle;
             cornerRadius: number;
+            customFillColor?: string;
+            customStrokeColor?: string;
             dash: TLDefaultDashStyle;
             fill: TLDefaultFillStyle;
             font: TLDefaultFontStyle;
@@ -1620,6 +1622,8 @@ export class GeoShapeUtil extends BaseBoxShapeUtil<TLGeoShape> {
             align: TLDefaultHorizontalAlignStyle;
             color: TLDefaultColorStyle;
             cornerRadius: number;
+            customFillColor?: string;
+            customStrokeColor?: string;
             dash: TLDefaultDashStyle;
             fill: TLDefaultFillStyle;
             font: TLDefaultFontStyle;
@@ -1958,6 +1962,7 @@ export class LineShapeUtil extends ShapeUtil<TLLineShape> {
         parentId: TLParentId;
         props: {
             color: TLDefaultColorStyle;
+            customStrokeColor?: string;
             dash: TLDefaultDashStyle;
             points: {
                 [x: string]: {
@@ -1987,6 +1992,7 @@ export class LineShapeUtil extends ShapeUtil<TLLineShape> {
         parentId: TLParentId;
         props: {
             color: TLDefaultColorStyle;
+            customStrokeColor?: string;
             dash: TLDefaultDashStyle;
             points: {
                 [x: string]: {
@@ -2794,6 +2800,7 @@ export class TextShapeUtil extends ShapeUtil<TLTextShape> {
             autoSize: boolean;
             color: TLDefaultColorStyle;
             customFontSize?: number;
+            customTextColor?: string;
             font: TLDefaultFontStyle;
             fontSize: TLDefaultFontSizeStyle;
             richText: TLRichText;
