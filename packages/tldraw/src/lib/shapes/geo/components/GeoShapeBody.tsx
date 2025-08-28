@@ -25,18 +25,48 @@ export function GeoShapeBody({
 			? path.toDrawD({ strokeWidth, randomSeed: shape.id, passes: 1, offset: 0, onlyFilled: true })
 			: path.toD({ onlyFilled: true })
 
-	// Use color for stroke
-	const strokeColorToUse = color
+	// Resolve fill and stroke colors with custom/meta fallbacks
+	const resolvedFillHex = (function () {
+		const custom = (props as any).customFillColor as string | undefined
+		if (custom && typeof custom === 'string') return custom
+		const meta = (shape as any).meta
+		const metaCustom = meta?.customFillColor
+		if (metaCustom && typeof metaCustom === 'string') return metaCustom
+		return undefined
+	})()
+
+	const strokeColorToUse = (function () {
+		const custom = (props as any).customStrokeColor as string | undefined
+		if (custom && typeof custom === 'string') return custom as any
+		const meta = (shape as any).meta
+		const metaCustom = meta?.customStrokeColor
+		if (metaCustom && typeof metaCustom === 'string') return metaCustom as any
+		return color
+	})()
 
 	return (
 		<>
-			<ShapeFill theme={theme} d={fillPath} color={color} fill={fill} scale={scaleToUse} />
+			<ShapeFill
+				theme={theme}
+				d={fillPath}
+				color={color}
+				fill={fill}
+				scale={scaleToUse}
+				resolvedFillHex={resolvedFillHex}
+			/>
 			{path.toSvg({
 				style: dash,
 				strokeWidth,
 				forceSolid,
 				randomSeed: shape.id,
-				props: { fill: 'none', stroke: getColorValue(theme, strokeColorToUse, 'solid') },
+				props: {
+					fill: 'none',
+					stroke: strokeColorToUse.startsWith
+						? (strokeColorToUse as any).startsWith('#')
+							? (strokeColorToUse as any)
+							: getColorValue(theme, strokeColorToUse as any, 'solid')
+						: getColorValue(theme, strokeColorToUse as any, 'solid'),
+				},
 			})}
 		</>
 	)

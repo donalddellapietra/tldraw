@@ -67,6 +67,8 @@ export interface TLGeoShapeProps {
 	labelColor: TLDefaultColorStyle
 	color: TLDefaultColorStyle
 	fill: TLDefaultFillStyle
+	customFillColor?: string
+	customStrokeColor?: string
 	size: TLDefaultSizeStyle
 	font: TLDefaultFontStyle
 	align: TLDefaultHorizontalAlignStyle
@@ -92,6 +94,8 @@ export const geoShapeProps: RecordProps<TLGeoShape> = {
 	labelColor: DefaultLabelColorStyle,
 	color: DefaultColorStyle,
 	fill: DefaultFillStyle,
+	customFillColor: T.optional(T.string),
+	customStrokeColor: T.optional(T.string),
 	size: DefaultSizeStyle,
 	font: DefaultFontStyle,
 	align: DefaultHorizontalAlignStyle,

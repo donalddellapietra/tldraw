@@ -30,6 +30,7 @@ export interface TLDrawShapeProps {
 	isComplete: boolean
 	isClosed: boolean
 	isPen: boolean
+	customStrokeColor?: string
 	scale: number
 }
 
@@ -46,6 +47,7 @@ export const drawShapeProps: RecordProps<TLDrawShape> = {
 	isComplete: T.boolean,
 	isClosed: T.boolean,
 	isPen: T.boolean,
+	customStrokeColor: T.optional(T.string),
 	scale: T.nonZeroNumber,
 }
 

@@ -272,8 +272,15 @@ function DrawShapeSvg({ shape, zoomOverride }: { shape: TLDrawShape; zoomOverrid
 
 	const options = getFreehandOptions(shape.props, sw, showAsComplete, forceSolid)
 
-	// Use color for stroke
-	const strokeColorToUse = shape.props.color
+	// Resolve stroke color with custom/meta fallbacks
+	const strokeColorToUse = (function () {
+		const custom = (shape.props as any).customStrokeColor as string | undefined
+		if (custom && typeof custom === 'string') return custom as any
+		const meta = (shape as any).meta
+		const metaCustom = meta?.customStrokeColor
+		if (metaCustom && typeof metaCustom === 'string') return metaCustom as any
+		return shape.props.color
+	})()
 
 	if (!forceSolid && shape.props.dash === 'draw') {
 		return (
@@ -288,12 +295,17 @@ function DrawShapeSvg({ shape, zoomOverride }: { shape: TLDrawShape; zoomOverrid
 						color={shape.props.color}
 						fill={shape.props.isClosed ? shape.props.fill : 'none'}
 						scale={shape.props.scale}
+						resolvedFillHex={(shape.props as any).customFillColor as any}
 					/>
 				) : null}
 				<path
 					d={svgInk(allPointsFromSegments, options)}
 					strokeLinecap="round"
-					fill={getColorValue(theme, strokeColorToUse, 'solid')}
+					fill={
+						typeof strokeColorToUse === 'string' && (strokeColorToUse as any).startsWith('#')
+							? (strokeColorToUse as any)
+							: getColorValue(theme, strokeColorToUse as any, 'solid')
+					}
 				/>
 			</>
 		)
@@ -328,7 +340,11 @@ function DrawShapeSvg({ shape, zoomOverride }: { shape: TLDrawShape; zoomOverrid
 					d={solidStrokePath}
 					strokeLinecap="round"
 					fill="none"
-					stroke={getColorValue(theme, strokeColorToUse, 'solid')}
+					stroke={
+						typeof strokeColorToUse === 'string' && (strokeColorToUse as any).startsWith('#')
+							? (strokeColorToUse as any)
+							: getColorValue(theme, strokeColorToUse as any, 'solid')
+					}
 					strokeWidth={sw}
 					strokeDasharray={getDrawShapeStrokeDashArray(shape, sw, dotAdjustment)}
 					strokeDashoffset="0"

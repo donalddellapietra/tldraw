@@ -39,6 +39,7 @@ export interface TLLineShapeProps {
 	size: TLDefaultSizeStyle
 	spline: TLLineShapeSplineStyle
 	points: Record<string, TLLineShapePoint>
+	customStrokeColor?: string
 	scale: number
 }
 
@@ -52,6 +53,7 @@ export const lineShapeProps: RecordProps<TLLineShape> = {
 	size: DefaultSizeStyle,
 	spline: LineShapeSplineStyle,
 	points: T.dict(T.string, lineShapePointValidator),
+	customStrokeColor: T.optional(T.string),
 	scale: T.nonZeroNumber,
 }
 
