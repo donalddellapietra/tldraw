@@ -47,7 +47,7 @@
 		"tldraw.css"
 	],
 	"dependencies": {
-		"tldraw": "3.15.3"
+		"tldraw": "workspace:*"
 	},
 	"peerDependencies": {
 		"react": "^18.2.0 || ^19.0.0",
