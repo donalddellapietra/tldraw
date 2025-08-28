@@ -1607,10 +1607,27 @@ export class CustomFormattingManager {
 
 		console.log(`🔧 Applying custom fill color ${color} to shape ${shapeId}`)
 
-		// Apply the fill color to the shape element
-		const element = shapeElement as HTMLElement
-		element.style.backgroundColor = color
-		element.style.fill = color
+		// Apply fill to the actual SVG geometry instead of the container's background.
+		// Filling the container paints the original rectangular bounding box, which
+		// ignores rounded corners or elliptical paths.
+		const svgFillTargets = shapeElement.querySelectorAll(
+			// select any path/shape nodes that currently have a fill and are not explicitly none
+			"path[fill]:not([fill='none']), rect[fill]:not([fill='none']), circle[fill]:not([fill='none']), ellipse[fill]:not([fill='none']), polygon[fill]:not([fill='none'])"
+		)
+
+		if (svgFillTargets.length > 0) {
+			svgFillTargets.forEach((node) => {
+				;(node as SVGElement).setAttribute('fill', color)
+				// Clear any CSS inline fill on the element container that might override
+				;(node as any).style.fill = color
+			})
+		} else {
+			// Fallback: try setting fill on descendant paths generally
+			shapeElement.querySelectorAll('path').forEach((node) => {
+				;(node as SVGElement).setAttribute('fill', color)
+				;(node as any).style.fill = color
+			})
+		}
 	}
 
 	// Apply custom stroke color to a shape
