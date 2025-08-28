@@ -43,8 +43,8 @@
 		"context": "yarn run -T tsx ../../internal/scripts/context.ts"
 	},
 	"dependencies": {
-		"@tldraw/state": "3.15.3",
-		"@tldraw/utils": "3.15.3"
+		"@tldraw/state": "workspace:*",
+		"@tldraw/utils": "workspace:*"
 	},
 	"devDependencies": {
 		"@testing-library/react": "^15.0.7",

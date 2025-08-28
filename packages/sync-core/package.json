@@ -47,17 +47,17 @@
 		"@types/uuid-readable": "^0.0.3",
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1",
-		"tldraw": "3.15.3",
+		"tldraw": "workspace:*",
 		"typescript": "^5.8.3",
 		"uuid-by-string": "^4.0.0",
 		"uuid-readable": "^0.0.2",
 		"vitest": "^3.2.4"
 	},
 	"dependencies": {
-		"@tldraw/state": "3.15.3",
-		"@tldraw/store": "3.15.3",
-		"@tldraw/tlschema": "3.15.3",
-		"@tldraw/utils": "3.15.3",
+		"@tldraw/state": "workspace:*",
+		"@tldraw/store": "workspace:*",
+		"@tldraw/tlschema": "workspace:*",
+		"@tldraw/utils": "workspace:*",
 		"nanoevents": "^7.0.1",
 		"ws": "^8.18.0"
 	},
