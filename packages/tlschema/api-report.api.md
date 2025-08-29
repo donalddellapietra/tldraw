@@ -1101,6 +1101,8 @@ export interface TLGeoShapeProps {
     // (undocumented)
     cornerRadius: number;
     // (undocumented)
+    customFontSize?: number;
+    // (undocumented)
     dash: TLDefaultDashStyle;
     // (undocumented)
     fill: TLDefaultFillStyle;

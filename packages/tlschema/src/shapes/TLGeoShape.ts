@@ -82,6 +82,7 @@ export interface TLGeoShapeProps {
 	align: TLDefaultHorizontalAlignStyle
 	verticalAlign: TLDefaultVerticalAlignStyle
 	richText: TLRichText
+	customFontSize?: number
 }
 
 /** @public */
@@ -114,6 +115,7 @@ export const geoShapeProps: RecordProps<TLGeoShape> = {
 	align: DefaultHorizontalAlignStyle,
 	verticalAlign: DefaultVerticalAlignStyle,
 	richText: richTextValidator,
+	customFontSize: T.optional(T.number),
 }
 
 const geoShapeVersions = createShapePropsMigrationIds('geo', {

@@ -66,6 +66,8 @@ export class DrawShapeUtil extends ShapeUtil<TLDrawShape> {
 		return {
 			segments: [],
 			color: 'black',
+			fillColor: 'white',
+			strokeColor: 'black',
 			fill: 'none',
 			dash: 'draw',
 			size: 'm',

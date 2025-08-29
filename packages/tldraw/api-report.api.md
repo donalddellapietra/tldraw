@@ -1588,6 +1588,7 @@ export class GeoShapeUtil extends BaseBoxShapeUtil<TLGeoShape> {
             align: TLDefaultHorizontalAlignStyle;
             color: TLDefaultColorStyle;
             cornerRadius: number;
+            customFontSize?: number;
             dash: TLDefaultDashStyle;
             fill: TLDefaultFillStyle;
             fillColor: TLDefaultColorStyle;
@@ -1623,6 +1624,7 @@ export class GeoShapeUtil extends BaseBoxShapeUtil<TLGeoShape> {
             align: TLDefaultHorizontalAlignStyle;
             color: TLDefaultColorStyle;
             cornerRadius: number;
+            customFontSize?: number;
             dash: TLDefaultDashStyle;
             fill: TLDefaultFillStyle;
             fillColor: TLDefaultColorStyle;
