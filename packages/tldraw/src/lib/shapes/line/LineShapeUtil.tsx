@@ -334,7 +334,7 @@ function LineShapeSvg({
 	const theme = useDefaultColorTheme()
 
 	const path = getPathForLineShape(shape)
-	const { dash, color, size } = shape.props
+	const { dash, strokeColor, size } = shape.props
 
 	const scaleFactor = 1 / shape.props.scale
 
@@ -342,15 +342,8 @@ function LineShapeSvg({
 
 	const strokeWidth = STROKE_SIZES[size] * shape.props.scale
 
-	// Resolve stroke color with custom/meta fallbacks
-	const strokeColorToUse = (function () {
-		const custom = (shape.props as any).customStrokeColor as string | undefined
-		if (custom && typeof custom === 'string') return custom as any
-		const meta = (shape as any).meta
-		const metaCustom = meta?.customStrokeColor
-		if (metaCustom && typeof metaCustom === 'string') return metaCustom as any
-		return color
-	})()
+	// Use the new separate stroke color property with fallback
+	const strokeColorToUse = strokeColor || (shape.props as any).color // Fallback to old color for backward compatibility
 
 	return path.toSvg({
 		style: dash,

@@ -3,7 +3,11 @@ import { T } from '@tldraw/validate'
 import { createShapePropsMigrationIds, createShapePropsMigrationSequence } from '../records/TLShape'
 import { RecordProps } from '../recordsWithProps'
 import { StyleProp } from '../styles/StyleProp'
-import { DefaultColorStyle, TLDefaultColorStyle } from '../styles/TLColorStyle'
+import {
+	DefaultColorStyle,
+	DefaultStrokeColorStyle,
+	TLDefaultColorStyle,
+} from '../styles/TLColorStyle'
 import { DefaultDashStyle, TLDefaultDashStyle } from '../styles/TLDashStyle'
 import { DefaultSizeStyle, TLDefaultSizeStyle } from '../styles/TLSizeStyle'
 import { TLBaseShape } from './TLBaseShape'
@@ -34,12 +38,15 @@ const lineShapePointValidator: T.ObjectValidator<TLLineShapePoint> = T.object({
 
 /** @public */
 export interface TLLineShapeProps {
-	color: TLDefaultColorStyle
+	// Color properties
+	strokeColor: TLDefaultColorStyle
+
+	// Style properties
+	color: TLDefaultColorStyle // Keep for backward compatibility
 	dash: TLDefaultDashStyle
 	size: TLDefaultSizeStyle
 	spline: TLLineShapeSplineStyle
 	points: Record<string, TLLineShapePoint>
-	customStrokeColor?: string
 	scale: number
 }
 
@@ -48,12 +55,15 @@ export type TLLineShape = TLBaseShape<'line', TLLineShapeProps>
 
 /** @public */
 export const lineShapeProps: RecordProps<TLLineShape> = {
-	color: DefaultColorStyle,
+	// Color properties
+	strokeColor: DefaultStrokeColorStyle,
+
+	// Style properties
+	color: DefaultColorStyle, // Keep for backward compatibility
 	dash: DefaultDashStyle,
 	size: DefaultSizeStyle,
 	spline: LineShapeSplineStyle,
 	points: T.dict(T.string, lineShapePointValidator),
-	customStrokeColor: T.optional(T.string),
 	scale: T.nonZeroNumber,
 }
 

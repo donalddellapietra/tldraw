@@ -5,7 +5,10 @@ import { RecordProps } from '../recordsWithProps'
 import { StyleProp } from '../styles/StyleProp'
 import {
 	DefaultColorStyle,
+	DefaultFillColorStyle,
 	DefaultLabelColorStyle,
+	DefaultStrokeColorStyle,
+	DefaultTextColorStyle,
 	TLDefaultColorStyle,
 } from '../styles/TLColorStyle'
 import { DefaultDashStyle, TLDefaultDashStyle } from '../styles/TLDashStyle'
@@ -63,13 +66,18 @@ export interface TLGeoShapeProps {
 	scale: number
 	cornerRadius: number
 
+	// Color properties
+	fillColor: TLDefaultColorStyle
+	strokeColor: TLDefaultColorStyle
+	textColor: TLDefaultColorStyle
+
+	// Style properties
+	color: TLDefaultColorStyle // Keep for backward compatibility
+	fill: TLDefaultFillStyle
+	size: TLDefaultSizeStyle
+
 	// Text properties
 	labelColor: TLDefaultColorStyle
-	color: TLDefaultColorStyle
-	fill: TLDefaultFillStyle
-	customFillColor?: string
-	customStrokeColor?: string
-	size: TLDefaultSizeStyle
 	font: TLDefaultFontStyle
 	align: TLDefaultHorizontalAlignStyle
 	verticalAlign: TLDefaultVerticalAlignStyle
@@ -90,13 +98,18 @@ export const geoShapeProps: RecordProps<TLGeoShape> = {
 	scale: T.nonZeroNumber,
 	cornerRadius: T.number,
 
+	// Color properties
+	fillColor: DefaultFillColorStyle,
+	strokeColor: DefaultStrokeColorStyle,
+	textColor: DefaultTextColorStyle,
+
+	// Style properties
+	color: DefaultColorStyle, // Keep for backward compatibility
+	fill: DefaultFillStyle,
+	size: DefaultSizeStyle,
+
 	// Text properties
 	labelColor: DefaultLabelColorStyle,
-	color: DefaultColorStyle,
-	fill: DefaultFillStyle,
-	customFillColor: T.optional(T.string),
-	customStrokeColor: T.optional(T.string),
-	size: DefaultSizeStyle,
 	font: DefaultFontStyle,
 	align: DefaultHorizontalAlignStyle,
 	verticalAlign: DefaultVerticalAlignStyle,

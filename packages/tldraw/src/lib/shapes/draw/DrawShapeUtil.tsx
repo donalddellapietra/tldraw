@@ -272,15 +272,9 @@ function DrawShapeSvg({ shape, zoomOverride }: { shape: TLDrawShape; zoomOverrid
 
 	const options = getFreehandOptions(shape.props, sw, showAsComplete, forceSolid)
 
-	// Resolve stroke color with custom/meta fallbacks
-	const strokeColorToUse = (function () {
-		const custom = (shape.props as any).customStrokeColor as string | undefined
-		if (custom && typeof custom === 'string') return custom as any
-		const meta = (shape as any).meta
-		const metaCustom = meta?.customStrokeColor
-		if (metaCustom && typeof metaCustom === 'string') return metaCustom as any
-		return shape.props.color
-	})()
+	// Use the new separate color properties
+	const fillColorToUse = shape.props.fillColor || shape.props.color // Fallback to old color for backward compatibility
+	const strokeColorToUse = shape.props.strokeColor || shape.props.color // Fallback to old color for backward compatibility
 
 	if (!forceSolid && shape.props.dash === 'draw') {
 		return (
@@ -292,20 +286,16 @@ function DrawShapeSvg({ shape, zoomOverride }: { shape: TLDrawShape; zoomOverrid
 							shape.props.isClosed
 						)}
 						theme={theme}
-						color={shape.props.color}
+						color={fillColorToUse}
 						fill={shape.props.isClosed ? shape.props.fill : 'none'}
 						scale={shape.props.scale}
-						resolvedFillHex={(shape.props as any).customFillColor as any}
+						resolvedFillHex={undefined}
 					/>
 				) : null}
 				<path
 					d={svgInk(allPointsFromSegments, options)}
 					strokeLinecap="round"
-					fill={
-						typeof strokeColorToUse === 'string' && (strokeColorToUse as any).startsWith('#')
-							? (strokeColorToUse as any)
-							: getColorValue(theme, strokeColorToUse as any, 'solid')
-					}
+					fill={getColorValue(theme, strokeColorToUse as any, 'solid')}
 				/>
 			</>
 		)
@@ -323,9 +313,10 @@ function DrawShapeSvg({ shape, zoomOverride }: { shape: TLDrawShape; zoomOverrid
 				<ShapeFill
 					d={solidStrokePath}
 					theme={theme}
-					color={shape.props.color}
+					color={fillColorToUse}
 					fill={shape.props.isClosed ? shape.props.fill : 'none'}
 					scale={shape.props.scale}
+					resolvedFillHex={undefined}
 				/>
 			)}
 			{isDot ? (
@@ -333,18 +324,14 @@ function DrawShapeSvg({ shape, zoomOverride }: { shape: TLDrawShape; zoomOverrid
 					cx={allPointsFromSegments[0].x}
 					cy={allPointsFromSegments[0].y}
 					r={sw / 2}
-					fill={getColorValue(theme, strokeColorToUse, 'solid')}
+					fill={getColorValue(theme, strokeColorToUse as any, 'solid')}
 				/>
 			) : solidStrokePath ? (
 				<path
 					d={solidStrokePath}
 					strokeLinecap="round"
 					fill="none"
-					stroke={
-						typeof strokeColorToUse === 'string' && (strokeColorToUse as any).startsWith('#')
-							? (strokeColorToUse as any)
-							: getColorValue(theme, strokeColorToUse as any, 'solid')
-					}
+					stroke={getColorValue(theme, strokeColorToUse as any, 'solid')}
 					strokeWidth={sw}
 					strokeDasharray={getDrawShapeStrokeDashArray(shape, sw, dotAdjustment)}
 					strokeDashoffset="0"

@@ -555,10 +555,40 @@ export function getDefaultColorTheme(opts: { isDarkMode: boolean }): TLDefaultCo
 }
 
 /** @public */
-export const DefaultColorStyle = StyleProp.defineEnum('tldraw:color', {
-	defaultValue: 'black',
-	values: defaultColorNames,
-})
+export const DefaultColorStyle = Object.assign(
+	StyleProp.define('tldraw:color', {
+		defaultValue: 'black',
+		type: T.or(T.literalEnum(...defaultColorNames), T.string),
+	}),
+	{ values: defaultColorNames } // Keep for backward compatibility and UI
+)
+
+/** @public */
+export const DefaultFillColorStyle = Object.assign(
+	StyleProp.define('tldraw:fillColor', {
+		defaultValue: 'white',
+		type: T.or(T.literalEnum(...defaultColorNames), T.string),
+	}),
+	{ values: defaultColorNames } // Keep for backward compatibility and UI
+)
+
+/** @public */
+export const DefaultStrokeColorStyle = Object.assign(
+	StyleProp.define('tldraw:strokeColor', {
+		defaultValue: 'black',
+		type: T.or(T.literalEnum(...defaultColorNames), T.string),
+	}),
+	{ values: defaultColorNames } // Keep for backward compatibility and UI
+)
+
+/** @public */
+export const DefaultTextColorStyle = Object.assign(
+	StyleProp.define('tldraw:textColor', {
+		defaultValue: 'black',
+		type: T.or(T.literalEnum(...defaultColorNames), T.string),
+	}),
+	{ values: defaultColorNames } // Keep for backward compatibility and UI
+)
 
 /** @public */
 export const CustomColorStyle = StyleProp.define('tldraw:customColor', {
@@ -573,16 +603,24 @@ export const CustomFillColorStyle = StyleProp.define('tldraw:customFillColor', {
 })
 
 /** @public */
+export const HexColorStyle = StyleProp.define('tldraw:hexColor', {
+	defaultValue: '#000000',
+	type: T.string,
+})
+
+/** @public */
 export const CustomStrokeColorStyle = StyleProp.define('tldraw:customStrokeColor', {
 	defaultValue: '#000000',
 	type: T.string,
 })
 
 /** @public */
-export const DefaultStrokeColorStyle = StyleProp.defineEnum('tldraw:strokeColor', {
-	defaultValue: 'black',
-	values: defaultColorNames,
+export const CustomTextColorStyle = StyleProp.define('tldraw:customTextColor', {
+	defaultValue: '#000000',
+	type: T.string,
 })
+
+// Removed duplicate DefaultStrokeColorStyle declaration
 
 /** @public */
 export const DefaultLabelColorStyle = StyleProp.defineEnum('tldraw:labelColor', {
@@ -591,7 +629,7 @@ export const DefaultLabelColorStyle = StyleProp.defineEnum('tldraw:labelColor', 
 })
 
 /** @public */
-export type TLDefaultColorStyle = T.TypeOf<typeof DefaultColorStyle>
+export type TLDefaultColorStyle = T.TypeOf<typeof DefaultColorStyle> | string
 
 /** @public */
 export type TLCustomColorStyle = T.TypeOf<typeof CustomColorStyle>
@@ -600,7 +638,13 @@ export type TLCustomColorStyle = T.TypeOf<typeof CustomColorStyle>
 export type TLCustomFillColorStyle = T.TypeOf<typeof CustomFillColorStyle>
 
 /** @public */
+export type TLHexColorStyle = T.TypeOf<typeof HexColorStyle>
+
+/** @public */
 export type TLCustomStrokeColorStyle = T.TypeOf<typeof CustomStrokeColorStyle>
+
+/** @public */
+export type TLCustomTextColorStyle = T.TypeOf<typeof CustomTextColorStyle>
 
 /** @public */
 export type TLDefaultStrokeColorStyle = T.TypeOf<typeof DefaultStrokeColorStyle>
@@ -611,6 +655,9 @@ const defaultColorNamesSet = new Set(defaultColorNames)
 export function isDefaultThemeColor(
 	color: TLDefaultColorStyle
 ): color is (typeof defaultColorNames)[number] {
+	if (typeof color === 'string' && color.startsWith('#')) {
+		return false // Hex colors are not default theme colors
+	}
 	return defaultColorNamesSet.has(color as (typeof defaultColorNames)[number])
 }
 
@@ -620,9 +667,16 @@ export function getColorValue(
 	color: TLDefaultColorStyle,
 	variant: keyof TLDefaultColorThemeColor
 ): string {
+	// If it's a hex color, return it directly
+	if (typeof color === 'string' && color.startsWith('#')) {
+		return color
+	}
+
+	// If it's not a default theme color, return as-is
 	if (!isDefaultThemeColor(color)) {
 		return color
 	}
 
+	// Otherwise, get the theme color value
 	return theme[color][variant]
 }

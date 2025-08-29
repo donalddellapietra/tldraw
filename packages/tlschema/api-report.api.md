@@ -176,7 +176,9 @@ export const defaultBindingSchemas: {
 export const defaultColorNames: readonly ["black", "grey", "light-violet", "violet", "blue", "light-blue", "yellow", "orange", "green", "light-green", "light-red", "red", "white", "brown", "pink", "cyan"];
 
 // @public (undocumented)
-export const DefaultColorStyle: EnumStyleProp<"black" | "blue" | "brown" | "cyan" | "green" | "grey" | "light-blue" | "light-green" | "light-red" | "light-violet" | "orange" | "pink" | "red" | "violet" | "white" | "yellow">;
+export const DefaultColorStyle: StyleProp<string> & {
+    values: readonly ["black", "grey", "light-violet", "violet", "blue", "light-blue", "yellow", "orange", "green", "light-green", "light-red", "red", "white", "brown", "pink", "cyan"];
+};
 
 // @public (undocumented)
 export const DefaultColorThemePalette: {
@@ -186,6 +188,11 @@ export const DefaultColorThemePalette: {
 
 // @public (undocumented)
 export const DefaultDashStyle: EnumStyleProp<"dashed" | "dotted" | "draw" | "solid">;
+
+// @public (undocumented)
+export const DefaultFillColorStyle: StyleProp<string> & {
+    values: readonly ["black", "grey", "light-violet", "violet", "blue", "light-blue", "yellow", "orange", "green", "light-green", "light-red", "red", "white", "brown", "pink", "cyan"];
+};
 
 // @public (undocumented)
 export const DefaultFillStyle: EnumStyleProp<"fill" | "none" | "pattern" | "semi" | "solid">;
@@ -267,7 +274,17 @@ export const defaultShapeSchemas: {
 export const DefaultSizeStyle: EnumStyleProp<"l" | "m" | "s" | "xl">;
 
 // @public (undocumented)
+export const DefaultStrokeColorStyle: StyleProp<string> & {
+    values: readonly ["black", "grey", "light-violet", "violet", "blue", "light-blue", "yellow", "orange", "green", "light-green", "light-red", "red", "white", "brown", "pink", "cyan"];
+};
+
+// @public (undocumented)
 export const DefaultTextAlignStyle: EnumStyleProp<"end" | "middle" | "start">;
+
+// @public (undocumented)
+export const DefaultTextColorStyle: StyleProp<string> & {
+    values: readonly ["black", "grey", "light-violet", "violet", "blue", "light-blue", "yellow", "orange", "green", "light-green", "light-red", "red", "white", "brown", "pink", "cyan"];
+};
 
 // @public (undocumented)
 export const DefaultVerticalAlignStyle: EnumStyleProp<"end" | "middle" | "start">;
@@ -728,6 +745,8 @@ export interface TLArrowShapeProps {
     // (undocumented)
     fill: TLDefaultFillStyle;
     // (undocumented)
+    fillColor: TLDefaultColorStyle;
+    // (undocumented)
     font: TLDefaultFontStyle;
     // (undocumented)
     kind: TLArrowShapeKind;
@@ -743,6 +762,10 @@ export interface TLArrowShapeProps {
     size: TLDefaultSizeStyle;
     // (undocumented)
     start: VecModel;
+    // (undocumented)
+    strokeColor: TLDefaultColorStyle;
+    // (undocumented)
+    textColor: TLDefaultColorStyle;
 }
 
 // @public (undocumented)
@@ -918,7 +941,7 @@ export type TLCursorType = SetValue<typeof TL_CURSOR_TYPES>;
 export type TLDefaultBinding = TLArrowBinding;
 
 // @public (undocumented)
-export type TLDefaultColorStyle = T.TypeOf<typeof DefaultColorStyle>;
+export type TLDefaultColorStyle = string | T.TypeOf<typeof DefaultColorStyle>;
 
 // @public (undocumented)
 export type TLDefaultColorTheme = Expand<{
@@ -1006,11 +1029,11 @@ export interface TLDrawShapeProps {
     // (undocumented)
     color: TLDefaultColorStyle;
     // (undocumented)
-    customStrokeColor?: string;
-    // (undocumented)
     dash: TLDefaultDashStyle;
     // (undocumented)
     fill: TLDefaultFillStyle;
+    // (undocumented)
+    fillColor: TLDefaultColorStyle;
     // (undocumented)
     isClosed: boolean;
     // (undocumented)
@@ -1023,6 +1046,8 @@ export interface TLDrawShapeProps {
     segments: TLDrawShapeSegment[];
     // (undocumented)
     size: TLDefaultSizeStyle;
+    // (undocumented)
+    strokeColor: TLDefaultColorStyle;
 }
 
 // @public (undocumented)
@@ -1076,13 +1101,11 @@ export interface TLGeoShapeProps {
     // (undocumented)
     cornerRadius: number;
     // (undocumented)
-    customFillColor?: string;
-    // (undocumented)
-    customStrokeColor?: string;
-    // (undocumented)
     dash: TLDefaultDashStyle;
     // (undocumented)
     fill: TLDefaultFillStyle;
+    // (undocumented)
+    fillColor: TLDefaultColorStyle;
     // (undocumented)
     font: TLDefaultFontStyle;
     // (undocumented)
@@ -1099,6 +1122,10 @@ export interface TLGeoShapeProps {
     scale: number;
     // (undocumented)
     size: TLDefaultSizeStyle;
+    // (undocumented)
+    strokeColor: TLDefaultColorStyle;
+    // (undocumented)
+    textColor: TLDefaultColorStyle;
     // (undocumented)
     url: string;
     // (undocumented)
@@ -1351,8 +1378,6 @@ export interface TLLineShapeProps {
     // (undocumented)
     color: TLDefaultColorStyle;
     // (undocumented)
-    customStrokeColor?: string;
-    // (undocumented)
     dash: TLDefaultDashStyle;
     // (undocumented)
     points: Record<string, TLLineShapePoint>;
@@ -1362,6 +1387,8 @@ export interface TLLineShapeProps {
     size: TLDefaultSizeStyle;
     // (undocumented)
     spline: TLLineShapeSplineStyle;
+    // (undocumented)
+    strokeColor: TLDefaultColorStyle;
 }
 
 // @public (undocumented)
@@ -1553,8 +1580,6 @@ export interface TLTextShapeProps {
     // (undocumented)
     customFontSize?: number;
     // (undocumented)
-    customTextColor?: string;
-    // (undocumented)
     font: TLDefaultFontStyle;
     // (undocumented)
     fontSize: TLDefaultFontSizeStyle;
@@ -1566,6 +1591,8 @@ export interface TLTextShapeProps {
     size: TLDefaultSizeStyle;
     // (undocumented)
     textAlign: TLDefaultTextAlignStyle;
+    // (undocumented)
+    textColor: TLDefaultColorStyle;
     // (undocumented)
     w: number;
 }

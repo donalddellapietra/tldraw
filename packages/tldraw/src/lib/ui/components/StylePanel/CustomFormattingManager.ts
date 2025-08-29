@@ -1,5 +1,12 @@
 import { TLShape, TLShapeId, toRichText, useEditor } from '@tldraw/editor'
-import { DefaultColorStyle, DefaultFillStyle, DefaultSizeStyle } from '@tldraw/tlschema'
+import {
+	DefaultColorStyle,
+	DefaultFillColorStyle,
+	DefaultFillStyle,
+	DefaultSizeStyle,
+	DefaultStrokeColorStyle,
+	DefaultTextColorStyle,
+} from '@tldraw/tlschema'
 import React from 'react'
 import { FONT_SIZES } from '../../../shapes/shared/default-shape-constants'
 
@@ -27,10 +34,6 @@ export class CustomFormattingManager {
 	// Text formatting methods
 	text = {
 		setColor: (color: string) => {
-			// For now, we'll use the color conversion to avoid validation errors
-			// TODO: In the future, we could modify the schema to accept hex colors directly
-			const tldrawColor = this.hexToTldrawColor(color)
-
 			// Get shapes that can have text formatting (text shapes OR geo shapes with richText)
 			const shapesToUpdate = this.editor.getSelectedShapes().filter((shape: TLShape) => {
 				if (shape.type === 'text') return true
@@ -41,44 +44,9 @@ export class CustomFormattingManager {
 			console.log('🔧 setColor: Updating shapes with text formatting:', shapesToUpdate)
 
 			this.editor.run(() => {
-				shapesToUpdate.forEach((shape: TLShape) => {
-					if (shape.type === 'text') {
-						// For text shapes, set the color property
-						this.editor.updateShapes([
-							{
-								id: shape.id,
-								type: shape.type,
-								props: {
-									...shape.props,
-									color: tldrawColor,
-								},
-							},
-						])
-					} else if (shape.type === 'geo' && (shape.props as any).richText) {
-						// For geo shapes with richText, we need to apply color to the richText content
-						console.log(
-							'🔧 Geo shape color change - applying color to richText content:',
-							tldrawColor
-						)
-
-						// Store the color in meta data for geo shapes
-						this.editor.updateShapes([
-							{
-								id: shape.id,
-								type: shape.type,
-								meta: {
-									...shape.meta,
-									textColor: tldrawColor,
-								},
-							},
-						])
-
-						// Apply the color directly to the DOM elements for immediate visual feedback
-						setTimeout(() => {
-							this.applyTextColorToGeoShape(shape.id, tldrawColor)
-						}, 50)
-					}
-				})
+				// Use the new separate text color system
+				this.editor.setStyleForSelectedShapes(DefaultTextColorStyle, color)
+				console.log('🎨 Applied text color using separate DefaultTextColorStyle:', color)
 			})
 
 			// Notify state change after updating
@@ -100,76 +68,10 @@ export class CustomFormattingManager {
 			console.log('🔧 Color type:', isHexColor ? 'hex' : 'tldraw', 'Value:', color)
 
 			this.editor.run(() => {
-				shapesToUpdate.forEach((shape: TLShape) => {
-					if (shape.type === 'text') {
-						if (isHexColor) {
-							// For hex colors, store in meta and apply via CSS
-							this.editor.updateShapes([
-								{
-									id: shape.id,
-									type: shape.type,
-									meta: {
-										...shape.meta,
-										customTextColor: color,
-									},
-								},
-							])
+				// Use the new separate text color system
+				this.editor.setStyleForSelectedShapes(DefaultTextColorStyle, color)
 
-							// Apply the color directly to the DOM elements for immediate visual feedback
-							setTimeout(() => {
-								this.applyCustomTextColorToTextShape(shape.id, color)
-							}, 50)
-						} else {
-							// For tldraw colors, use the standard color property
-							this.editor.updateShapes([
-								{
-									id: shape.id,
-									type: shape.type,
-									props: {
-										...shape.props,
-										color: color,
-									},
-								},
-							])
-						}
-					} else if (shape.type === 'geo' && (shape.props as any).richText) {
-						if (isHexColor) {
-							// For hex colors, store in meta and apply via CSS
-							this.editor.updateShapes([
-								{
-									id: shape.id,
-									type: shape.type,
-									meta: {
-										...shape.meta,
-										customTextColor: color,
-									},
-								},
-							])
-
-							// Apply the color directly to the DOM elements for immediate visual feedback
-							setTimeout(() => {
-								this.applyCustomTextColorToGeoShape(shape.id, color)
-							}, 50)
-						} else {
-							// For tldraw colors, store in meta data for geo shapes
-							this.editor.updateShapes([
-								{
-									id: shape.id,
-									type: shape.type,
-									meta: {
-										...shape.meta,
-										textColor: color,
-									},
-								},
-							])
-
-							// Apply the color directly to the DOM elements for immediate visual feedback
-							setTimeout(() => {
-								this.applyTextColorToGeoShape(shape.id, color)
-							}, 50)
-						}
-					}
-				})
+				console.log('🎨 Applied text color using separate DefaultTextColorStyle:', color)
 			})
 
 			// Notify state change after updating
@@ -193,74 +95,9 @@ export class CustomFormattingManager {
 
 				console.log('🔧 Found shape:', shape)
 
-				if (shape.type === 'text') {
-					if (isHexColor) {
-						// For hex colors, store in meta and apply via CSS
-						this.editor.updateShapes([
-							{
-								id: shape.id,
-								type: shape.type,
-								meta: {
-									...shape.meta,
-									customTextColor: color,
-								},
-							},
-						])
-
-						// Apply the color directly to the DOM elements for immediate visual feedback
-						setTimeout(() => {
-							this.applyCustomTextColorToTextShape(shape.id, color)
-						}, 50)
-					} else {
-						// For tldraw colors, use the standard color property
-						this.editor.updateShapes([
-							{
-								id: shape.id,
-								type: shape.type,
-								props: {
-									...shape.props,
-									color: color,
-								},
-							},
-						])
-					}
-				} else if (shape.type === 'geo' && (shape.props as any).richText) {
-					if (isHexColor) {
-						// For hex colors, store in meta and apply via CSS
-						this.editor.updateShapes([
-							{
-								id: shape.id,
-								type: shape.type,
-								meta: {
-									...shape.meta,
-									customTextColor: color,
-								},
-							},
-						])
-
-						// Apply the color directly to the DOM elements for immediate visual feedback
-						setTimeout(() => {
-							this.applyCustomTextColorToGeoShape(shape.id, color)
-						}, 50)
-					} else {
-						// For tldraw colors, store in meta data for geo shapes
-						this.editor.updateShapes([
-							{
-								id: shape.id,
-								type: shape.type,
-								meta: {
-									...shape.meta,
-									textColor: color,
-								},
-							},
-						])
-
-						// Apply the color directly to the DOM elements for immediate visual feedback
-						setTimeout(() => {
-							this.applyTextColorToGeoShape(shape.id, color)
-						}, 50)
-					}
-				}
+				// Use the new separate text color system
+				this.editor.setStyleForSelectedShapes(DefaultTextColorStyle, color)
+				console.log('🎨 Applied text color using separate DefaultTextColorStyle:', color)
 			})
 
 			// Notify state change after updating
@@ -635,15 +472,15 @@ export class CustomFormattingManager {
 			this.editor.run(() => {
 				if (this.editor.isIn('select')) {
 					this.editor.setStyleForSelectedShapes(DefaultFillStyle, fillStyle)
-					this.editor.setStyleForSelectedShapes(DefaultColorStyle, tldrawColor)
+					this.editor.setStyleForSelectedShapes(DefaultFillColorStyle, tldrawColor)
 				}
 				this.editor.setStyleForNextShapes(DefaultFillStyle, fillStyle)
-				this.editor.setStyleForNextShapes(DefaultColorStyle, tldrawColor)
+				this.editor.setStyleForNextShapes(DefaultFillColorStyle, tldrawColor)
 				this.editor.updateInstanceState({ isChangingStyle: true })
 			})
 		},
 
-		// Method to set custom fill color (supports hex colors)
+		// Method to set custom fill color (supports both tldraw colors and hex colors)
 		setCustomFillColor: (color: string) => {
 			// Check if this is a hex color or a tldraw color
 			const isHexColor = color.startsWith('#') && (color.length === 7 || color.length === 4)
@@ -658,29 +495,11 @@ export class CustomFormattingManager {
 			console.log('🔧 Color type:', isHexColor ? 'hex' : 'tldraw', 'Value:', color)
 
 			this.editor.run(() => {
-				shapesToUpdate.forEach((shape: TLShape) => {
-					if (isHexColor) {
-						// For hex colors, store in meta and apply via CSS
-						this.editor.updateShapes([
-							{
-								id: shape.id,
-								type: shape.type,
-								meta: {
-									...shape.meta,
-									customFillColor: color,
-								},
-							},
-						])
+				// Use the new separate fill color style
+				this.editor.setStyleForSelectedShapes(DefaultFillColorStyle, color)
+				this.editor.setStyleForSelectedShapes(DefaultFillStyle, 'solid')
 
-						// Apply the color directly to the DOM elements for immediate visual feedback
-						setTimeout(() => {
-							this.applyCustomFillColorToShape(shape.id, color)
-						}, 50)
-					} else {
-						// For tldraw colors, use the standard method
-						this.editor.setStyleForSelectedShapes(DefaultColorStyle, color)
-					}
-				})
+				console.log('🎨 Applied fill color using separate DefaultFillColorStyle:', color)
 			})
 
 			// Notify state change after updating
@@ -716,7 +535,7 @@ export class CustomFormattingManager {
 			console.log('🏁 setStrokeColor completed')
 		},
 
-		// Method to set custom stroke color (supports hex colors)
+		// Method to set stroke color (supports both tldraw colors and hex colors)
 		setCustomStrokeColor: (color: string) => {
 			// Check if this is a hex color or a tldraw color
 			const isHexColor = color.startsWith('#') && (color.length === 7 || color.length === 4)
@@ -731,34 +550,10 @@ export class CustomFormattingManager {
 			console.log('🔧 Color type:', isHexColor ? 'hex' : 'tldraw', 'Value:', color)
 
 			this.editor.run(() => {
-				shapesToUpdate.forEach((shape: TLShape) => {
-					if (isHexColor) {
-						// For hex colors, we need to work with tldraw's style system
-						// Since tldraw uses SVG rendering, we'll store the custom color
-						// and let the shape components handle it through their rendering logic
+				// Use the new separate stroke color system
+				this.editor.setStyleForSelectedShapes(DefaultStrokeColorStyle, color)
 
-						// Store the custom stroke color in meta
-						this.editor.updateShapes([
-							{
-								id: shape.id,
-								type: shape.type,
-								meta: {
-									...shape.meta,
-									customStrokeColor: color,
-								},
-							},
-						])
-
-						// For hex colors, we need to override the stroke color at the DOM level
-						// since tldraw expects strokeColor to be a predefined color name
-						setTimeout(() => {
-							this.applyCustomStrokeColorToShape(shape.id, color)
-						}, 50)
-					} else {
-						// For tldraw colors, use the standard method
-						this.editor.setStyleForSelectedShapes(DefaultColorStyle, color)
-					}
-				})
+				console.log('🎨 Applied stroke color using separate DefaultStrokeColorStyle:', color)
 			})
 
 			// Notify state change after updating
@@ -800,21 +595,30 @@ export class CustomFormattingManager {
 		return firstShape.props?.color || '#000000'
 	}
 
+	// Removed duplicate getCurrentTextColor method
+
 	getCurrentBackgroundColor(): string {
 		const selectedShapes = this.editor.getSelectedShapes()
 		if (selectedShapes.length === 0) return '#ffffff'
 
-		const firstShape = selectedShapes[0]
-
-		// Check for custom fill color first
-		if (firstShape.meta?.customFillColor) {
-			console.log('🔍 Found custom fill color:', firstShape.meta.customFillColor)
-			return firstShape.meta.customFillColor
+		// Check if any selected shape has a custom fill color
+		for (const shape of selectedShapes) {
+			if (shape.type === 'geo' || shape.type === 'draw' || shape.type === 'arrow') {
+				// Check for the new fillColor property (may not exist on old shapes yet)
+				const fillColor = (shape.props as any).fillColor
+				if (fillColor) {
+					// If it's a hex color, return it directly
+					if (typeof fillColor === 'string' && fillColor.startsWith('#')) {
+						return fillColor
+					}
+					// Convert tldraw color back to hex
+					return this.tldrawColorToHex(fillColor)
+				}
+			}
 		}
 
-		// Use the proper tldraw style system to get current styles
+		// Fallback to the old unified system for backward compatibility
 		const sharedStyles = this.editor.getSharedStyles()
-
 		const currentFill = sharedStyles.get(DefaultFillStyle)
 		const currentColor = sharedStyles.get(DefaultColorStyle)
 
@@ -826,11 +630,25 @@ export class CustomFormattingManager {
 			currentColor &&
 			currentColor.type === 'shared'
 		) {
+			// The color can now be either a predefined name or a hex value
+			if (typeof currentColor.value === 'string' && currentColor.value.startsWith('#')) {
+				return currentColor.value
+			}
 			// Convert tldraw color back to hex
 			const hexColor = this.tldrawColorToHex(currentColor.value)
 			return hexColor
 		}
 
+		// Check if there's a default fill color style set
+		const defaultFillColor = sharedStyles.get(DefaultFillColorStyle)
+		if (defaultFillColor && defaultFillColor.type === 'shared') {
+			if (typeof defaultFillColor.value === 'string' && defaultFillColor.value.startsWith('#')) {
+				return defaultFillColor.value
+			}
+			return this.tldrawColorToHex(defaultFillColor.value)
+		}
+
+		// For new shapes without custom colors, return white as default
 		return '#ffffff'
 	}
 
@@ -853,35 +671,83 @@ export class CustomFormattingManager {
 		const selectedShapes = this.editor.getSelectedShapes()
 		if (selectedShapes.length === 0) return '#000000'
 
-		const firstShape = selectedShapes[0]
-
-		// Check for custom stroke color first (in meta)
-		if (firstShape.meta?.customStrokeColor) {
-			return firstShape.meta.customStrokeColor
-		}
-
-		// Check for strokeColor in props (for shapes that support it)
-		if (
-			firstShape.props &&
-			typeof firstShape.props === 'object' &&
-			'strokeColor' in firstShape.props
-		) {
-			const strokeColor = (firstShape.props as any).strokeColor
-			if (strokeColor && strokeColor.startsWith('#')) {
-				return strokeColor
+		// Check if any selected shape has a custom stroke color
+		for (const shape of selectedShapes) {
+			if (
+				shape.type === 'geo' ||
+				shape.type === 'draw' ||
+				shape.type === 'arrow' ||
+				shape.type === 'line'
+			) {
+				// Check for the new strokeColor property (may not exist on old shapes yet)
+				const strokeColor = (shape.props as any).strokeColor
+				if (strokeColor) {
+					// If it's a hex color, return it directly
+					if (typeof strokeColor === 'string' && strokeColor.startsWith('#')) {
+						return strokeColor
+					}
+					// Convert tldrawColor back to hex
+					return this.tldrawColorToHex(strokeColor)
+				}
 			}
 		}
 
-		// Use the proper tldraw style system to get current styles
+		// Fallback to the old unified system for backward compatibility
 		const sharedStyles = this.editor.getSharedStyles()
 		const currentStrokeColor = sharedStyles.get(DefaultColorStyle)
 
 		if (currentStrokeColor && currentStrokeColor.type === 'shared') {
+			// The color can now be either a predefined name or a hex value
+			if (
+				typeof currentStrokeColor.value === 'string' &&
+				currentStrokeColor.value.startsWith('#')
+			) {
+				return currentStrokeColor.value
+			}
 			// Convert tldraw color back to hex
 			const hexColor = this.tldrawColorToHex(currentStrokeColor.value)
 			return hexColor
 		}
 
+		// For new shapes without custom colors, return black as default
+		return '#000000'
+	}
+
+	getCurrentTextColor(): string {
+		const selectedShapes = this.editor.getSelectedShapes()
+		if (selectedShapes.length === 0) return '#000000'
+
+		// Check if any selected shape has a custom text color
+		for (const shape of selectedShapes) {
+			if (shape.type === 'text' || (shape.type === 'geo' && (shape.props as any).richText)) {
+				// Check for the new textColor property (may not exist on old shapes yet)
+				const textColor = (shape.props as any).textColor
+				if (textColor) {
+					// If it's a hex color, return it directly
+					if (typeof textColor === 'string' && textColor.startsWith('#')) {
+						return textColor
+					}
+					// Convert tldraw color back to hex
+					return this.tldrawColorToHex(textColor)
+				}
+			}
+		}
+
+		// Fallback to the old unified system for backward compatibility
+		const sharedStyles = this.editor.getSharedStyles()
+		const currentColor = sharedStyles.get(DefaultColorStyle)
+
+		if (currentColor && currentColor.type === 'shared') {
+			// The color can now be either a predefined name or a hex value
+			if (typeof currentColor.value === 'string' && currentColor.value.startsWith('#')) {
+				return currentColor.value
+			}
+			// Convert tldraw color back to hex
+			const hexColor = this.tldrawColorToHex(currentColor.value)
+			return hexColor
+		}
+
+		// For new shapes without custom colors, return black as default
 		return '#000000'
 	}
 
@@ -1475,53 +1341,6 @@ export class CustomFormattingManager {
 		}
 	}
 
-	// Helper method to get current text color
-	getCurrentTextColor(): string {
-		const selectedShapes = this.editor.getSelectedShapes()
-
-		// console.log('🔍 getCurrentTextColor called')
-		// console.log(
-		// 	'🔍 Selected shapes:',
-		// 	selectedShapes.map((s: TLShape) => ({ type: s.type, id: s.id }))
-		// )
-
-		if (selectedShapes.length === 0) return '#000000'
-
-		const firstShape = selectedShapes[0]
-		// console.log('🔍 First shape:', { type: firstShape.type, id: firstShape.id })
-
-		if (firstShape.type === 'text') {
-			// For text shapes, check for custom color first, then fall back to tldraw color
-			if (firstShape.meta?.customTextColor) {
-				// console.log('🔍 Text shape custom color:', firstShape.meta.customTextColor)
-				return firstShape.meta.customTextColor
-			}
-
-			const tldrawColor = firstShape.props?.color || 'black'
-			// console.log('🔍 Text shape tldraw color:', tldrawColor)
-			const hexColor = this.tldrawColorToHex(tldrawColor)
-			// console.log('🔍 Converted to hex:', hexColor)
-			return hexColor
-		} else if (firstShape.type === 'geo' && (firstShape.props as any).richText) {
-			// For geo shapes with richText, check meta data for custom color first, then stored text color
-			// console.log('🔍 Geo shape meta data:', firstShape.meta)
-
-			if (firstShape.meta?.customTextColor) {
-				// console.log('🔍 Geo shape custom color:', firstShape.meta.customTextColor)
-				return firstShape.meta.customTextColor
-			}
-
-			const tldrawColor = firstShape.meta?.textColor || 'black'
-			// console.log('🔍 Geo shape stored tldraw color:', tldrawColor)
-			const hexColor = this.tldrawColorToHex(tldrawColor)
-			// console.log('🔍 Converted to hex:', hexColor)
-			return hexColor
-		}
-
-		// console.log('🔍 No text or geo shape found, returning black')
-		return '#000000'
-	}
-
 	// Convert tldraw color names to hex colors
 	private tldrawColorToHex(tldrawColor: string): string {
 		const colorMap: { [key: string]: string } = {
@@ -1598,62 +1417,6 @@ export class CustomFormattingManager {
 			const element = textElement as HTMLElement
 			element.style.color = color
 		})
-	}
-
-	// Apply custom fill color to a shape
-	private applyCustomFillColorToShape(shapeId: TLShapeId, color: string) {
-		const shapeElement = document.querySelector(`[data-shape-id="${shapeId}"]`)
-		if (!shapeElement) return
-
-		console.log(`🔧 Applying custom fill color ${color} to shape ${shapeId}`)
-
-		// Apply fill to the actual SVG geometry instead of the container's background.
-		// Filling the container paints the original rectangular bounding box, which
-		// ignores rounded corners or elliptical paths.
-		const svgFillTargets = shapeElement.querySelectorAll(
-			// select any path/shape nodes that currently have a fill and are not explicitly none
-			"path[fill]:not([fill='none']), rect[fill]:not([fill='none']), circle[fill]:not([fill='none']), ellipse[fill]:not([fill='none']), polygon[fill]:not([fill='none'])"
-		)
-
-		if (svgFillTargets.length > 0) {
-			svgFillTargets.forEach((node) => {
-				;(node as SVGElement).setAttribute('fill', color)
-				// Clear any CSS inline fill on the element container that might override
-				;(node as any).style.fill = color
-			})
-		} else {
-			// Fallback: try setting fill on descendant paths generally
-			shapeElement.querySelectorAll('path').forEach((node) => {
-				;(node as SVGElement).setAttribute('fill', color)
-				;(node as any).style.fill = color
-			})
-		}
-	}
-
-	// Apply custom stroke color to a shape
-	private applyCustomStrokeColorToShape(shapeId: TLShapeId, color: string) {
-		const shapeElement = document.querySelector(`[data-shape-id="${shapeId}"]`)
-		if (!shapeElement) return
-
-		console.log(`🔧 Applying custom stroke color ${color} to shape ${shapeId}`)
-
-		// Find SVG elements within the shape that need stroke color updates
-		const svgElements = shapeElement.querySelectorAll(
-			'svg, path, line, rect, circle, ellipse, polygon'
-		)
-
-		svgElements.forEach((svgElement) => {
-			const element = svgElement as SVGElement
-			// Set the stroke attribute directly on SVG elements
-			element.setAttribute('stroke', color)
-
-			// Also try to set stroke via CSS as a fallback
-			;(element as any).style.stroke = color
-		})
-
-		// Also try to set stroke on the main shape element
-		const element = shapeElement as HTMLElement
-		element.style.borderColor = color
 	}
 }
 

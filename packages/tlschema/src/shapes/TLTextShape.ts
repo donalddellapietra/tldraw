@@ -2,7 +2,11 @@ import { T } from '@tldraw/validate'
 import { TLRichText, richTextValidator, toRichText } from '../misc/TLRichText'
 import { createShapePropsMigrationIds, createShapePropsMigrationSequence } from '../records/TLShape'
 import { RecordProps } from '../recordsWithProps'
-import { DefaultColorStyle, TLDefaultColorStyle } from '../styles/TLColorStyle'
+import {
+	DefaultColorStyle,
+	DefaultTextColorStyle,
+	TLDefaultColorStyle,
+} from '../styles/TLColorStyle'
 import { DefaultFontSizeStyle, TLDefaultFontSizeStyle } from '../styles/TLFontSizeStyle'
 import { DefaultFontStyle, TLDefaultFontStyle } from '../styles/TLFontStyle'
 import { DefaultSizeStyle, TLDefaultSizeStyle } from '../styles/TLSizeStyle'
@@ -11,11 +15,14 @@ import { TLBaseShape } from './TLBaseShape'
 
 /** @public */
 export interface TLTextShapeProps {
-	color: TLDefaultColorStyle
+	// Color properties
+	textColor: TLDefaultColorStyle
+
+	// Style properties
+	color: TLDefaultColorStyle // Keep for backward compatibility
 	size: TLDefaultSizeStyle
 	fontSize: TLDefaultFontSizeStyle
 	customFontSize?: number
-	customTextColor?: string
 	font: TLDefaultFontStyle
 	textAlign: TLDefaultTextAlignStyle
 	w: number
@@ -29,11 +36,14 @@ export type TLTextShape = TLBaseShape<'text', TLTextShapeProps>
 
 /** @public */
 export const textShapeProps: RecordProps<TLTextShape> = {
-	color: DefaultColorStyle,
+	// Color properties
+	textColor: DefaultTextColorStyle,
+
+	// Style properties
+	color: DefaultColorStyle, // Keep for backward compatibility
 	size: DefaultSizeStyle,
 	fontSize: DefaultFontSizeStyle,
 	customFontSize: T.optional(T.number),
-	customTextColor: T.optional(T.string),
 	font: DefaultFontStyle,
 	textAlign: DefaultTextAlignStyle,
 	w: T.nonZeroNumber,
