@@ -1112,6 +1112,7 @@ const ArrowSvg = track(function ArrowSvg({
 						color={shape.props.color}
 						fill={shape.props.fill}
 						scale={shape.props.scale}
+						resolvedFillHex={undefined}
 					/>
 				)}
 				{ae && clipEndArrowhead && shape.props.fill !== 'none' && (
@@ -1121,6 +1122,7 @@ const ArrowSvg = track(function ArrowSvg({
 						color={shape.props.color}
 						fill={shape.props.fill}
 						scale={shape.props.scale}
+						resolvedFillHex={undefined}
 					/>
 				)}
 				{as && <path d={as} />}

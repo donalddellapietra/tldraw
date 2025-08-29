@@ -200,18 +200,27 @@ export class GeoShapeUtil extends BaseBoxShapeUtil<TLGeoShape> {
 
 		// Enhanced text styling handling to preserve custom styling during editing
 		let textColor: string
-		if (shape.meta?.customTextColor && typeof shape.meta.customTextColor === 'string') {
-			// Priority 1: Custom hex color from meta
+
+		// Priority 1: Use the new separate textColor property (may not exist on old shapes yet)
+		if ((shape.props as any).textColor) {
+			const textColorProp = (shape.props as any).textColor
+			if (typeof textColorProp === 'string' && textColorProp.startsWith('#')) {
+				textColor = textColorProp
+			} else {
+				textColor = getColorValue(theme, textColorProp, 'solid')
+			}
+		} else if (shape.meta?.customTextColor && typeof shape.meta.customTextColor === 'string') {
+			// Priority 2: Custom hex color from meta (legacy)
 			textColor = shape.meta.customTextColor
 		} else if (shape.meta?.textColor && typeof shape.meta.textColor === 'string') {
-			// Priority 2: TLDraw color name from meta
+			// Priority 3: TLDraw color name from meta (legacy)
 			if (shape.meta.textColor.startsWith('#')) {
 				textColor = shape.meta.textColor
 			} else {
 				textColor = getColorValue(theme, shape.meta.textColor as any, 'solid')
 			}
 		} else {
-			// Priority 3: Fall back to labelColor from props
+			// Priority 4: Fall back to labelColor from props
 			textColor = getColorValue(theme, props.labelColor, 'solid')
 		}
 

@@ -16,7 +16,7 @@ export function GeoShapeBody({
 	const scaleToUse = shouldScale ? shape.props.scale : 1
 	const theme = useDefaultColorTheme()
 	const { props } = shape
-	const { color, fill, dash, size } = props
+	const { fillColor, strokeColor, fill, dash, size } = props
 	const strokeWidth = STROKE_SIZES[size] * scaleToUse
 
 	const path = getGeoShapePath(shape)
@@ -25,34 +25,19 @@ export function GeoShapeBody({
 			? path.toDrawD({ strokeWidth, randomSeed: shape.id, passes: 1, offset: 0, onlyFilled: true })
 			: path.toD({ onlyFilled: true })
 
-	// Resolve fill and stroke colors with custom/meta fallbacks
-	const resolvedFillHex = (function () {
-		const custom = (props as any).customFillColor as string | undefined
-		if (custom && typeof custom === 'string') return custom
-		const meta = (shape as any).meta
-		const metaCustom = meta?.customFillColor
-		if (metaCustom && typeof metaCustom === 'string') return metaCustom
-		return undefined
-	})()
-
-	const strokeColorToUse = (function () {
-		const custom = (props as any).customStrokeColor as string | undefined
-		if (custom && typeof custom === 'string') return custom as any
-		const meta = (shape as any).meta
-		const metaCustom = meta?.customStrokeColor
-		if (metaCustom && typeof metaCustom === 'string') return metaCustom as any
-		return color
-	})()
+	// Use the new separate color properties
+	const fillColorToUse = fillColor || props.color // Fallback to old color for backward compatibility
+	const strokeColorToUse = strokeColor || props.color // Fallback to old color for backward compatibility
 
 	return (
 		<>
 			<ShapeFill
 				theme={theme}
 				d={fillPath}
-				color={color}
+				color={fillColorToUse}
 				fill={fill}
 				scale={scaleToUse}
-				resolvedFillHex={resolvedFillHex}
+				resolvedFillHex={undefined}
 			/>
 			{path.toSvg({
 				style: dash,
@@ -61,11 +46,7 @@ export function GeoShapeBody({
 				randomSeed: shape.id,
 				props: {
 					fill: 'none',
-					stroke: strokeColorToUse.startsWith
-						? (strokeColorToUse as any).startsWith('#')
-							? (strokeColorToUse as any)
-							: getColorValue(theme, strokeColorToUse as any, 'solid')
-						: getColorValue(theme, strokeColorToUse as any, 'solid'),
+					stroke: getColorValue(theme, strokeColorToUse, 'solid'),
 				},
 			})}
 		</>

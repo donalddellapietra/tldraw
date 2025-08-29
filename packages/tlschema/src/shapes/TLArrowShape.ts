@@ -8,7 +8,10 @@ import { RecordProps, TLPropsMigration, createPropsMigration } from '../recordsW
 import { StyleProp } from '../styles/StyleProp'
 import {
 	DefaultColorStyle,
+	DefaultFillColorStyle,
 	DefaultLabelColorStyle,
+	DefaultStrokeColorStyle,
+	DefaultTextColorStyle,
 	TLDefaultColorStyle,
 } from '../styles/TLColorStyle'
 import { DefaultDashStyle, TLDefaultDashStyle } from '../styles/TLDashStyle'
@@ -57,8 +60,15 @@ export type TLArrowShapeArrowheadStyle = T.TypeOf<typeof ArrowShapeArrowheadStar
 /** @public */
 export interface TLArrowShapeProps {
 	kind: TLArrowShapeKind
+
+	// Color properties
+	fillColor: TLDefaultColorStyle
+	strokeColor: TLDefaultColorStyle
+	textColor: TLDefaultColorStyle
+
+	// Style properties
 	labelColor: TLDefaultColorStyle
-	color: TLDefaultColorStyle
+	color: TLDefaultColorStyle // Keep for backward compatibility
 	fill: TLDefaultFillStyle
 	dash: TLDefaultDashStyle
 	size: TLDefaultSizeStyle
@@ -80,8 +90,15 @@ export type TLArrowShape = TLBaseShape<'arrow', TLArrowShapeProps>
 /** @public */
 export const arrowShapeProps: RecordProps<TLArrowShape> = {
 	kind: ArrowShapeKindStyle,
+
+	// Color properties
+	fillColor: DefaultFillColorStyle,
+	strokeColor: DefaultStrokeColorStyle,
+	textColor: DefaultTextColorStyle,
+
+	// Style properties
 	labelColor: DefaultLabelColorStyle,
-	color: DefaultColorStyle,
+	color: DefaultColorStyle, // Keep for backward compatibility
 	fill: DefaultFillStyle,
 	dash: DefaultDashStyle,
 	size: DefaultSizeStyle,

@@ -147,18 +147,16 @@ export class TextShapeUtil extends ShapeUtil<TLTextShape> {
 				verticalAlign="middle"
 				richText={richText}
 				labelColor={(function () {
-					// Prefer custom text color on the shape, then meta fallbacks, then palette
-					const customFromProps = (shape.props as any).customTextColor as string | undefined
-					if (customFromProps && typeof customFromProps === 'string') return customFromProps
-					const meta = (shape as any).meta
-					const metaCustom = meta?.customTextColor
-					if (metaCustom && typeof metaCustom === 'string') return metaCustom
-					const metaNamed = meta?.textColor
-					if (metaNamed && typeof metaNamed === 'string') {
-						return metaNamed.startsWith('#')
-							? metaNamed
-							: getColorValue(theme, metaNamed as any, 'solid')
+					// Use the new separate textColor property first (may not exist on old shapes yet)
+					const textColor = (shape.props as any).textColor
+					if (textColor) {
+						if (typeof textColor === 'string' && textColor.startsWith('#')) {
+							return textColor
+						}
+						return getColorValue(theme, textColor, 'solid')
 					}
+
+					// Fallback to old color property for backward compatibility
 					return getColorValue(theme, color, 'solid')
 				})()}
 				isSelected={isSelected}
