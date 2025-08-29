@@ -71,6 +71,7 @@ export class TextShapeUtil extends ShapeUtil<TLTextShape> {
 			textAlign: 'start',
 			autoSize: true,
 			scale: 1,
+			textColor: 'black',
 			richText: toRichText(''),
 		}
 	}

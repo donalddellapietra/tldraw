@@ -424,6 +424,7 @@ describe('When interacting with a shape...', () => {
 				dash: 'draw',
 				size: 'm',
 				color: 'black',
+				strokeColor: 'black',
 				spline: 'line',
 				scale: 1,
 				points: {
@@ -507,6 +508,7 @@ describe('When interacting with a shape...', () => {
 				dash: 'draw',
 				size: 'm',
 				color: 'black',
+				strokeColor: 'black',
 				spline: 'line',
 				scale: 1,
 				points: {

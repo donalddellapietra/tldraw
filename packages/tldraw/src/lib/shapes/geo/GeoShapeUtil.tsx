@@ -72,12 +72,16 @@ export class GeoShapeUtil extends BaseBoxShapeUtil<TLGeoShape> {
 			// Text properties
 			color: 'black',
 			labelColor: 'black',
+			fillColor: 'white',
+			strokeColor: 'black',
+			textColor: 'black',
 			fill: 'none',
 			size: 'm',
 			font: 'draw',
 			align: 'start',
 			verticalAlign: 'middle',
 			richText: toRichText(''),
+			customFontSize: undefined,
 		}
 	}
 
@@ -226,9 +230,9 @@ export class GeoShapeUtil extends BaseBoxShapeUtil<TLGeoShape> {
 
 		// Enhanced font size handling to preserve custom font sizes
 		let finalFontSize: number
-		if (shape.meta?.textFontSize && typeof shape.meta.textFontSize === 'number') {
-			// Priority 1: Custom font size from meta
-			finalFontSize = shape.meta.textFontSize
+		if (shape.props.customFontSize && typeof shape.props.customFontSize === 'number') {
+			// Priority 1: Custom font size from props
+			finalFontSize = shape.props.customFontSize
 		} else {
 			// Priority 2: Use default size from props
 			finalFontSize = LABEL_FONT_SIZES[size]
@@ -323,9 +327,9 @@ export class GeoShapeUtil extends BaseBoxShapeUtil<TLGeoShape> {
 			let exportFontSize = LABEL_FONT_SIZES[props.size]
 			let exportAlign = props.align
 
-			// Check for custom values in the original shape's meta data
-			if (shape.meta?.textFontSize && typeof shape.meta.textFontSize === 'number') {
-				exportFontSize = shape.meta.textFontSize
+			// Check for custom values in the original shape's props
+			if (shape.props.customFontSize && typeof shape.props.customFontSize === 'number') {
+				exportFontSize = shape.props.customFontSize
 			}
 			if (shape.meta?.textAlign && typeof shape.meta.textAlign === 'string') {
 				exportAlign = shape.meta.textAlign as any
@@ -483,7 +487,7 @@ export class GeoShapeUtil extends BaseBoxShapeUtil<TLGeoShape> {
 		const hasTextChange = !isEqual(prev.props.richText, next.props.richText)
 		const hasFontChange = prev.props.font !== next.props.font
 		const hasSizeChange = prev.props.size !== next.props.size
-		const hasMetaFontSizeChange = prev.meta?.textFontSize !== next.meta?.textFontSize
+		const hasMetaFontSizeChange = prev.props.customFontSize !== next.props.customFontSize
 		const hasMetaAlignChange = prev.meta?.textAlign !== next.meta?.textAlign
 
 		// No changes detected, no need to update
@@ -668,9 +672,9 @@ function getUnscaledLabelSize(editor: Editor, shape: TLGeoShape) {
 
 	// Enhanced font size handling to preserve custom font sizes
 	let finalFontSize: number
-	if (shape.meta?.textFontSize && typeof shape.meta.textFontSize === 'number') {
-		// Priority 1: Custom font size from meta
-		finalFontSize = shape.meta.textFontSize
+	if (shape.props.customFontSize && typeof shape.props.customFontSize === 'number') {
+		// Priority 1: Custom font size from props
+		finalFontSize = shape.props.customFontSize
 	} else {
 		// Priority 2: Use default size from props
 		finalFontSize = LABEL_FONT_SIZES[size]

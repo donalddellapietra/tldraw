@@ -172,14 +172,14 @@ export class CustomFormattingManager {
 						// The richText will maintain its structure, but the rendering will be controlled by CSS
 						// console.log('🔧 Geo shape font size change - using CSS approach for size:', sizeValue)
 
-						// We'll store the font size in the shape's meta data for CSS to use
+						// Store the font size in the shape's customFontSize property
 						this.editor.updateShapes([
 							{
 								id: shape.id,
 								type: shape.type,
-								meta: {
-									...shape.meta,
-									textFontSize: sizeValue,
+								props: {
+									...shape.props,
+									customFontSize: sizeValue,
 								},
 							},
 						])
@@ -855,8 +855,8 @@ export class CustomFormattingManager {
 				return FONT_SIZES[fontSizePreset as keyof typeof FONT_SIZES]
 			}
 		} else if (firstShape.type === 'geo' && (firstShape.props as any).richText) {
-			if (firstShape.meta?.textFontSize) {
-				return firstShape.meta.textFontSize
+			if (firstShape.props?.customFontSize) {
+				return firstShape.props.customFontSize
 			}
 		}
 

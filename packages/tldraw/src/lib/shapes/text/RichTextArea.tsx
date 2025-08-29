@@ -215,9 +215,9 @@ export const RichTextArea = React.forwardRef<HTMLDivElement, TextAreaProps>(func
 							}
 							fontSize = FONT_SIZES[fontSizeValue] || 24
 						}
-					} else if (shape.meta?.textFontSize) {
-						// For geo shapes, use textFontSize from meta
-						fontSize = shape.meta.textFontSize as number
+					} else if (shape.type === 'geo' && (shape.props as any).customFontSize) {
+						// For geo shapes, use customFontSize from props
+						fontSize = (shape.props as any).customFontSize as number
 					} else if (shape.type === 'geo' && 'size' in shape.props && shape.props.size) {
 						// For geo shapes without custom font size, use the default LABEL_FONT_SIZES
 						const sizeValue = shape.props.size as keyof typeof LABEL_FONT_SIZES

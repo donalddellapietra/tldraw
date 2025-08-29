@@ -39,8 +39,8 @@ export function FormTextEditor({}: FormTextEditorProps) {
 						;(geoShape as HTMLElement).style.cursor = 'text'
 
 						// Apply font size from meta data if it exists
-						if (shape.meta && shape.meta.textFontSize) {
-							applyFontSizeToGeoShape(geoShape, shape.meta.textFontSize as number)
+						if (shape.props && (shape.props as any).customFontSize) {
+							applyFontSizeToGeoShape(geoShape, (shape.props as any).customFontSize as number)
 						}
 
 						// Apply text alignment from meta data if it exists (for geo shapes)
@@ -177,9 +177,17 @@ export function FormTextEditor({}: FormTextEditorProps) {
 					if (geoShapeId) {
 						try {
 							const shape = editor.getShape(geoShapeId as any)
-							if (shape && shape.type === 'geo' && shape.meta && shape.meta.textFontSize) {
-								console.log('🔧 Applying font size from meta data:', shape.meta.textFontSize)
-								applyFontSizeToGeoShape(geoShape, shape.meta.textFontSize as number)
+							if (
+								shape &&
+								shape.type === 'geo' &&
+								shape.props &&
+								(shape.props as any).customFontSize
+							) {
+								console.log(
+									'🔧 Applying font size from props:',
+									(shape.props as any).customFontSize
+								)
+								applyFontSizeToGeoShape(geoShape, (shape.props as any).customFontSize as number)
 							}
 						} catch (error) {
 							// Shape might not exist yet, ignore
@@ -228,8 +236,8 @@ export function FormTextEditor({}: FormTextEditorProps) {
 					}
 
 					// Apply font size from meta data if it exists
-					if (shape.meta?.textFontSize) {
-						const fontSize = shape.meta.textFontSize as number
+					if ((shape.props as any)?.customFontSize) {
+						const fontSize = (shape.props as any).customFontSize as number
 						if (fontSize && typeof fontSize === 'number') {
 							// Apply the font size to the text elements for immediate visual feedback
 							setTimeout(() => {
