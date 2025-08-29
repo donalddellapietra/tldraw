@@ -175,6 +175,9 @@ export class ArrowShapeUtil extends ShapeUtil<TLArrowShape> {
 			size: 'm',
 			fill: 'none',
 			color: 'black',
+			fillColor: 'white',
+			strokeColor: 'black',
+			textColor: 'black',
 			labelColor: 'black',
 			bend: 0,
 			start: { x: 0, y: 0 },
@@ -1112,6 +1115,7 @@ const ArrowSvg = track(function ArrowSvg({
 						color={shape.props.color}
 						fill={shape.props.fill}
 						scale={shape.props.scale}
+						resolvedFillHex={undefined}
 					/>
 				)}
 				{ae && clipEndArrowhead && shape.props.fill !== 'none' && (
@@ -1121,6 +1125,7 @@ const ArrowSvg = track(function ArrowSvg({
 						color={shape.props.color}
 						fill={shape.props.fill}
 						scale={shape.props.scale}
+						resolvedFillHex={undefined}
 					/>
 				)}
 				{as && <path d={as} />}

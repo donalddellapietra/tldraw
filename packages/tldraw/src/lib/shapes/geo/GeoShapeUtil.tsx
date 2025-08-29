@@ -72,12 +72,16 @@ export class GeoShapeUtil extends BaseBoxShapeUtil<TLGeoShape> {
 			// Text properties
 			color: 'black',
 			labelColor: 'black',
+			fillColor: 'white',
+			strokeColor: 'black',
+			textColor: 'black',
 			fill: 'none',
 			size: 'm',
 			font: 'draw',
 			align: 'start',
 			verticalAlign: 'middle',
 			richText: toRichText(''),
+			customFontSize: undefined,
 		}
 	}
 
@@ -199,26 +203,35 @@ export class GeoShapeUtil extends BaseBoxShapeUtil<TLGeoShape> {
 
 		// Enhanced text styling handling to preserve custom styling during editing
 		let textColor: string
-		if (shape.meta?.customTextColor && typeof shape.meta.customTextColor === 'string') {
-			// Priority 1: Custom hex color from meta
+
+		// Priority 1: Use the new separate textColor property (may not exist on old shapes yet)
+		if ((shape.props as any).textColor) {
+			const textColorProp = (shape.props as any).textColor
+			if (typeof textColorProp === 'string' && textColorProp.startsWith('#')) {
+				textColor = textColorProp
+			} else {
+				textColor = getColorValue(theme, textColorProp, 'solid')
+			}
+		} else if (shape.meta?.customTextColor && typeof shape.meta.customTextColor === 'string') {
+			// Priority 2: Custom hex color from meta (legacy)
 			textColor = shape.meta.customTextColor
 		} else if (shape.meta?.textColor && typeof shape.meta.textColor === 'string') {
-			// Priority 2: TLDraw color name from meta
+			// Priority 3: TLDraw color name from meta (legacy)
 			if (shape.meta.textColor.startsWith('#')) {
 				textColor = shape.meta.textColor
 			} else {
 				textColor = getColorValue(theme, shape.meta.textColor as any, 'solid')
 			}
 		} else {
-			// Priority 3: Fall back to labelColor from props
+			// Priority 4: Fall back to labelColor from props
 			textColor = getColorValue(theme, props.labelColor, 'solid')
 		}
 
 		// Enhanced font size handling to preserve custom font sizes
 		let finalFontSize: number
-		if (shape.meta?.textFontSize && typeof shape.meta.textFontSize === 'number') {
-			// Priority 1: Custom font size from meta
-			finalFontSize = shape.meta.textFontSize
+		if (shape.props.customFontSize && typeof shape.props.customFontSize === 'number') {
+			// Priority 1: Custom font size from props
+			finalFontSize = shape.props.customFontSize
 		} else {
 			// Priority 2: Use default size from props
 			finalFontSize = LABEL_FONT_SIZES[size]
@@ -313,9 +326,9 @@ export class GeoShapeUtil extends BaseBoxShapeUtil<TLGeoShape> {
 			let exportFontSize = LABEL_FONT_SIZES[props.size]
 			let exportAlign = props.align
 
-			// Check for custom values in the original shape's meta data
-			if (shape.meta?.textFontSize && typeof shape.meta.textFontSize === 'number') {
-				exportFontSize = shape.meta.textFontSize
+			// Check for custom values in the original shape's props
+			if (shape.props.customFontSize && typeof shape.props.customFontSize === 'number') {
+				exportFontSize = shape.props.customFontSize
 			}
 			if (shape.meta?.textAlign && typeof shape.meta.textAlign === 'string') {
 				exportAlign = shape.meta.textAlign as any
@@ -473,7 +486,7 @@ export class GeoShapeUtil extends BaseBoxShapeUtil<TLGeoShape> {
 		const hasTextChange = !isEqual(prev.props.richText, next.props.richText)
 		const hasFontChange = prev.props.font !== next.props.font
 		const hasSizeChange = prev.props.size !== next.props.size
-		const hasMetaFontSizeChange = prev.meta?.textFontSize !== next.meta?.textFontSize
+		const hasMetaFontSizeChange = prev.props.customFontSize !== next.props.customFontSize
 		const hasMetaAlignChange = prev.meta?.textAlign !== next.meta?.textAlign
 
 		// No changes detected, no need to update
@@ -658,9 +671,9 @@ function getUnscaledLabelSize(editor: Editor, shape: TLGeoShape) {
 
 	// Enhanced font size handling to preserve custom font sizes
 	let finalFontSize: number
-	if (shape.meta?.textFontSize && typeof shape.meta.textFontSize === 'number') {
-		// Priority 1: Custom font size from meta
-		finalFontSize = shape.meta.textFontSize
+	if (shape.props.customFontSize && typeof shape.props.customFontSize === 'number') {
+		// Priority 1: Custom font size from props
+		finalFontSize = shape.props.customFontSize
 	} else {
 		// Priority 2: Use default size from props
 		finalFontSize = LABEL_FONT_SIZES[size]

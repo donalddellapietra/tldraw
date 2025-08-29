@@ -1588,10 +1588,10 @@ export class GeoShapeUtil extends BaseBoxShapeUtil<TLGeoShape> {
             align: TLDefaultHorizontalAlignStyle;
             color: TLDefaultColorStyle;
             cornerRadius: number;
-            customFillColor?: string;
-            customStrokeColor?: string;
+            customFontSize?: number;
             dash: TLDefaultDashStyle;
             fill: TLDefaultFillStyle;
+            fillColor: TLDefaultColorStyle;
             font: TLDefaultFontStyle;
             geo: TLGeoShapeGeoStyle;
             growY: number;
@@ -1600,6 +1600,8 @@ export class GeoShapeUtil extends BaseBoxShapeUtil<TLGeoShape> {
             richText: TLRichText;
             scale: number;
             size: TLDefaultSizeStyle;
+            strokeColor: TLDefaultColorStyle;
+            textColor: TLDefaultColorStyle;
             url: string;
             verticalAlign: TLDefaultVerticalAlignStyle;
             w: number;
@@ -1622,10 +1624,10 @@ export class GeoShapeUtil extends BaseBoxShapeUtil<TLGeoShape> {
             align: TLDefaultHorizontalAlignStyle;
             color: TLDefaultColorStyle;
             cornerRadius: number;
-            customFillColor?: string;
-            customStrokeColor?: string;
+            customFontSize?: number;
             dash: TLDefaultDashStyle;
             fill: TLDefaultFillStyle;
+            fillColor: TLDefaultColorStyle;
             font: TLDefaultFontStyle;
             geo: TLGeoShapeGeoStyle;
             growY: number;
@@ -1634,6 +1636,8 @@ export class GeoShapeUtil extends BaseBoxShapeUtil<TLGeoShape> {
             richText: TLRichText;
             scale: number;
             size: TLDefaultSizeStyle;
+            strokeColor: TLDefaultColorStyle;
+            textColor: TLDefaultColorStyle;
             url: string;
             verticalAlign: TLDefaultVerticalAlignStyle;
             w: number;
@@ -1962,7 +1966,6 @@ export class LineShapeUtil extends ShapeUtil<TLLineShape> {
         parentId: TLParentId;
         props: {
             color: TLDefaultColorStyle;
-            customStrokeColor?: string;
             dash: TLDefaultDashStyle;
             points: {
                 [x: string]: {
@@ -1975,6 +1978,7 @@ export class LineShapeUtil extends ShapeUtil<TLLineShape> {
             scale: number;
             size: TLDefaultSizeStyle;
             spline: TLLineShapeSplineStyle;
+            strokeColor: TLDefaultColorStyle;
         };
         rotation: number;
         type: "line";
@@ -1992,7 +1996,6 @@ export class LineShapeUtil extends ShapeUtil<TLLineShape> {
         parentId: TLParentId;
         props: {
             color: TLDefaultColorStyle;
-            customStrokeColor?: string;
             dash: TLDefaultDashStyle;
             points: {
                 [x: string]: {
@@ -2005,6 +2008,7 @@ export class LineShapeUtil extends ShapeUtil<TLLineShape> {
             scale: number;
             size: TLDefaultSizeStyle;
             spline: TLLineShapeSplineStyle;
+            strokeColor: TLDefaultColorStyle;
         };
         rotation: number;
         type: "line";
@@ -2800,13 +2804,13 @@ export class TextShapeUtil extends ShapeUtil<TLTextShape> {
             autoSize: boolean;
             color: TLDefaultColorStyle;
             customFontSize?: number;
-            customTextColor?: string;
             font: TLDefaultFontStyle;
             fontSize: TLDefaultFontSizeStyle;
             richText: TLRichText;
             scale: number;
             size: TLDefaultSizeStyle;
             textAlign: TLDefaultTextAlignStyle;
+            textColor: TLDefaultColorStyle;
             w: number;
         };
         rotation: number;
