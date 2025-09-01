@@ -7,7 +7,7 @@
 
 # tldraw SDK
 
-tldraw is an infinite canvas SDK for React developers. You can use the tldraw SDK to add a drop-in whiteboard to your project, customize its appearance, extend its functionality, or use its components and APIs to compose other canvas experiences.
+tldraw is an infinite canvas SDK for  React developers. You can use the tldraw SDK to add a drop-in whiteboard to your project, customize its appearance, extend its functionality, or use its components and APIs to compose other canvas experiences.
 
 Learn more at our docs site: [tldraw.dev](https://tldraw.dev).
 
