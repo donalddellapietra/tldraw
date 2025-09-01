@@ -142,8 +142,30 @@ export const RichTextArea = React.forwardRef<HTMLDivElement, TextAreaProps>(func
 			editable: isEditing,
 			onUpdate: (props: EditorEvents['update']) => {
 				const content: TLRichText = props.editor.state.doc.toJSON()
+
+				// Preserve cursor position before updating the shape
+				const currentSelection = props.editor.state.selection
+				const cursorPosition = currentSelection.anchor
+
+				// Store the current content
 				rInitialRichText.current = content
+
+				// Call onChange to update the shape
 				onChange({ richText: content })
+
+				// Restore cursor position after the update
+				// Use requestAnimationFrame to ensure the DOM has updated
+				requestAnimationFrame(() => {
+					if (props.editor.isDestroyed) return
+
+					try {
+						// Restore the cursor position
+						props.editor.commands.setTextSelection(cursorPosition)
+					} catch (error) {
+						// If setting selection fails, fall back to the end
+						console.warn('Failed to restore cursor position:', error)
+					}
+				})
 			},
 			onFocus,
 			onBlur,
