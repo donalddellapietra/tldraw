@@ -286,6 +286,8 @@ export class Box {
     // (undocumented)
     contains(B: Box): boolean;
     // (undocumented)
+    static ContainsApproximately(A: Box, B: Box, precision?: number): boolean;
+    // (undocumented)
     static ContainsPoint(A: Box, B: VecLike, margin?: number): boolean;
     // (undocumented)
     containsPoint(V: VecLike, margin?: number): boolean;
@@ -1729,6 +1731,8 @@ export abstract class Geometry2d {
     // @deprecated (undocumented)
     nearestPointOnLineSegment(A: VecLike, B: VecLike): Vec;
     // (undocumented)
+    overlapsPolygon(_polygon: VecLike[]): boolean;
+    // (undocumented)
     toSimpleSvgPath(): string;
     // (undocumented)
     transform(transform: MatModel, opts?: TransformedGeometry2dOptions): Geometry2d;
@@ -1890,6 +1894,8 @@ export class Group2d extends Geometry2d {
     intersectPolyline(polyline: VecLike[], filters?: Geometry2dFilters): VecLike[];
     // (undocumented)
     nearestPoint(point: VecLike, filters?: Geometry2dFilters): Vec;
+    // (undocumented)
+    overlapsPolygon(polygon: VecLike[]): boolean;
     // (undocumented)
     toSimpleSvgPath(): string;
     // (undocumented)
@@ -2098,10 +2104,13 @@ export class LicenseManager {
     // (undocumented)
     isTest: boolean;
     // (undocumented)
-    state: Atom<"licensed-with-watermark" | "licensed" | "pending" | "unlicensed", unknown>;
+    state: Atom<LicenseState, unknown>;
     // (undocumented)
     verbose: boolean;
 }
+
+// @internal (undocumented)
+export type LicenseState = 'internal-expired' | 'licensed-with-watermark' | 'licensed' | 'pending' | 'unlicensed';
 
 // @public (undocumented)
 export function linesIntersect(A: VecLike, B: VecLike, C: VecLike, D: VecLike): boolean;
@@ -2603,6 +2612,7 @@ export abstract class ShapeUtil<Shape extends TLUnknownShape = TLUnknownShape> {
     getAriaDescriptor(_shape: Shape): string | undefined;
     getBoundsSnapGeometry(_shape: Shape): BoundsSnapGeometry;
     getCanvasSvgDefs(): TLShapeUtilCanvasSvgDef[];
+    getClipPath?(shape: Shape): undefined | Vec[];
     abstract getDefaultProps(): Shape['props'];
     getFontFaces(shape: Shape): TLFontFace[];
     abstract getGeometry(shape: Shape, opts?: TLGeometryOpts): Geometry2d;
@@ -2617,6 +2627,7 @@ export abstract class ShapeUtil<Shape extends TLUnknownShape = TLUnknownShape> {
     hideSelectionBoundsFg(_shape: Shape): boolean;
     abstract indicator(shape: Shape): any;
     isAspectRatioLocked(_shape: Shape): boolean;
+    isExportBoundsContainer(_shape: Shape): boolean;
     static migrations?: LegacyMigrations | MigrationSequence | TLPropsMigrations;
     onBeforeCreate?(next: Shape): Shape | void;
     onBeforeUpdate?(prev: Shape, next: Shape): Shape | void;
@@ -2655,6 +2666,7 @@ export abstract class ShapeUtil<Shape extends TLUnknownShape = TLUnknownShape> {
     static props?: RecordProps<TLUnknownShape>;
     // @internal
     providesBackgroundForChildren(_shape: Shape): boolean;
+    shouldClipChild?(child: TLShape): boolean;
     toBackgroundSvg?(shape: Shape, ctx: SvgExportContext): null | Promise<null | ReactElement> | ReactElement;
     toSvg?(shape: Shape, ctx: SvgExportContext): null | Promise<null | ReactElement> | ReactElement;
     static type: string;

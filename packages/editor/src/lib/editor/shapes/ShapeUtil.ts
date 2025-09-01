@@ -297,6 +297,27 @@ export abstract class ShapeUtil<Shape extends TLUnknownShape = TLUnknownShape> {
 	}
 
 	/**
+	 * Get the clip path to apply to this shape's children.
+	 *
+	 * @param shape - The shape to get the clip path for
+	 * @returns Array of points defining the clipping polygon in local coordinates, or undefined if no clipping
+	 * @public
+	 */
+	getClipPath?(shape: Shape): Vec[] | undefined
+
+	/**
+	 * Whether a specific child shape should be clipped by this shape.
+	 * Only called if getClipPath returns a valid polygon.
+	 *
+	 * If not defined, the default behavior is to clip all children.
+	 *
+	 * @param child - The child shape to check
+	 * @returns boolean indicating if this child should be clipped
+	 * @public
+	 */
+	shouldClipChild?(child: TLShape): boolean
+
+	/**
 	 * Whether the shape should hide its resize handles when selected.
 	 * Can return a boolean to hide all handles, or an array of handle names to hide specific handles.
 	 *
@@ -339,6 +360,20 @@ export abstract class ShapeUtil<Shape extends TLUnknownShape = TLUnknownShape> {
 	 * @public
 	 */
 	isAspectRatioLocked(_shape: Shape): boolean {
+		return false
+	}
+
+	/**
+	 * By default, the bounds of an image export are the bounds of all the shapes it contains, plus
+	 * some padding. If an export includes a shape where `isExportBoundsContainer` is true, then the
+	 * padding is skipped _if the bounds of that shape contains all the other shapes_. This is
+	 * useful in cases like annotating on top of an image, where you usually want to avoid extra
+	 * padding around the image if you don't need it.
+	 *
+	 * @param _shape - The shape to check
+	 * @returns True if this shape should be treated as an export bounds container
+	 */
+	isExportBoundsContainer(_shape: Shape): boolean {
 		return false
 	}
 

@@ -33,10 +33,11 @@ import { registerDefaultSideEffects } from './defaultSideEffects'
 import { defaultTools } from './defaultTools'
 import { EmbedShapeUtil } from './shapes/embed/EmbedShapeUtil'
 import { allDefaultFontFaces } from './shapes/shared/defaultFonts'
-import { TldrawUi, TldrawUiProps } from './ui/TldrawUi'
+import { TldrawUi, TldrawUiInFrontOfTheCanvas, TldrawUiProps } from './ui/TldrawUi'
 import { TLUiAssetUrlOverrides, useDefaultUiAssetUrlsWithOverrides } from './ui/assetUrls'
 import { LoadingScreen } from './ui/components/LoadingScreen'
 import { Spinner } from './ui/components/Spinner'
+import { FormTextEditor } from './ui/components/StylePanel/FormTextEditor'
 import { AssetUrlsProvider } from './ui/context/asset-urls'
 import { TLUiComponents, useTldrawUiComponents } from './ui/context/components'
 import { useUiEvents } from './ui/context/events'
@@ -48,7 +49,6 @@ import {
 import { useMergedTranslationOverrides } from './ui/overrides'
 import { useDefaultEditorAssetsWithOverrides } from './utils/static-assets/assetUrls'
 import { defaultAddFontsFromNode, tipTapDefaultExtensions } from './utils/text/richText'
-import { FormTextEditor } from './ui/components/StylePanel/FormTextEditor'
 
 /**
  * Override the default react components used by the editor and UI. Set components to null to
@@ -119,6 +119,18 @@ export function Tldraw(props: TldrawProps) {
 
 	const _components = useShallowObjectIdentity(components)
 
+	const CustomInFrontOfTheCanvas = components?.InFrontOfTheCanvas
+	const InFrontOfTheCanvas = useMemo(() => {
+		if (rest.hideUi) return CustomInFrontOfTheCanvas ?? null
+		if (!CustomInFrontOfTheCanvas) return TldrawUiInFrontOfTheCanvas
+
+		return () => (
+			<>
+				<TldrawUiInFrontOfTheCanvas />
+				<CustomInFrontOfTheCanvas />
+			</>
+		)
+	}, [rest.hideUi, CustomInFrontOfTheCanvas])
 	const componentsWithDefault = useMemo(
 		() => ({
 			Scribble: TldrawScribble,
@@ -130,8 +142,9 @@ export function Tldraw(props: TldrawProps) {
 			Spinner,
 			LoadingScreen,
 			..._components,
+			InFrontOfTheCanvas,
 		}),
-		[_components]
+		[_components, InFrontOfTheCanvas]
 	)
 
 	const _shapeUtils = useShallowArrayIdentity(shapeUtils)
