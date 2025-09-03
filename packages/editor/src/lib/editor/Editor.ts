@@ -8331,10 +8331,37 @@ export class Editor extends EventEmitter<TLEventMap> {
 
 		if (shapeIdsToDelete.length === 0) return this
 
-		// We also need to delete these shapes' descendants
-		const allShapeIdsToDelete = new Set<TLShapeId>(shapeIdsToDelete)
+		// Check canDelete and onBeforeDelete for each shape
+		const finalShapeIdsToDelete = new Set<TLShapeId>()
 
 		for (const id of shapeIdsToDelete) {
+			const shape = this.getShape(id)
+			if (!shape) continue
+
+			const util = this.getShapeUtil(shape)
+
+			// Check canDelete first
+			if (!util.canDelete(shape)) {
+				continue // Skip this shape
+			}
+
+			// Call onBeforeDelete if it exists
+			if (util.onBeforeDelete) {
+				const result = util.onBeforeDelete(shape)
+				if (result === false) {
+					continue // Skip this shape
+				}
+			}
+
+			finalShapeIdsToDelete.add(id)
+		}
+
+		if (finalShapeIdsToDelete.size === 0) return this
+
+		// We also need to delete these shapes' descendants
+		const allShapeIdsToDelete = new Set<TLShapeId>(finalShapeIdsToDelete)
+
+		for (const id of finalShapeIdsToDelete) {
 			this.visitDescendants(id, (childId) => {
 				allShapeIdsToDelete.add(childId)
 			})

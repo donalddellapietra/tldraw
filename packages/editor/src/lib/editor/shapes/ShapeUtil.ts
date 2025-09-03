@@ -834,6 +834,39 @@ export abstract class ShapeUtil<Shape extends TLUnknownShape = TLUnknownShape> {
 	 * @public
 	 */
 	onEditEnd?(shape: Shape): void
+
+	/**
+	 * Whether the shape can be deleted. If this returns false, the shape cannot be deleted
+	 * through normal deletion operations (keyboard shortcuts, delete button, etc.).
+	 *
+	 * @param shape - The shape.
+	 * @public
+	 */
+	canDelete(_shape: Shape): boolean {
+		return true
+	}
+
+	/**
+	 * A callback called just before a shape is deleted. This method provides a last chance to
+	 * prevent deletion or perform custom deletion logic.
+	 *
+	 * @example
+	 *
+	 * ```ts
+	 * onBeforeDelete = (shape) => {
+	 * 	if (shape.meta?.protected) {
+	 * 		return false // Prevent deletion
+	 * 	}
+	 * 	// Perform custom deletion logic here
+	 * 	return true // Allow deletion to proceed
+	 * }
+	 * ```
+	 *
+	 * @param shape - The shape being deleted.
+	 * @returns false to prevent deletion, true/void to allow deletion.
+	 * @public
+	 */
+	onBeforeDelete?(shape: Shape): boolean | void
 }
 
 /**
