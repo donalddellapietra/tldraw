@@ -5,10 +5,7 @@
 
 set -e  # Exit on any error
 
-echo "🔨 Building all tldraw packages..."
-yarn build
-
-echo "📦 Packing tldraw packages..."
+# yarn install
 
 # List of packages to pack
 packages=(
@@ -24,7 +21,30 @@ packages=(
   "validate"
 )
 
-# Pack each package
+echo "🔨 Building packages in parallel..."
+build_pids=()
+for pkg in "${packages[@]}"; do
+  echo "  🔨 Starting build for @tldraw/$pkg..."
+  (
+    cd "packages/$pkg"
+    yarn build
+  ) &
+  build_pids+=($!)
+done
+
+echo "⏳ Waiting for all builds to complete..."
+for pid in "${build_pids[@]}"; do
+  wait $pid
+  if [ $? -ne 0 ]; then
+    echo "❌ Build failed!"
+    exit 1
+  fi
+done
+echo "✅ All builds completed!"
+
+echo "📦 Packing tldraw packages..."
+
+# Pack each package sequentially
 for pkg in "${packages[@]}"; do
   echo "  📦 Packing @tldraw/$pkg..."
   cd "packages/$pkg"
@@ -35,7 +55,7 @@ done
 echo "📋 Copying packages to Miyagi3..."
 
 # Copy to Miyagi3 vendor directory
-MIYAGI_VENDOR="/Users/mihai/Desktop/Miyagi/vendor"
+MIYAGI_VENDOR="/Users/donalddellapietra/GitHub/Miyagi3/vendor"
 mkdir -p "$MIYAGI_VENDOR"
 
 cp "packages/tldraw/package.tgz" "$MIYAGI_VENDOR/tldraw.tgz"

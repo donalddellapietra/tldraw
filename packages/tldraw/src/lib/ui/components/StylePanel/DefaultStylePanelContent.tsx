@@ -905,11 +905,8 @@ export function GeoStylePickerSet({ styles }: StylePickerSetProps) {
 	const editor = useEditor()
 
 	const geo = styles.get(GeoShapeGeoStyle)
-	if (geo === undefined) {
-		return null
-	}
 
-	// Get corner radius from selected shapes
+	// Move all hooks before any conditional returns to maintain hook order
 	const cornerRadius = useValue(
 		'cornerRadius',
 		() => {
@@ -950,6 +947,11 @@ export function GeoStylePickerSet({ styles }: StylePickerSetProps) {
 		},
 		[editor]
 	)
+
+	// Early return after all hooks are called
+	if (geo === undefined) {
+		return null
+	}
 
 	return (
 		<>
