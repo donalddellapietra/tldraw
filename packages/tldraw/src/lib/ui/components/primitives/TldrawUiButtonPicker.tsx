@@ -124,7 +124,7 @@ export const TldrawUiButtonPicker = memo(function TldrawUiButtonPicker<T extends
 			<TldrawUiToolbarToggleGroup
 				data-testid={`style.${uiType}`}
 				type="single"
-				value={value.type === 'shared' ? value.value : undefined}
+				value={value.type === 'shared' ? value.value : ''}
 			>
 				{items.map((item) => {
 					const label = title + ' — ' + msg(`${uiType}-style.${item.value}` as TLUiTranslationKey)
