@@ -8,7 +8,7 @@ To use:
 2. Add your OpenAI key to that file as an environment variable, i.e. `OPENAI_API_KEY=sk-your-key`.
 3. Install dependencies with `pnpm i`
 4. Run `pnpm run dev`
-5. Open `http://localhost:5173/` in your browser.
+5. Open `http://localhost:5173/` in your browser..
 
 To hack:
 
