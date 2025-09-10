@@ -250,7 +250,32 @@ export function VerticalFormattingBar({ isVisible }: VerticalFormattingBarProps)
 	// Show shape formatting when we have non-text shapes (regardless of text content)
 	const showShapeFormatting = allNonTextSelected || hasGeoShapeWithText
 
-	if (!isVisible || !hasSelection) return null
+	// Check if corner radius should be shown (only for rectangles)
+	const showCornerRadius =
+		hasSelection && selection.some((el: any) => el.type === 'geo' && el.props.geo === 'rectangle')
+
+	// Enhanced check: ensure we only show formatting for actual tldraw shapes
+	const hasValidTldrawSelection =
+		hasSelection &&
+		selection.some((el: any) => {
+			const validTypes = [
+				'text',
+				'geo',
+				'draw',
+				'arrow',
+				'line',
+				'frame',
+				'note',
+				'image',
+				'video',
+				'embed',
+				'bookmark',
+				'highlight',
+			]
+			return validTypes.includes(el.type)
+		})
+
+	if (!isVisible || !hasValidTldrawSelection) return null
 
 	return (
 		<div className="vertical-formatting-bar">
@@ -538,8 +563,8 @@ export function VerticalFormattingBar({ isVisible }: VerticalFormattingBarProps)
 				</div>
 			)}
 
-			{/* Corner Radius - show when rectangles are selected */}
-			{showShapeFormatting && (
+			{/* Corner Radius - show only when rectangles are selected */}
+			{showCornerRadius && (
 				<div className="corner-radius-control">
 					<div
 						className="corner-radius-label"

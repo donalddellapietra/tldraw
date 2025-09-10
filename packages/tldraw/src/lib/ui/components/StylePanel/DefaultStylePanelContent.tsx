@@ -53,8 +53,46 @@ export interface TLUiStylePanelContentProps {
 /** @public @react */
 export function DefaultStylePanelContent({ styles }: TLUiStylePanelContentProps) {
 	const isDarkMode = useIsDarkMode()
+	const editor = useEditor()
 
-	if (!styles) return null
+	// Check if any tldraw objects are selected
+	const hasTldrawObjectsSelected = useValue(
+		'hasTldrawObjectsSelected',
+		() => {
+			if (!editor.isIn('select')) return false
+			const selectedShapeIds = editor.getSelectedShapeIds()
+
+			// Additional check: ensure we actually have tldraw shapes selected
+			// This prevents the style panel from showing when external widgets are selected
+			if (selectedShapeIds.length === 0) return false
+
+			// Verify that the selected shapes are actually tldraw shapes
+			const selectedShapes = editor.getSelectedShapes()
+			const validTldrawShapes = selectedShapes.filter((shape) => {
+				// Check if it's a valid tldraw shape type
+				const validTypes = [
+					'text',
+					'geo',
+					'draw',
+					'arrow',
+					'line',
+					'frame',
+					'note',
+					'image',
+					'video',
+					'embed',
+					'bookmark',
+					'highlight',
+				]
+				return validTypes.includes(shape.type)
+			})
+
+			return validTldrawShapes.length > 0
+		},
+		[editor]
+	)
+
+	if (!styles || !hasTldrawObjectsSelected) return null
 
 	const geo = styles.get(GeoShapeGeoStyle)
 	const arrowheadEnd = styles.get(ArrowShapeArrowheadEndStyle)
@@ -950,6 +988,20 @@ export function GeoStylePickerSet({ styles }: StylePickerSetProps) {
 		[editor]
 	)
 
+	// Check if corner radius should be shown (only for rectangles)
+	const shouldShowCornerRadius = useValue(
+		'shouldShowCornerRadius',
+		() => {
+			if (!editor.isIn('select')) return false
+			const selectedShapes = editor.getSelectedShapes()
+			const rectangleShapes = selectedShapes.filter(
+				(shape) => shape.type === 'geo' && (shape as any).props.geo === 'rectangle'
+			)
+			return rectangleShapes.length > 0
+		},
+		[editor]
+	)
+
 	const handleCornerRadiusChange = useCallback(
 		(value: number) => {
 			editor.run(() => {
@@ -990,7 +1042,7 @@ export function GeoStylePickerSet({ styles }: StylePickerSetProps) {
 					onValueChange={handleValueChange}
 				/>
 			</TldrawUiToolbar>
-			{geo.type === 'shared' && geo.value === 'rectangle' && (
+			{geo.type === 'shared' && geo.value === 'rectangle' && shouldShowCornerRadius && (
 				<div style={{ marginTop: '9px' }}>
 					<div style={{ marginBottom: '6px', fontSize: '10px', color: 'var(--tl-color-text-2)' }}>
 						Corner Radius
