@@ -38,6 +38,43 @@ export function MobileStylePanel() {
 		[editor]
 	)
 
+	// Check if any tldraw objects are selected
+	const hasTldrawObjectsSelected = useValue(
+		'hasTldrawObjectsSelected',
+		() => {
+			if (!editor.isIn('select')) return false
+			const selectedShapeIds = editor.getSelectedShapeIds()
+
+			// Additional check: ensure we actually have tldraw shapes selected
+			// This prevents the style panel from showing when external widgets are selected
+			if (selectedShapeIds.length === 0) return false
+
+			// Verify that the selected shapes are actually tldraw shapes
+			const selectedShapes = editor.getSelectedShapes()
+			const validTldrawShapes = selectedShapes.filter((shape) => {
+				// Check if it's a valid tldraw shape type
+				const validTypes = [
+					'text',
+					'geo',
+					'draw',
+					'arrow',
+					'line',
+					'frame',
+					'note',
+					'image',
+					'video',
+					'embed',
+					'bookmark',
+					'highlight',
+				]
+				return validTypes.includes(shape.type)
+			})
+
+			return validTldrawShapes.length > 0
+		},
+		[editor]
+	)
+
 	const handleStylesOpenChange = useCallback(
 		(isOpen: boolean) => {
 			if (!isOpen) {
@@ -48,7 +85,7 @@ export function MobileStylePanel() {
 	)
 
 	const { StylePanel } = useTldrawUiComponents()
-	if (!StylePanel) return null
+	if (!StylePanel || !hasTldrawObjectsSelected) return null
 
 	return (
 		<TldrawUiPopover id="mobile style menu" onOpenChange={handleStylesOpenChange}>
