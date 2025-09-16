@@ -9,6 +9,7 @@ import {
 import { IndexKey, JsonObject, annotateError, structuredClone } from '@tldraw/utils'
 import { TLAsset, TLAssetId } from './records/TLAsset'
 import { CameraRecordType, TLCameraId } from './records/TLCamera'
+import { CanvasStorageRecordType, TLCANVAS_STORAGE_ID } from './records/TLCanvasStorage'
 import { DocumentRecordType, TLDOCUMENT_ID } from './records/TLDocument'
 import { TLINSTANCE_ID } from './records/TLInstance'
 import { PageRecordType, TLPageId } from './records/TLPage'
@@ -193,6 +194,11 @@ export function createIntegrityChecker(store: Store<TLRecord, TLStoreProps>): ()
 
 		if (!store.has(TLPOINTER_ID)) {
 			store.put([PointerRecordType.create({ id: TLPOINTER_ID })])
+			return ensureStoreIsUsable()
+		}
+
+		if (!store.has(TLCANVAS_STORAGE_ID)) {
+			store.put([CanvasStorageRecordType.create({ id: TLCANVAS_STORAGE_ID })])
 			return ensureStoreIsUsable()
 		}
 

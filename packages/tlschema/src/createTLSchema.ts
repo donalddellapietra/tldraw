@@ -8,6 +8,7 @@ import { arrowBindingMigrations, arrowBindingProps } from './bindings/TLArrowBin
 import { AssetRecordType, assetMigrations } from './records/TLAsset'
 import { TLBinding, TLDefaultBinding, createBindingRecordType } from './records/TLBinding'
 import { CameraRecordType, cameraMigrations } from './records/TLCamera'
+import { CanvasStorageRecordType, canvasStorageMigrations } from './records/TLCanvasStorage'
 import { DocumentRecordType, documentMigrations } from './records/TLDocument'
 import { createInstanceRecordType, instanceMigrations } from './records/TLInstance'
 import { PageRecordType, pageMigrations } from './records/TLPage'
@@ -80,10 +81,12 @@ export const defaultBindingSchemas = {
 export function createTLSchema({
 	shapes = defaultShapeSchemas,
 	bindings = defaultBindingSchemas,
+	records = {},
 	migrations,
 }: {
 	shapes?: Record<string, SchemaPropsInfo>
 	bindings?: Record<string, SchemaPropsInfo>
+	records?: Record<string, any>
 	migrations?: readonly MigrationSequence[]
 } = {}): TLSchema {
 	const stylesById = new Map<string, StyleProp<unknown>>()
@@ -105,6 +108,7 @@ export function createTLSchema({
 			asset: AssetRecordType,
 			binding: BindingRecordType,
 			camera: CameraRecordType,
+			canvas_storage: CanvasStorageRecordType,
 			document: DocumentRecordType,
 			instance: InstanceRecordType,
 			instance_page_state: InstancePageStateRecordType,
@@ -112,12 +116,14 @@ export function createTLSchema({
 			instance_presence: InstancePresenceRecordType,
 			pointer: PointerRecordType,
 			shape: ShapeRecordType,
+			...records, // Allow custom record types
 		},
 		{
 			migrations: [
 				storeMigrations,
 				assetMigrations,
 				cameraMigrations,
+				canvasStorageMigrations,
 				documentMigrations,
 				instanceMigrations,
 				instancePageStateMigrations,

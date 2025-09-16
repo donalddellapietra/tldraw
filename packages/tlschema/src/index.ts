@@ -71,6 +71,14 @@ export {
 } from './records/TLBinding'
 export { CameraRecordType, type TLCamera, type TLCameraId } from './records/TLCamera'
 export {
+	CanvasStorageRecordType,
+	canvasStorageValidator,
+	isCanvasStorage,
+	TLCANVAS_STORAGE_ID,
+	type TLCanvasStorage,
+	type TLCanvasStorageId,
+} from './records/TLCanvasStorage'
+export {
 	DocumentRecordType,
 	isDocument,
 	TLDOCUMENT_ID,
