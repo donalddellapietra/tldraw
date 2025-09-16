@@ -100,6 +100,12 @@ export const boxModelValidator: T.ObjectValidator<BoxModel>;
 // @public (undocumented)
 export const CameraRecordType: RecordType<TLCamera, never>;
 
+// @public (undocumented)
+export const CanvasStorageRecordType: RecordType<TLCanvasStorage, never>;
+
+// @public (undocumented)
+export const canvasStorageValidator: T.Validator<TLCanvasStorage>;
+
 // @public
 export const canvasUiColorTypeValidator: T.Validator<"accent" | "black" | "laser" | "muted-1" | "selection-fill" | "selection-stroke" | "white">;
 
@@ -158,9 +164,10 @@ export function createShapeValidator<Type extends string, Props extends JsonObje
 }): T.ObjectValidator<Expand<    { [P in "id" | "index" | "isLocked" | "meta" | "opacity" | "parentId" | "rotation" | "typeName" | "x" | "y" | (undefined extends Props ? never : "props") | (undefined extends Type ? never : "type")]: TLBaseShape<Type, Props>[P]; } & { [P_1 in (undefined extends Props ? "props" : never) | (undefined extends Type ? "type" : never)]?: TLBaseShape<Type, Props>[P_1] | undefined; }>>;
 
 // @public
-export function createTLSchema({ shapes, bindings, migrations, }?: {
+export function createTLSchema({ shapes, bindings, records, migrations, }?: {
     bindings?: Record<string, SchemaPropsInfo>;
     migrations?: readonly MigrationSequence[];
+    records?: Record<string, any>;
     shapes?: Record<string, SchemaPropsInfo>;
 }): TLSchema;
 
@@ -409,6 +416,9 @@ export function isBinding(record?: UnknownRecord): record is TLBinding;
 
 // @public (undocumented)
 export function isBindingId(id?: string): id is TLBindingId;
+
+// @public (undocumented)
+export function isCanvasStorage(record?: BaseRecord<string, RecordId<BaseRecord<any, any>>>): record is TLCanvasStorage;
 
 // @public (undocumented)
 export function isDocument(record?: UnknownRecord): record is TLDocument;
@@ -922,6 +932,20 @@ export interface TLCamera extends BaseRecord<'camera', TLCameraId> {
 
 // @public
 export type TLCameraId = RecordId<TLCamera>;
+
+// @public (undocumented)
+export const TLCANVAS_STORAGE_ID: TLCanvasStorageId;
+
+// @public
+export interface TLCanvasStorage extends BaseRecord<'canvas_storage', TLCanvasStorageId> {
+    // (undocumented)
+    global: Record<string, any>;
+    // (undocumented)
+    widgets: Record<string, Record<string, any>>;
+}
+
+// @public (undocumented)
+export type TLCanvasStorageId = RecordId<TLCanvasStorage>;
 
 // @public
 export type TLCanvasUiColor = SetValue<typeof TL_CANVAS_UI_COLOR_TYPES>;
@@ -1490,7 +1514,7 @@ export interface TLPropsMigrations {
 }
 
 // @public (undocumented)
-export type TLRecord = TLAsset | TLBinding | TLCamera | TLDocument | TLInstance | TLInstancePageState | TLInstancePresence | TLPage | TLPointer | TLShape;
+export type TLRecord = TLAsset | TLBinding | TLCamera | TLCanvasStorage | TLDocument | TLInstance | TLInstancePageState | TLInstancePresence | TLPage | TLPointer | TLShape;
 
 // @public (undocumented)
 export type TLRichText = T.TypeOf<typeof richTextValidator>;
