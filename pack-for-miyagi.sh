@@ -55,7 +55,7 @@ done
 echo "📋 Copying packages to Miyagi3..."
 
 # Copy to Miyagi3 vendor directory
-MIYAGI_VENDOR="/Users/donalddellapietra/GitHub/Miyagi3/vendor"
+MIYAGI_VENDOR="/Users/mihai/Desktop/Miyagi/vendor"
 mkdir -p "$MIYAGI_VENDOR"
 
 cp "packages/tldraw/package.tgz" "$MIYAGI_VENDOR/tldraw.tgz"
