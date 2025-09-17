@@ -44,10 +44,34 @@ export async function exportAs(
 	}
 	name += `.${opts.format}`
 
-	const { blob } = await editor.toImage(ids, {
-		...opts,
-		embedFonts: opts.embedFonts ?? false, // Default to false to avoid font loading issues
-	})
+	let blob: Blob
+
+	if (opts.format === 'png') {
+		// Use SVG → Canvas → PNG pipeline for better results
+		const svgResult = await editor.getSvgString(ids, {
+			...opts,
+			embedFonts: false, // Avoid font loading issues
+			padding: (opts.padding || 32) + 16, // Add extra padding to prevent text cutoff
+		})
+
+		if (!svgResult) throw new Error('Failed to generate SVG')
+
+		// Convert SVG to PNG via Canvas
+		blob = await svgToPng(svgResult.svg, {
+			width: svgResult.width,
+			height: svgResult.height,
+			scale: opts.scale || 1,
+			background: opts.background ?? true,
+		})
+	} else {
+		// Use original method for other formats (SVG, etc.)
+		const result = await editor.toImage(ids, {
+			...opts,
+			embedFonts: opts.embedFonts ?? false, // Default to false to avoid font loading issues
+		})
+		blob = result.blob
+	}
+
 	const file = new File([blob], name, { type: blob.type })
 	downloadFile(file)
 }
@@ -63,6 +87,77 @@ function getTimestamp() {
 	const seconds = String(now.getSeconds()).padStart(2, '0')
 
 	return `${year}-${month}-${day} ${hours}.${minutes}.${seconds}`
+}
+
+/**
+ * Convert SVG string to PNG blob using Canvas
+ * @internal
+ */
+async function svgToPng(
+	svgString: string,
+	options: {
+		width: number
+		height: number
+		scale: number
+		background: boolean
+	}
+): Promise<Blob> {
+	const { width, height, scale, background } = options
+
+	return new Promise((resolve, reject) => {
+		const canvas = document.createElement('canvas')
+		const ctx = canvas.getContext('2d')!
+
+		// Add extra padding to prevent any cutoff issues
+		const extraPadding = 20
+		const finalWidth = (width + extraPadding * 2) * scale
+		const finalHeight = (height + extraPadding * 2) * scale
+
+		// Set canvas size with scale and extra padding
+		canvas.width = finalWidth
+		canvas.height = finalHeight
+
+		// Set background if needed
+		if (background) {
+			ctx.fillStyle = '#ffffff'
+			ctx.fillRect(0, 0, canvas.width, canvas.height)
+		}
+
+		// Create image from SVG
+		const img = new Image()
+
+		img.onload = () => {
+			// Clean up URL
+			URL.revokeObjectURL(url)
+
+			// Draw SVG to canvas with extra padding offset
+			const paddingOffset = extraPadding * scale
+			ctx.drawImage(img, paddingOffset, paddingOffset, width * scale, height * scale)
+
+			// Convert canvas to PNG blob
+			canvas.toBlob(
+				(blob) => {
+					if (blob) {
+						resolve(blob)
+					} else {
+						reject(new Error('Failed to convert canvas to blob'))
+					}
+				},
+				'image/png',
+				1.0
+			)
+		}
+
+		img.onerror = () => {
+			URL.revokeObjectURL(url)
+			reject(new Error('Failed to load SVG'))
+		}
+
+		// Convert SVG to data URL and load it
+		const svgBlob = new Blob([svgString], { type: 'image/svg+xml' })
+		const url = URL.createObjectURL(svgBlob)
+		img.src = url
+	})
 }
 
 /** @internal */
