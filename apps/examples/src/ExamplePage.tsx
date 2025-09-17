@@ -178,8 +178,10 @@ function ExampleSidebarListItem({
 
 	return (
 		<li ref={ref} className="examples__sidebar__item" data-active={isActive}>
-			<Link to={example.path} className="examples__sidebar__item__link">
-				<span className="examples__sidebar__item__title">{example.title}</span>
+			<div className="examples__sidebar__item__container">
+				<Link to={example.path} className="examples__sidebar__item__link">
+					<span className="examples__sidebar__item__title">{example.title}</span>
+				</Link>
 				{isActive && (
 					<div className="example__sidebar__item__buttons">
 						<button
@@ -199,7 +201,7 @@ function ExampleSidebarListItem({
 						</Link>
 					</div>
 				)}
-			</Link>
+			</div>
 		</li>
 	)
 }

@@ -2,14 +2,16 @@
 
 import {
 	AlignCenter,
+	AlignJustify,
 	AlignLeft,
 	AlignRight,
 	Bold,
-	ChevronDown,
+	Brush,
+	CornerDownRight,
+	FileText,
 	Italic,
-	Minus,
 	Palette,
-	Plus,
+	Type,
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { SketchPicker } from 'react-color'
@@ -24,7 +26,10 @@ export interface VerticalFormattingBarProps {
 export function VerticalFormattingBar({ isVisible }: VerticalFormattingBarProps) {
 	const [showColorPicker, setShowColorPicker] = useState<string | null>(null)
 	const [showFontDropdown, setShowFontDropdown] = useState(false)
+	const [showFontSizeDropdown, setShowFontSizeDropdown] = useState(false)
+	const [showAlignmentDropdown, setShowAlignmentDropdown] = useState(false)
 	const [showStrokeWidthDropdown, setShowStrokeWidthDropdown] = useState(false)
+	const [showCornerRadiusDropdown, setShowCornerRadiusDropdown] = useState(false)
 	const [pendingTextColor, setPendingTextColor] = useState<string>('#000000')
 	const [pendingBackgroundColor, setPendingBackgroundColor] = useState<string>('#ffffff')
 	const [pendingStrokeColor, setPendingStrokeColor] = useState<string>('#000000')
@@ -36,6 +41,9 @@ export function VerticalFormattingBar({ isVisible }: VerticalFormattingBarProps)
 	const strokeColorPickerRef = useRef<HTMLDivElement>(null)
 	const strokeWidthDropdownRef = useRef<HTMLDivElement>(null)
 	const fontDropdownRef = useRef<HTMLDivElement>(null)
+	const fontSizeDropdownRef = useRef<HTMLDivElement>(null)
+	const alignmentDropdownRef = useRef<HTMLDivElement>(null)
+	const cornerRadiusDropdownRef = useRef<HTMLDivElement>(null)
 	// Use the new hook structure
 	const { manager: formattingManager, state: formattingState } = useCustomFormattingManager()
 
@@ -174,9 +182,24 @@ export function VerticalFormattingBar({ isVisible }: VerticalFormattingBarProps)
 				setShowFontDropdown(false)
 			}
 
+			// Close font size dropdown on outside click
+			if (fontSizeDropdownRef.current && !fontSizeDropdownRef.current.contains(target)) {
+				setShowFontSizeDropdown(false)
+			}
+
+			// Close alignment dropdown on outside click
+			if (alignmentDropdownRef.current && !alignmentDropdownRef.current.contains(target)) {
+				setShowAlignmentDropdown(false)
+			}
+
 			// Close stroke width dropdown on outside click
 			if (strokeWidthDropdownRef.current && !strokeWidthDropdownRef.current.contains(target)) {
 				setShowStrokeWidthDropdown(false)
+			}
+
+			// Close corner radius dropdown on outside click
+			if (cornerRadiusDropdownRef.current && !cornerRadiusDropdownRef.current.contains(target)) {
+				setShowCornerRadiusDropdown(false)
 			}
 		}
 
@@ -283,56 +306,54 @@ export function VerticalFormattingBar({ isVisible }: VerticalFormattingBarProps)
 			{showTextFormatting && (
 				<>
 					{/* Font Size Controls */}
-					<div className="font-size-controls">
+					{/* Font Size */}
+					<div className="font-size-control" ref={fontSizeDropdownRef}>
 						<button
-							className="formatting-button"
-							title="Increase Font Size"
-							onClick={() => {
-								const currentSize = formattingManager.getCurrentFontSize()
-								const newSize = Math.min(currentSize + 2, 72)
-								setFontSize(newSize.toString())
-								formattingManager.text.setSize(`${newSize}px`)
-							}}
+							className={`formatting-button ${showFontSizeDropdown ? 'active' : ''}`}
+							title="Font Size"
+							onClick={() => setShowFontSizeDropdown(!showFontSizeDropdown)}
 						>
-							<Plus size={14} />
+							<Type size={16} />
 						</button>
-						<div className="font-size-display">{fontSize}px</div>
-						<button
-							className="formatting-button"
-							title="Decrease Font Size"
-							onClick={() => {
-								const currentSize = formattingManager.getCurrentFontSize()
-								const newSize = Math.max(currentSize - 2, 8)
-								setFontSize(newSize.toString())
-								formattingManager.text.setSize(`${newSize}px`)
-							}}
-						>
-							<Minus size={14} />
-						</button>
+						{showFontSizeDropdown && (
+							<div className="font-size-popup">
+								<div className="font-size-grid">
+									{[8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 64, 72].map((size) => (
+										<button
+											key={size}
+											className={`font-size-option ${parseInt(fontSize) === size ? 'selected' : ''}`}
+											onClick={() => {
+												setFontSize(size.toString())
+												formattingManager.text.setSize(`${size}px`)
+												setShowFontSizeDropdown(false)
+											}}
+										>
+											{size}
+										</button>
+									))}
+								</div>
+							</div>
+						)}
 					</div>
 
 					{/* Font Family */}
-					<div className="font-family-dropdown" ref={fontDropdownRef}>
+					<div className="font-family-control" ref={fontDropdownRef}>
 						<button
-							onClick={() => setShowFontDropdown(!showFontDropdown)}
-							className="font-family-button"
+							className={`formatting-button ${showFontDropdown ? 'active' : ''}`}
 							title="Font Family"
+							onClick={() => setShowFontDropdown(!showFontDropdown)}
 						>
-							<ChevronDown size={14} />
-							<div className="font-family-text">
-								{fontOptions.find((f) => f.value === formattingManager.getCurrentFontFamily())
-									?.label || 'Sans'}
-							</div>
+							<FileText size={16} />
 						</button>
 						{showFontDropdown && (
-							<div className="font-dropdown-menu">
-								<div className="font-dropdown-content">
+							<div className="font-family-popup">
+								<div className="font-family-list">
 									{fontOptions.map((font) => (
 										<button
 											key={font.value}
 											onClick={() => handleFontChange(font.value)}
-											className={`font-option ${
-												formattingManager.getCurrentFontFamily() === font.value ? 'active' : ''
+											className={`font-family-option ${
+												formattingManager.getCurrentFontFamily() === font.value ? 'selected' : ''
 											}`}
 											style={{ fontFamily: font.family }}
 										>
@@ -343,9 +364,6 @@ export function VerticalFormattingBar({ isVisible }: VerticalFormattingBarProps)
 							</div>
 						)}
 					</div>
-
-					{/* Divider */}
-					<div className="divider"></div>
 
 					{/* Text Style Controls - FUNCTIONAL */}
 					<button
@@ -372,36 +390,52 @@ export function VerticalFormattingBar({ isVisible }: VerticalFormattingBarProps)
 						<span style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>{'</>'}</span>
 					</button>
 
-					{/* Divider */}
-					<div className="divider"></div>
-
-					{/* Text Alignment - Now Functional */}
-					<button
-						onClick={() => formattingManager.text.alignLeft()}
-						className={`formatting-button ${formattingState.textAlign === 'start' ? 'active' : ''}`}
-						title="Align Left"
-					>
-						<AlignLeft size={14} />
-					</button>
-
-					<button
-						onClick={() => formattingManager.text.alignCenter()}
-						className={`formatting-button ${formattingState.textAlign === 'middle' ? 'active' : ''}`}
-						title="Align Center"
-					>
-						<AlignCenter size={14} />
-					</button>
-
-					<button
-						onClick={() => formattingManager.text.alignRight()}
-						className={`formatting-button ${formattingState.textAlign === 'end' ? 'active' : ''}`}
-						title="Align Right"
-					>
-						<AlignRight size={14} />
-					</button>
-
-					{/* Divider */}
-					<div className="divider"></div>
+					{/* Text Alignment */}
+					<div className="alignment-control" ref={alignmentDropdownRef}>
+						<button
+							className={`formatting-button ${showAlignmentDropdown ? 'active' : ''}`}
+							title="Text Alignment"
+							onClick={() => setShowAlignmentDropdown(!showAlignmentDropdown)}
+						>
+							<AlignJustify size={16} />
+						</button>
+						{showAlignmentDropdown && (
+							<div className="alignment-popup">
+								<div className="alignment-options">
+									<button
+										className={`alignment-option ${formattingState.textAlign === 'start' ? 'selected' : ''}`}
+										onClick={() => {
+											formattingManager.text.alignLeft()
+											setShowAlignmentDropdown(false)
+										}}
+										title="Align Left"
+									>
+										<AlignLeft size={16} />
+									</button>
+									<button
+										className={`alignment-option ${formattingState.textAlign === 'middle' ? 'selected' : ''}`}
+										onClick={() => {
+											formattingManager.text.alignCenter()
+											setShowAlignmentDropdown(false)
+										}}
+										title="Align Center"
+									>
+										<AlignCenter size={16} />
+									</button>
+									<button
+										className={`alignment-option ${formattingState.textAlign === 'end' ? 'selected' : ''}`}
+										onClick={() => {
+											formattingManager.text.alignRight()
+											setShowAlignmentDropdown(false)
+										}}
+										title="Align Right"
+									>
+										<AlignRight size={16} />
+									</button>
+								</div>
+							</div>
+						)}
+					</div>
 
 					{/* Text Color - FUNCTIONAL */}
 					<div className="color-picker-container" ref={colorPickerRef}>
@@ -531,30 +565,42 @@ export function VerticalFormattingBar({ isVisible }: VerticalFormattingBarProps)
 
 			{/* Stroke Width - show when shapes are selected */}
 			{showShapeFormatting && (
-				<div className="stroke-width-dropdown" ref={strokeWidthDropdownRef}>
+				<div className="stroke-width-control" ref={strokeWidthDropdownRef}>
 					<button
-						onClick={() => setShowStrokeWidthDropdown(!showStrokeWidthDropdown)}
-						className="stroke-width-button"
+						className={`formatting-button ${showStrokeWidthDropdown ? 'active' : ''}`}
 						title="Stroke Width"
+						onClick={() => setShowStrokeWidthDropdown(!showStrokeWidthDropdown)}
 					>
-						<ChevronDown size={14} />
-						<div className="stroke-width-text">
-							{strokeWidthOptions.find((w) => w.value === formattingManager.getCurrentStrokeWidth())
-								?.label || 'M'}
-						</div>
+						<Brush size={16} />
 					</button>
 					{showStrokeWidthDropdown && (
-						<div className="stroke-width-dropdown-menu">
-							<div className="stroke-width-dropdown-content">
+						<div className="stroke-width-popup">
+							<div className="stroke-width-options">
 								{strokeWidthOptions.map((width) => (
 									<button
 										key={width.value}
 										onClick={() => handleStrokeWidthChange(width.value)}
 										className={`stroke-width-option ${
-											formattingManager.getCurrentStrokeWidth() === width.value ? 'active' : ''
+											formattingManager.getCurrentStrokeWidth() === width.value ? 'selected' : ''
 										}`}
+										title={`${width.label} (${width.value})`}
 									>
-										{width.label}
+										<div
+											className="stroke-preview"
+											style={{
+												height:
+													width.value === 's'
+														? '1px'
+														: width.value === 'm'
+															? '2px'
+															: width.value === 'l'
+																? '4px'
+																: '6px',
+												backgroundColor: '#000',
+												width: '24px',
+												borderRadius: '1px',
+											}}
+										/>
 									</button>
 								))}
 							</div>
@@ -565,52 +611,37 @@ export function VerticalFormattingBar({ isVisible }: VerticalFormattingBarProps)
 
 			{/* Corner Radius - show only when rectangles are selected */}
 			{showCornerRadius && (
-				<div className="corner-radius-control">
-					<div
-						className="corner-radius-label"
-						onClick={() => {
-							// Force popup to stay open when clicking CR button
-							const popup = document.querySelector('.corner-radius-popup-slider') as HTMLElement
-							if (popup) {
-								popup.style.display = 'flex'
-							}
-						}}
-						style={{ cursor: 'pointer' }}
+				<div className="corner-radius-control" ref={cornerRadiusDropdownRef}>
+					<button
+						className={`formatting-button ${showCornerRadiusDropdown ? 'active' : ''}`}
+						title="Corner Radius"
+						onClick={() => setShowCornerRadiusDropdown(!showCornerRadiusDropdown)}
 					>
-						CR
-					</div>
-					<div className="corner-radius-slider-container">
-						<div className="corner-radius-value">
-							{formattingManager.getCurrentCornerRadius() || 0}
-						</div>
-
-						{/* Popup Slider */}
-						<div className="corner-radius-popup-slider">
-							<div className="custom-slider">
-								<div className="slider-track">
-									<div
-										className="slider-fill"
-										style={{
-											width: `${((formattingManager.getCurrentCornerRadius() || 0) / formattingManager.getMaxCornerRadius()) * 100}%`,
+						<CornerDownRight size={16} />
+					</button>
+					{showCornerRadiusDropdown && (
+						<div className="corner-radius-popup">
+							<div className="corner-radius-slider-wrapper">
+								<div className="corner-radius-slider">
+									<input
+										type="range"
+										min="0"
+										max={formattingManager.getMaxCornerRadius()}
+										step="1"
+										value={formattingManager.getCurrentCornerRadius() || 0}
+										onChange={(e) => {
+											const value = parseFloat(e.target.value)
+											formattingManager.setCornerRadius(value)
 										}}
-									></div>
+										className="radius-slider"
+									/>
 								</div>
-								<input
-									type="range"
-									min="0"
-									max={formattingManager.getMaxCornerRadius()}
-									step="1"
-									value={formattingManager.getCurrentCornerRadius() || 0}
-									onChange={(e) => {
-										const value = parseFloat(e.target.value)
-										formattingManager.setCornerRadius(value)
-									}}
-									className="slider-input"
-									title="Corner Radius"
-								/>
+								<div className="corner-radius-value">
+									{formattingManager.getCurrentCornerRadius() || 0}px
+								</div>
 							</div>
 						</div>
-					</div>
+					)}
 				</div>
 			)}
 		</div>
