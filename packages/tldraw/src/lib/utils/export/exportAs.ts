@@ -158,9 +158,6 @@ async function svgToPng(
 		const img = new Image()
 
 		img.onload = () => {
-			// Clean up URL
-			URL.revokeObjectURL(url)
-
 			// Draw SVG to canvas with extra padding offset
 			const paddingOffset = extraPadding * scale
 			ctx.drawImage(img, paddingOffset, paddingOffset, width * scale, height * scale)
@@ -180,14 +177,12 @@ async function svgToPng(
 		}
 
 		img.onerror = () => {
-			URL.revokeObjectURL(url)
 			reject(new Error('Failed to load SVG'))
 		}
 
-		// Convert SVG to data URL and load it
-		const svgBlob = new Blob([svgString], { type: 'image/svg+xml' })
-		const url = URL.createObjectURL(svgBlob)
-		img.src = url
+		// Convert SVG to data URL (avoids CORS/tainted canvas issues)
+		const svgDataUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)))
+		img.src = svgDataUrl
 	})
 }
 
