@@ -221,6 +221,16 @@ li.examples__sidebar__item {
 
 /* -------------------- List Item ------------------- */
 
+.examples__sidebar__item__container {
+	display: flex;
+	align-items: center;
+	width: 100%;
+}
+
+.examples__sidebar__item__link {
+	flex: 1;
+}
+
 .example__sidebar__item__buttons {
 	display: flex;
 	flex-direction: row;
