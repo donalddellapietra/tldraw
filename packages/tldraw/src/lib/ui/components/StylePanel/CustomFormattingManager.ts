@@ -1383,39 +1383,39 @@ export class CustomFormattingManager {
 		})
 	}
 
-	// Apply custom text color to a text shape
+	// Apply custom text color to a text shape - FIXED for SVG export
 	private applyCustomTextColorToTextShape(shapeId: TLShapeId, color: string) {
-		const shapeElement = document.querySelector(`[data-shape-id="${shapeId}"]`)
-		if (!shapeElement) return
+		const shape = this.editor.getShape(shapeId)
+		if (!shape || shape.type !== 'text') return
 
-		// Find text elements within the shape
-		const textElements = shapeElement.querySelectorAll('.tl-text-content, .tl-rich-text')
-		if (textElements.length === 0) return
+		console.log(`🔧 Updating text shape ${shapeId} with textColor property:`, color)
 
-		console.log(`🔧 Applying custom text color ${color} to text shape ${shapeId}`)
-
-		// Apply the color to text elements
-		textElements.forEach((textElement) => {
-			const element = textElement as HTMLElement
-			element.style.color = color
+		// Update the shape's properties instead of DOM manipulation
+		this.editor.updateShape({
+			id: shapeId,
+			type: 'text',
+			props: {
+				...shape.props,
+				textColor: color, // This will be exported to SVG
+			},
 		})
 	}
 
-	// Apply custom text color to a geo shape
+	// Apply custom text color to a geo shape - FIXED for SVG export
 	private applyCustomTextColorToGeoShape(shapeId: TLShapeId, color: string) {
-		const shapeElement = document.querySelector(`[data-shape-id="${shapeId}"]`)
-		if (!shapeElement) return
+		const shape = this.editor.getShape(shapeId)
+		if (!shape || shape.type !== 'geo') return
 
-		// Find text elements within the geo shape
-		const textElements = shapeElement.querySelectorAll('.tl-text-content, .tl-rich-text')
-		if (textElements.length === 0) return
+		console.log(`🔧 Updating geo shape ${shapeId} with textColor property:`, color)
 
-		console.log(`🔧 Applying custom text color ${color} to geo shape ${shapeId}`)
-
-		// Apply the color to text elements
-		textElements.forEach((textElement) => {
-			const element = textElement as HTMLElement
-			element.style.color = color
+		// Update the shape's properties instead of DOM manipulation
+		this.editor.updateShape({
+			id: shapeId,
+			type: 'geo',
+			props: {
+				...shape.props,
+				textColor: color, // This will be exported to SVG
+			},
 		})
 	}
 }

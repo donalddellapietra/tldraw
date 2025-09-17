@@ -44,7 +44,10 @@ export async function exportAs(
 	}
 	name += `.${opts.format}`
 
-	const { blob } = await editor.toImage(ids, opts)
+	const { blob } = await editor.toImage(ids, {
+		...opts,
+		embedFonts: opts.embedFonts ?? false, // Default to false to avoid font loading issues
+	})
 	const file = new File([blob], name, { type: blob.type })
 	downloadFile(file)
 }

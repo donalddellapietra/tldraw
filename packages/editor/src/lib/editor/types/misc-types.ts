@@ -56,6 +56,12 @@ export interface TLSvgExportOptions {
 	 * attribute of the SVG element.
 	 */
 	preserveAspectRatio?: React.SVGAttributes<SVGSVGElement>['preserveAspectRatio']
+
+	/**
+	 * Should fonts be embedded in the SVG? If false, the SVG will use system fonts.
+	 * Defaults to true, but can be disabled to avoid font loading issues in development.
+	 */
+	embedFonts?: boolean
 }
 
 /** @public */
