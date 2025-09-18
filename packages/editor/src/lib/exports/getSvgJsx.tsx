@@ -46,6 +46,7 @@ export function getSvgJsx(editor: Editor, ids: TLShapeId[], opts: TLImageExportO
 		background = editor.getInstanceState().exportBackground,
 		padding = editor.options.defaultSvgPadding,
 		preserveAspectRatio,
+		embedFonts = true,
 	} = opts
 
 	const isDarkMode = opts.darkMode ?? editor.user.getIsDarkMode()
@@ -98,6 +99,7 @@ export function getSvgJsx(editor: Editor, ids: TLShapeId[], opts: TLImageExportO
 			singleFrameShapeId={singleFrameShapeId}
 			isDarkMode={isDarkMode}
 			renderingShapes={renderingShapes}
+			embedFonts={embedFonts}
 			onMount={initialEffectPromise.resolve}
 			waitUntil={exportDelay.waitUntil}
 		>
@@ -187,6 +189,7 @@ function SvgExport({
 	singleFrameShapeId,
 	isDarkMode,
 	renderingShapes,
+	embedFonts,
 	onMount,
 	waitUntil,
 }: {
@@ -199,6 +202,7 @@ function SvgExport({
 	singleFrameShapeId: TLShapeId | null
 	isDarkMode: boolean
 	renderingShapes: TLRenderingShape[]
+	embedFonts: boolean
 	onMount(): void
 	waitUntil(promise: Promise<void>): void
 }) {
@@ -400,6 +404,9 @@ function SvgExport({
 	}, [bbox, editor, exportContext, masksId, renderingShapes, singleFrameShapeId, stateAtom])
 
 	useEffect(() => {
+		// Only embed fonts if the option is enabled
+		if (!embedFonts) return
+
 		const fontsInUse = new Set<TLFontFace>()
 		for (const { id } of renderingShapes) {
 			for (const font of editor.fonts.getShapeFontFaces(id)) {
@@ -416,7 +423,7 @@ function SvgExport({
 				},
 			})
 		}
-	}, [editor, renderingShapes, addExportDef])
+	}, [editor, renderingShapes, addExportDef, embedFonts])
 
 	useEffect(() => {
 		if (shapeElements === null) return

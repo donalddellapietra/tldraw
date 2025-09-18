@@ -341,7 +341,19 @@ export class GeoShapeUtil extends BaseBoxShapeUtil<TLGeoShape> {
 					align={exportAlign}
 					verticalAlign={props.verticalAlign}
 					richText={props.richText}
-					labelColor={getColorValue(theme, props.labelColor, 'solid')}
+					labelColor={(function () {
+						// Use the new separate textColor property first (may not exist on old shapes yet)
+						const textColor = (shape.props as any).textColor
+						if (textColor) {
+							if (typeof textColor === 'string' && textColor.startsWith('#')) {
+								return textColor
+							}
+							return getColorValue(theme, textColor, 'solid')
+						}
+
+						// Fallback to old labelColor property for backward compatibility
+						return getColorValue(theme, props.labelColor, 'solid')
+					})()}
 					bounds={bounds}
 					padding={LABEL_PADDING}
 				/>

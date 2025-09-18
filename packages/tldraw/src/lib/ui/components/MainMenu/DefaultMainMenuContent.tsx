@@ -1,13 +1,13 @@
+import { useEditor, useValue } from '@tldraw/editor'
 import { useCanRedo, useCanUndo } from '../../hooks/menu-hooks'
 import { AccessibilityMenu } from '../AccessibilityMenu'
-import { ColorSchemeMenu } from '../ColorSchemeMenu'
 import { KeyboardShortcutsMenuItem } from '../HelpMenu/DefaultHelpMenuContent'
-import { LanguageMenu } from '../LanguageMenu'
 import {
 	ClipboardMenuGroup,
-	ConversionsMenuGroup,
 	ConvertToBookmarkMenuItem,
 	ConvertToEmbedMenuItem,
+	CopyAsMenuGroup,
+	DownloadOriginalMenuItem,
 	EditLinkMenuItem,
 	FitFrameToContentMenuItem,
 	FlattenMenuItem,
@@ -34,6 +34,7 @@ import {
 } from '../menu-items'
 import { TldrawUiMenuActionItem } from '../primitives/menus/TldrawUiMenuActionItem'
 import { TldrawUiMenuGroup } from '../primitives/menus/TldrawUiMenuGroup'
+import { TldrawUiMenuItem } from '../primitives/menus/TldrawUiMenuItem'
 import { TldrawUiMenuSubmenu } from '../primitives/menus/TldrawUiMenuSubmenu'
 
 /** @public @react */
@@ -53,11 +54,28 @@ export function DefaultMainMenuContent() {
 
 /** @public @react */
 export function ExportFileContentSubMenu() {
+	const editor = useEditor()
+
 	return (
 		<TldrawUiMenuSubmenu id="export-all-as" label="context-menu.export-all-as" size="small">
 			<TldrawUiMenuGroup id="export-all-as-group">
 				<TldrawUiMenuActionItem actionId="export-all-as-svg" />
 				<TldrawUiMenuActionItem actionId="export-all-as-png" />
+				<TldrawUiMenuItem
+					id="export-canvas"
+					label="Canvas"
+					icon="save"
+					onSelect={() => {
+						const data = editor.store.serialize()
+						const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+						const url = URL.createObjectURL(blob)
+						const a = document.createElement('a')
+						a.href = url
+						a.download = `canvas.tldr`
+						a.click()
+						URL.revokeObjectURL(url)
+					}}
+				/>
 			</TldrawUiMenuGroup>
 			<TldrawUiMenuGroup id="export-all-as-bg">
 				<ToggleTransparentBgMenuItem />
@@ -72,7 +90,7 @@ export function EditSubmenu() {
 		<TldrawUiMenuSubmenu id="edit" label="menu.edit">
 			<UndoRedoGroup />
 			<ClipboardMenuGroup />
-			<ConversionsMenuGroup />
+			<CustomConversionsGroupWithoutExport />
 			<MiscMenuGroup />
 			<LockGroup />
 			<TldrawUiMenuGroup id="select-all">
@@ -146,6 +164,27 @@ export function ExtrasGroup() {
 	)
 }
 
+/* ------------------- Custom Conversions (without Export) ------------------ */
+
+/** Custom conversions group that includes Copy As but excludes Export As */
+function CustomConversionsGroupWithoutExport() {
+	const editor = useEditor()
+	const atLeastOneShapeOnPage = useValue(
+		'atLeastOneShapeOnPage',
+		() => editor.getCurrentPageShapeIds().size > 0,
+		[editor]
+	)
+
+	if (!atLeastOneShapeOnPage) return null
+
+	return (
+		<TldrawUiMenuGroup id="conversions">
+			<CopyAsMenuGroup />
+			<DownloadOriginalMenuItem />
+		</TldrawUiMenuGroup>
+	)
+}
+
 /* ------------------- Preferences ------------------ */
 
 /** @public @react */
@@ -164,14 +203,10 @@ export function PreferencesGroup() {
 					<TogglePasteAtCursorItem />
 					<ToggleDebugModeItem />
 				</TldrawUiMenuGroup>
-				<TldrawUiMenuGroup id="color-scheme">
-					<ColorSchemeMenu />
-				</TldrawUiMenuGroup>
 				<TldrawUiMenuGroup id="accessibility-menu">
 					<AccessibilityMenu />
 				</TldrawUiMenuGroup>
 			</TldrawUiMenuSubmenu>
-			<LanguageMenu />
 			<KeyboardShortcutsMenuItem />
 		</TldrawUiMenuGroup>
 	)
