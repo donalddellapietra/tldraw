@@ -272,10 +272,34 @@ export function ActionsProvider({ overrides, children }: ActionsProviderProps) {
 				},
 				readonlyOk: true,
 				onSelect(source) {
-					const ids = Array.from(editor.getCurrentPageShapeIds().values())
-					if (ids.length === 0) return
-					trackEvent('export-all-as', { format: 'png', source })
-					helpers.exportAs(ids, { format: 'png', name: getExportName(editor, defaultDocumentName) })
+					try {
+						if (typeof (window as any).miyagiExportPNG === 'function') {
+							;(window as any).miyagiExportPNG()
+							trackEvent('export-all-as', { format: 'png', source })
+						} else {
+							console.error(
+								'miyagiExportPNG function not found on window, falling back to default export'
+							)
+							// Fallback to original functionality if miyagiExportPNG is not available
+							const ids = Array.from(editor.getCurrentPageShapeIds().values())
+							if (ids.length === 0) return
+							trackEvent('export-all-as', { format: 'png', source })
+							helpers.exportAs(ids, {
+								format: 'png',
+								name: getExportName(editor, defaultDocumentName),
+							})
+						}
+					} catch (error) {
+						console.error('Failed to export Miyagi PNG, falling back to default:', error)
+						// Fallback to original functionality on error
+						const ids = Array.from(editor.getCurrentPageShapeIds().values())
+						if (ids.length === 0) return
+						trackEvent('export-all-as', { format: 'png', source })
+						helpers.exportAs(ids, {
+							format: 'png',
+							name: getExportName(editor, defaultDocumentName),
+						})
+					}
 				},
 			},
 			{

@@ -340,6 +340,9 @@ export class ArrowShapeUtil extends ShapeUtil<TLArrowShape> {
     static type: "arrow";
 }
 
+// @public (undocumented)
+export function ArrowStylePickerSet({ styles }: StylePickerSetProps): JSX_2.Element | null;
+
 // @public
 export interface ArrowTargetState {
     // (undocumented)
@@ -378,9 +381,6 @@ export interface ArrowTargetState {
     // (undocumented)
     target: TLShape;
 }
-
-// @public (undocumented)
-export function ArrowStylePickerSet({ styles }: StylePickerSetProps): JSX_2.Element | null;
 
 // @public (undocumented)
 export function ArrowToolbarItem(): JSX_2.Element;
