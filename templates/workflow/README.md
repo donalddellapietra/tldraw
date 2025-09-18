@@ -13,7 +13,7 @@ Install dependencies with `yarn` or `npm install`.
 
 Run the development server with `yarn dev` or `npm run dev`.
 
-Open `http://localhost:5173/` in your browser to see the app.
+Open `http://localhost:5173/` in your browser to see the app .
 
 ## Overview
 
