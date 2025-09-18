@@ -442,18 +442,25 @@ export { DefaultQuickActionsContent } from './lib/ui/components/QuickActions/Def
 export { DefaultSharePanel } from './lib/ui/components/SharePanel/DefaultSharePanel'
 export { PeopleMenu, type PeopleMenuProps } from './lib/ui/components/SharePanel/PeopleMenu'
 export { Spinner } from './lib/ui/components/Spinner'
-export {
-	DefaultStylePanel,
-	type TLUiStylePanelProps,
-} from './lib/ui/components/StylePanel/DefaultStylePanel'
+export { useCustomFormattingManager, VerticalFormattingBar } from './lib/ui/components/StylePanel'
 export {
 	CustomStylePanel,
 	type TLUiCustomStylePanelProps,
 } from './lib/ui/components/StylePanel/CustomStylePanel'
 export {
+	CustomStylePanelContent,
+	type TLUiCustomStylePanelContentProps,
+} from './lib/ui/components/StylePanel/CustomStylePanelContent'
+export {
+	DefaultStylePanel,
+	type TLUiStylePanelProps,
+} from './lib/ui/components/StylePanel/DefaultStylePanel'
+export {
 	ArrowheadStylePickerSet,
-	CommonStylePickerSet,
+	ArrowStylePickerSet,
 	DefaultStylePanelContent,
+	GeoStylePickerSet,
+	SplineStylePickerSet,
 	StylePanelArrowheadPicker,
 	StylePanelArrowKindPicker,
 	StylePanelColorPicker,
@@ -463,20 +470,14 @@ export {
 	StylePanelGeoShapePicker,
 	StylePanelLabelAlignPicker,
 	StylePanelOpacityPicker,
-	StylePanelSection,
 	StylePanelSizePicker,
 	StylePanelSplinePicker,
 	StylePanelTextAlignPicker,
-	type StylePanelSectionProps,
+	TextStylePickerSet,
+	type StylePickerSetProps,
+	type ThemeStylePickerSetProps,
+	type TLUiStylePanelContentProps,
 } from './lib/ui/components/StylePanel/DefaultStylePanelContent'
-export {
-	CustomStylePanelContent,
-	type TLUiCustomStylePanelContentProps,
-} from './lib/ui/components/StylePanel/CustomStylePanelContent'
-export {
-	VerticalFormattingBar,
-	useCustomFormattingManager,
-} from './lib/ui/components/StylePanel'
 export {
 	DefaultImageToolbar,
 	type TLUiImageToolbarProps,

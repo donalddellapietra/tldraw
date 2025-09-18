@@ -66,7 +66,7 @@ export const DefaultStylePanel = memo(function DefaultStylePanel({
 				onPointerLeave={handlePointerOut}
 			>
 				<StylePanelContextProvider styles={styles}>
-					{children ?? <DefaultStylePanelContent />}
+					{children ?? <DefaultStylePanelContent styles={styles} />}
 				</StylePanelContextProvider>
 			</div>
 		)

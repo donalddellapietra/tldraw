@@ -15,13 +15,11 @@ import { TLUiTranslationKey } from '../../hooks/useTranslation/TLUiTranslationKe
 import { useTranslation } from '../../hooks/useTranslation/useTranslation'
 import { TldrawUiButtonIcon } from '../primitives/Button/TldrawUiButtonIcon'
 import {
-	TldrawUiToolbar,
 	TldrawUiToolbarToggleGroup,
 	TldrawUiToolbarToggleItem,
 } from '../primitives/TldrawUiToolbar'
 import { TldrawUiGrid, TldrawUiRow } from '../primitives/layout'
 import { useStylePanelContext } from './StylePanelContext'
-import { StylePanelSubheading } from './StylePanelSubheading'
 
 /** @public */
 export interface StylePanelButtonPickerProps<T extends string> {
@@ -126,7 +124,7 @@ export const StylePanelButtonPicker = memo(function StylePanelButtonPicker<T ext
 	const Layout = items.length > 4 ? TldrawUiGrid : TldrawUiRow
 
 	return (
-		<Wrapper asChild>
+		<Layout>
 			<TldrawUiToolbarToggleGroup
 				data-testid={`style.${uiType}`}
 				type="single"
@@ -160,6 +158,6 @@ export const StylePanelButtonPicker = memo(function StylePanelButtonPicker<T ext
 					)
 				})}
 			</TldrawUiToolbarToggleGroup>
-		</Wrapper>
+		</Layout>
 	)
 }) as <T extends string>(props: StylePanelButtonPickerProps<T>) => ReactElement
